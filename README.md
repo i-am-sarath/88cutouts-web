@@ -111,15 +111,43 @@ Everything is editable from `/admin` (Sveltia CMS, GitHub backend). Publishing c
 Sticker images must be alpha-transparent PNGs. Letter cutouts should be roughly square
 (~200×200px source).
 
-## Before first deploy — placeholders to replace
+## Signing in to /admin
+
+Use **"Sign In with Token"** with a **classic** personal access token carrying the
+**`repo`** scope. Classic tokens are account-wide, so one token covers this repo and every
+other project — no per-repository setup.
+
+Do **not** use a fine-grained token restricted to selected repositories. It authenticates
+fine but fails the repo check with *"You don't have access to the 88cutouts-web
+repository"* — which looks like a config error and isn't one. The give-away: a fine-grained
+token returns an empty `x-oauth-scopes` header from `GET https://api.github.com/user`,
+where a classic token lists its scopes.
+
+Two things that catch people out:
+
+- The token is stored in **browser localStorage, per origin**. Signing in on
+  `localhost:4321` does not carry to the deployed Worker, and neither carries to
+  `88cutouts.com`. Expect to paste it once per origin.
+- No OAuth client is configured (`base_url` is commented out in `config.yml`), so the
+  token flow is the only way to edit remotely. Sveltia has no hosted OAuth default; the
+  Netlify fallback needs an app you never registered, which is why OAuth login fails.
+
+**Editing locally needs no token at all:** `npm run dev`, open
+`http://localhost:4321/admin/index.html` in Chrome or Edge (the File System Access API
+rules out Firefox and Safari), click **"Work with Local Repository"** and pick the project
+root. Changes land on disk; commit them yourself.
+
+## Before first deploy — remaining placeholders
 
 | File | What to set |
 | --- | --- |
-| `public/admin/config.yml` | `backend.repo` → `<github-user>/88cutouts` |
-| `public/admin/config.yml` | `backend.base_url` → your deployed `sveltia-cms-auth` Worker URL |
 | `src/components/AdSlot.astro` | AdSense `<ins>` unit — **only after the domain is approved** |
-| `public/stickers/*.png`, `public/ransom-letters/*.png` | Placeholder art shipped for the demo; replace with real assets via `/admin` |
-| `src/components/Footer.astro`, `src/pages/about.astro` | Contact email (`hello@88cutouts.com`) |
+| `src/components/Footer.astro`, `src/pages/about.astro`, `src/pages/privacy.astro` | Contact email (`hello@88cutouts.com`) |
+| `public/admin/index.html` | `@sveltia/cms` is loaded unpinned from unpkg; pin a version to stop an upstream release breaking the admin |
+| `public/admin/config.yml` | *(optional)* `backend.base_url` — only if you deploy a `sveltia-cms-auth` Worker for OAuth login |
+
+Already done: `backend.repo` points at `i-am-sarath/88cutouts-web`, and the placeholder art
+has been replaced by the real sticker and letter sets.
 
 ## Notes on a few implementation choices
 
