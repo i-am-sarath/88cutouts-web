@@ -17,6 +17,8 @@ const { imageSrc, filename } = Astro.props;
 </p>
 
 <script>
+  import { track } from '../lib/track';
+
   function showToast(msg) {
     let toast = document.getElementById('global-toast');
     if (!toast) {
@@ -51,9 +53,11 @@ const { imageSrc, filename } = Astro.props;
     );
   }
 
-  async function copyImage(src) {
+  async function copyImage(src, slug) {
     if (!navigator.clipboard || typeof ClipboardItem === 'undefined') {
       showToast("Copy isn't supported here — tap Download instead.");
+      // How often the core interaction is unavailable is worth knowing.
+      track('sticker_copy_unsupported', { sticker: slug, reason: 'no_clipboard_api' });
       return;
     }
 
@@ -65,6 +69,7 @@ const { imageSrc, filename } = Astro.props;
     try {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': pending })]);
       showToast('Copied! Paste into your Instagram Story.');
+      track('sticker_copy', { sticker: slug, method: 'promise' });
       return;
     } catch {
       /* Browser rejects promise-valued ClipboardItem — retry with the blob. */
@@ -74,14 +79,17 @@ const { imageSrc, filename } = Astro.props;
       const blob = await pending;
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       showToast('Copied! Paste into your Instagram Story.');
+      track('sticker_copy', { sticker: slug, method: 'blob' });
     } catch {
       showToast("Copy isn't supported here — tap Download instead.");
+      track('sticker_copy_unsupported', { sticker: slug, reason: 'write_rejected' });
     }
   }
 
   async function downloadImage(src, filename) {
     try {
       const blob = await toPngBlob(src);
+      track('sticker_download', { sticker: filename.replace(/\.png$/, '') });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -99,8 +107,9 @@ const { imageSrc, filename } = Astro.props;
     const src = row.getAttribute('data-src');
     const filename = row.getAttribute('data-filename') || 'sticker.png';
     if (!src) return;
+    const slug = filename.replace(/\.png$/, '');
 
-    row.querySelector('.btn-copy')?.addEventListener('click', () => copyImage(src));
+    row.querySelector('.btn-copy')?.addEventListener('click', () => copyImage(src, slug));
     row
       .querySelector('.btn-download')
       ?.addEventListener('click', () => downloadImage(src, filename));

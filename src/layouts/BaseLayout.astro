@@ -24,6 +24,14 @@ const {
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://88cutouts.com').href;
 const ogImage = new URL(image, Astro.site ?? 'https://88cutouts.com').href;
+
+// Live values are baked in so a fresh deploy needs no dashboard config; the
+// env vars exist only to override them (e.g. a staging property). Both tokens
+// are public by design — they ship in the HTML either way.
+// Analytics is suppressed on localhost at runtime, see the snippet below.
+const GA_ID = import.meta.env.PUBLIC_GA_MEASUREMENT_ID ?? 'G-Y0FGWCZLT6';
+const GSC_TOKEN =
+  import.meta.env.PUBLIC_GSC_VERIFICATION ?? 'APSknz0js6C8MBDktsulu5nxFl67hw4jVq3qeS6GvDE';
 ---
 
 <!doctype html>
@@ -38,6 +46,7 @@ const ogImage = new URL(image, Astro.site ?? 'https://88cutouts.com').href;
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex, follow" />}
+    {GSC_TOKEN && <meta name="google-site-verification" content={GSC_TOKEN} />}
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="88cutouts" />
@@ -72,6 +81,36 @@ const ogImage = new URL(image, Astro.site ?? 'https://88cutouts.com').href;
       jsonld.map((node) => (
         <script type="application/ld+json" set:html={JSON.stringify(node)} />
       ))
+    }
+
+    {
+      GA_ID && (
+        <>
+          <link rel="preconnect" href="https://www.googletagmanager.com" />
+          <script is:inline define:vars={{ GA_ID }}>
+            // Never count local development or `astro preview` traffic.
+            var h = location.hostname;
+            if (
+              h !== 'localhost' &&
+              h !== '127.0.0.1' &&
+              h !== '[::1]' &&
+              !h.endsWith('.local')
+            ) {
+              window.dataLayer = window.dataLayer || [];
+              window.gtag = function () {
+                dataLayer.push(arguments);
+              };
+              gtag('js', new Date());
+              gtag('config', GA_ID);
+
+              var s = document.createElement('script');
+              s.async = true;
+              s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+              document.head.appendChild(s);
+            }
+          </script>
+        </>
+      )
     }
   </head>
   <body>

@@ -27,6 +27,8 @@
 </div>
 
 <script>
+  import { track } from '../lib/track';
+
   const SIZE = 56;
   const PAD = 20;
   const LINE_H = SIZE * 1.15;
@@ -275,6 +277,7 @@
     try {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': pending })]);
       showToast('Copied! Paste into your Instagram Story.');
+      track('ransom_copy', { length: input.value.length });
       return;
     } catch {
       /* retry with a resolved blob below */
@@ -282,8 +285,10 @@
     try {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': await pending })]);
       showToast('Copied! Paste into your Instagram Story.');
+      track('ransom_copy', { length: input.value.length });
     } catch {
       showToast("Copy isn't supported here — tap Download instead.");
+      track('ransom_copy_unsupported', { length: input.value.length });
     }
   });
 
@@ -292,6 +297,7 @@
       showToast('Type something first.');
       return;
     }
+    track('ransom_download', { length: input.value.length });
     const a = document.createElement('a');
     a.download = 'ransom-note.png';
     a.href = canvas.toDataURL('image/png');

@@ -19,6 +19,8 @@
 <div id="search-results" class="search-results" role="listbox" aria-label="Search results"></div>
 
 <script>
+  import { track } from '../lib/track';
+
   const input = /** @type {HTMLInputElement | null} */ (
     document.getElementById('site-search')
   );
@@ -97,10 +99,35 @@
 
     input.addEventListener('focus', loadIndex, { once: true });
 
+    let settleTimer;
+
     input.addEventListener('input', async () => {
       const q = input.value;
       await loadIndex();
-      render(search(q), q.trim());
+      const hits = search(q);
+      render(hits, q.trim());
+
+      // Only report once the user stops typing, so GA sees "cherry" rather
+      // than c / ch / che / cher / cherr.
+      clearTimeout(settleTimer);
+      const term = q.trim().toLowerCase();
+      if (term.length < 2) return;
+      settleTimer = setTimeout(() => {
+        track(hits.length ? 'search' : 'search_no_results', {
+          search_term: term,
+          results: hits.length,
+        });
+      }, 900);
+    });
+
+    // A click-through is the strongest signal that a search actually worked.
+    panel.addEventListener('click', (e) => {
+      const hit = e.target instanceof Element ? e.target.closest('.search-hit') : null;
+      if (!hit) return;
+      track('search_select', {
+        search_term: input.value.trim().toLowerCase(),
+        slug: (hit.getAttribute('href') || '').replace(/\/$/, '').split('/').pop(),
+      });
     });
 
     input.addEventListener('keydown', (e) => {
