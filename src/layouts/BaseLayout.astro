@@ -86,7 +86,6 @@ const GSC_TOKEN =
     {
       GA_ID && (
         <>
-          <link rel="preconnect" href="https://www.googletagmanager.com" />
           <script is:inline define:vars={{ GA_ID }}>
             // Never count local development or `astro preview` traffic.
             var h = location.hostname;
@@ -96,6 +95,9 @@ const GSC_TOKEN =
               h !== '[::1]' &&
               !h.endsWith('.local')
             ) {
+              // The queue is set up immediately, so a page_view — or a Copy
+              // tapped before the library arrives — is buffered in dataLayer
+              // and flushed once gtag.js loads. Nothing is lost.
               window.dataLayer = window.dataLayer || [];
               window.gtag = function () {
                 dataLayer.push(arguments);
@@ -103,10 +105,21 @@ const GSC_TOKEN =
               gtag('js', new Date());
               gtag('config', GA_ID);
 
-              var s = document.createElement('script');
-              s.async = true;
-              s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
-              document.head.appendChild(s);
+              // gtag.js is ~170 KB. Loading it eagerly competes with the
+              // thumbnails for bandwidth and pushed mobile LCP to 5.7s on the
+              // gallery, so it waits until the page has finished loading.
+              var load = function () {
+                var s = document.createElement('script');
+                s.async = true;
+                s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+                document.head.appendChild(s);
+              };
+              var idle = function () {
+                if (window.requestIdleCallback) requestIdleCallback(load, { timeout: 3000 });
+                else setTimeout(load, 1200);
+              };
+              if (document.readyState === 'complete') idle();
+              else addEventListener('load', idle, { once: true });
             }
           </script>
         </>
