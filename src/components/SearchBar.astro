@@ -1,0 +1,118 @@
+---
+/**
+ * Client-side search. Fetches /search-index.json once (on first focus/keypress)
+ * and filters in memory — no backend, fine at a few hundred stickers.
+ */
+---
+
+<label class="sr-only" for="site-search">Search stickers</label>
+<input
+  id="site-search"
+  class="search-input"
+  type="search"
+  autocomplete="off"
+  placeholder="Search stickers…"
+  role="combobox"
+  aria-expanded="false"
+  aria-controls="search-results"
+/>
+<div id="search-results" class="search-results" role="listbox" aria-label="Search results"></div>
+
+<script>
+  const input = /** @type {HTMLInputElement | null} */ (
+    document.getElementById('site-search')
+  );
+  const panel = document.getElementById('search-results');
+
+  if (input && panel) {
+    /** @type {Array<{slug:string,title:string,category:string,tags:string[],image:string}>} */
+    let index = [];
+    let loading = null;
+
+    function loadIndex() {
+      if (!loading) {
+        loading = fetch('/search-index.json')
+          .then((r) => r.json())
+          .then((data) => {
+            index = data;
+          })
+          .catch(() => {
+            index = [];
+          });
+      }
+      return loading;
+    }
+
+    function setOpen(open) {
+      panel.dataset.open = open ? 'true' : 'false';
+      input.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(
+        /[&<>"']/g,
+        (c) =>
+          ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
+      );
+    }
+
+    function render(hits, query) {
+      if (!query) {
+        setOpen(false);
+        panel.innerHTML = '';
+        return;
+      }
+      if (!hits.length) {
+        panel.innerHTML = '<p class="search-empty">No stickers match that yet.</p>';
+        setOpen(true);
+        return;
+      }
+      panel.innerHTML = hits
+        .map(
+          (h) => `
+            <a class="search-hit" role="option" href="/stickers/${encodeURIComponent(h.slug)}/">
+              <img src="${escapeHtml(h.image)}" alt="" loading="lazy" width="38" height="38" />
+              <span>
+                <span class="t">${escapeHtml(h.title)}</span><br />
+                <span class="c">${escapeHtml(h.category)}</span>
+              </span>
+            </a>`
+        )
+        .join('');
+      setOpen(true);
+    }
+
+    function search(query) {
+      const q = query.trim().toLowerCase();
+      if (!q) return [];
+      return index
+        .filter(
+          (i) =>
+            i.title.toLowerCase().includes(q) ||
+            i.category.toLowerCase().includes(q) ||
+            (i.tags || []).some((t) => String(t).toLowerCase().includes(q))
+        )
+        .slice(0, 8);
+    }
+
+    input.addEventListener('focus', loadIndex, { once: true });
+
+    input.addEventListener('input', async () => {
+      const q = input.value;
+      await loadIndex();
+      render(search(q), q.trim());
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        input.value = '';
+        setOpen(false);
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!(e.target instanceof Node)) return;
+      if (!panel.contains(e.target) && e.target !== input) setOpen(false);
+    });
+  }
+</script>

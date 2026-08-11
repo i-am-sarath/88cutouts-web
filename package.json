@@ -1,0 +1,22 @@
+{
+  "name": "88cutouts",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "import": "node scripts/import-stickers.mjs",
+    "import-letters": "node scripts/import-letters.mjs",
+    "normalize": "node scripts/normalize-stickers.mjs",
+    "prebuild": "node scripts/optimize-images.mjs && node scripts/generate-thumbs.mjs",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^4.15.0",
+    "@astrojs/sitemap": "3.2.1"
+  },
+  "devDependencies": {
+    "sharp": "^0.33.5",
+    "globby": "^14.0.2"
+  }
+}

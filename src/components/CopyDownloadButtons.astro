@@ -1,0 +1,108 @@
+---
+interface Props {
+  imageSrc: string;
+  filename: string;
+}
+
+const { imageSrc, filename } = Astro.props;
+---
+
+<div class="action-row" data-src={imageSrc} data-filename={filename}>
+  <button class="btn-copy" type="button">Copy</button>
+  <button class="btn-download" type="button">Download</button>
+</div>
+<p class="copy-hint">
+  Works best pasted into Instagram <strong>Stories</strong> — feed posts don't show
+  transparency.
+</p>
+
+<script>
+  function showToast(msg) {
+    let toast = document.getElementById('global-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'global-toast';
+      toast.setAttribute('role', 'status');
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  /**
+   * The clipboard only reliably accepts image/png, so anything else gets
+   * re-encoded through a canvas (alpha is preserved).
+   */
+  async function toPngBlob(src) {
+    const res = await fetch(src);
+    if (!res.ok) throw new Error(`Failed to fetch ${src}`);
+    const blob = await res.blob();
+    if (blob.type === 'image/png') return blob;
+
+    const bitmap = await createImageBitmap(blob);
+    const canvas = document.createElement('canvas');
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    canvas.getContext('2d').drawImage(bitmap, 0, 0);
+    return await new Promise((resolve, reject) =>
+      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('encode failed'))), 'image/png')
+    );
+  }
+
+  async function copyImage(src) {
+    if (!navigator.clipboard || typeof ClipboardItem === 'undefined') {
+      showToast("Copy isn't supported here — tap Download instead.");
+      return;
+    }
+
+    // Kick the fetch off inside the click handler so Safari keeps the user
+    // gesture alive; the promise is handed straight to ClipboardItem.
+    const pending = toPngBlob(src);
+    pending.catch(() => {});
+
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': pending })]);
+      showToast('Copied! Paste into your Instagram Story.');
+      return;
+    } catch {
+      /* Browser rejects promise-valued ClipboardItem — retry with the blob. */
+    }
+
+    try {
+      const blob = await pending;
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      showToast('Copied! Paste into your Instagram Story.');
+    } catch {
+      showToast("Copy isn't supported here — tap Download instead.");
+    }
+  }
+
+  async function downloadImage(src, filename) {
+    try {
+      const blob = await toPngBlob(src);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } catch {
+      showToast('Download failed — try again.');
+    }
+  }
+
+  document.querySelectorAll('.action-row[data-src]').forEach((row) => {
+    const src = row.getAttribute('data-src');
+    const filename = row.getAttribute('data-filename') || 'sticker.png';
+    if (!src) return;
+
+    row.querySelector('.btn-copy')?.addEventListener('click', () => copyImage(src));
+    row
+      .querySelector('.btn-download')
+      ?.addEventListener('click', () => downloadImage(src, filename));
+  });
+</script>

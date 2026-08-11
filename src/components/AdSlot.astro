@@ -1,0 +1,21 @@
+---
+/**
+ * Placeholder ad container.
+ *
+ * Manual ad units only — no Auto Ads. The real AdSense <ins> tag + loader
+ * script go in here only AFTER the domain is approved (see spec §15).
+ * Until then this renders as a clearly-labelled, correctly-sized empty box so
+ * the layout never shifts when ads are switched on.
+ */
+
+interface Props {
+  /** Reserved height in px, matched to the eventual ad unit. */
+  height?: number;
+}
+
+const { height = 120 } = Astro.props;
+---
+
+<aside class="ad-slot" style={`min-height:${height}px`} aria-label="Sponsored">
+  <span class="ad-slot__label">Sponsored</span>
+</aside>

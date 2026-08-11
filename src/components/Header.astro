@@ -1,0 +1,26 @@
+---
+import SearchBar from './SearchBar.astro';
+
+const path = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === '/' ? path === '/' : path.startsWith(href);
+---
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="88cutouts home">
+      <span class="spark" aria-hidden="true">✦</span>88cutouts
+    </a>
+
+    <div class="search-wrap">
+      <SearchBar />
+    </div>
+
+    <nav class="header-nav" aria-label="Main">
+      <a href="/ransom-note/" aria-current={isActive('/ransom-note') ? 'page' : undefined}>
+        Ransom Note
+      </a>
+      <a href="/about/" aria-current={isActive('/about') ? 'page' : undefined}>About</a>
+    </nav>
+  </div>
+</header>

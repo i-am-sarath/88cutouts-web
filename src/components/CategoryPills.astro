@@ -1,0 +1,24 @@
+---
+import { getCollection } from 'astro:content';
+
+interface Props {
+  /** Category slug currently being viewed, or 'all' on the home page. */
+  active?: string;
+}
+
+const { active = 'all' } = Astro.props;
+
+const stickers = await getCollection('stickers');
+const categories = [...new Set(stickers.map((s) => s.data.category))].sort();
+---
+
+<nav class="pills" aria-label="Categories">
+  <a class="pill" href="/" aria-current={active === 'all' ? 'true' : undefined}>All</a>
+  {
+    categories.map((c) => (
+      <a class="pill" href={`/category/${c}/`} aria-current={active === c ? 'true' : undefined}>
+        {c}
+      </a>
+    ))
+  }
+</nav>

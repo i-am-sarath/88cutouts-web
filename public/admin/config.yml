@@ -1,0 +1,55 @@
+backend:
+  name: github
+  repo: YOUR_GITHUB_USERNAME/88cutouts   # <-- set this
+  branch: main
+  # Point this at your deployed sveltia-cms-auth Worker (no trailing slash),
+  # e.g. https://sveltia-auth.<your-subdomain>.workers.dev
+  base_url: https://YOUR_AUTH_WORKER.workers.dev   # <-- set this
+
+media_folder: "public/stickers"
+public_folder: "/stickers"
+
+collections:
+  - name: "stickers"
+    label: "Stickers & Frames"
+    folder: "src/content/stickers"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Image (transparent PNG)"
+        name: "image"
+        widget: "image"
+        media_folder: "/public/stickers"
+        public_folder: "/stickers"
+      - label: "Type"
+        name: "type"
+        widget: "select"
+        options: ["sticker", "frame"]
+        default: "sticker"
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options: ["coquette", "flowers", "hearts", "retro", "y2k", "text", "paper", "frames", "cute", "aesthetic", "minimal", "seasonal", "general"]
+        default: "general"
+      - { label: "Tags", name: "tags", widget: "list", required: false }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Date Added", name: "date", widget: "datetime" }
+
+  - name: "ransomLetters"
+    label: "Ransom Note Letters"
+    files:
+      - name: "letters"
+        label: "Letter Cutouts"
+        file: "src/content/ransomLetters/letters.json"
+        fields:
+          - label: "Letters"
+            name: "letters"
+            widget: "list"
+            fields:
+              - { label: "Character", name: "character", widget: "string", hint: "Single character, e.g. A, a, 7, !" }
+              - label: "Image"
+                name: "image"
+                widget: "image"
+                media_folder: "/public/ransom-letters"
+                public_folder: "/ransom-letters"

@@ -1,0 +1,24 @@
+node_modules/
+dist/
+# generated at build time by scripts/generate-thumbs.mjs
+public/stickers/thumbs/
+
+# ---------------------------------------------------------------------------
+# Raw source art — master files, kept locally, never committed.
+# ~1 GB total: Cloudflare re-clones the repo on every build, and GitHub starts
+# warning past 1 GB. The web-ready derivatives in public/ are what ship.
+# Import them with `npm run import` / `npm run import-letters`.
+# ---------------------------------------------------------------------------
+JPG Textures/
+PNG Letters_01/
+PNG_Letters_02/
+
+# working archives from the sticker importer (originals + rejects stay local)
+stickers/_originals/
+stickers/_duplicates/
+.astro/
+.DS_Store
+.env
+.env.production
+npm-debug.log*
+.vscode/

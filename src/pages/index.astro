@@ -1,0 +1,76 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CategoryPills from '../components/CategoryPills.astro';
+import StickerCard from '../components/StickerCard.astro';
+import AdSlot from '../components/AdSlot.astro';
+
+const stickers = (await getCollection('stickers')).sort((a, b) => {
+  if (a.data.featured !== b.data.featured) return a.data.featured ? -1 : 1;
+  return b.data.date.valueOf() - a.data.date.valueOf();
+});
+
+const site = Astro.site?.href ?? 'https://88cutouts.com/';
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Free aesthetic Instagram Story stickers',
+    description:
+      'Free transparent PNG stickers and frames for Instagram Stories. Tap to copy, no login needed.',
+    url: site,
+    isPartOf: { '@type': 'WebSite', name: '88cutouts', url: site },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: stickers.length,
+      itemListElement: stickers.slice(0, 30).map((s, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: new URL(`/stickers/${s.slug}/`, site).href,
+        name: s.data.title,
+      })),
+    },
+  },
+];
+---
+
+<BaseLayout
+  title="88cutouts — free aesthetic stickers for Instagram Stories"
+  description="Free transparent PNG stickers, frames and cutouts for your Instagram Stories. Tap to copy and paste straight into your Story — no login, no app."
+  jsonld={jsonld}
+>
+  <section class="hero">
+    <div class="wrap">
+      <h1>Aesthetic stickers, ready to paste</h1>
+      <p>
+        Aesthetic stickers for your Instagram Stories — tap to copy, no login needed.
+      </p>
+      <div class="rule"></div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <CategoryPills active="all" />
+
+    <div class="section-head">
+      <h2>All stickers &amp; frames</h2>
+      <span class="count">{stickers.length} items</span>
+    </div>
+
+    {
+      stickers.length === 0 ? (
+        <p class="lede">No stickers yet — add the first one from /admin.</p>
+      ) : (
+        <div class="grid">
+          {stickers.map((entry, i) => (
+            <>
+              <StickerCard entry={entry} eager={i < 6} />
+              {(i + 1) % 12 === 0 && i + 1 < stickers.length && <AdSlot />}
+            </>
+          ))}
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>

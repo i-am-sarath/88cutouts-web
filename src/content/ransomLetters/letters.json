@@ -1,0 +1,1580 @@
+{
+  "letters": [
+    {
+      "character": "&",
+      "image": "/ransom-letters/and-01.png"
+    },
+    {
+      "character": ">",
+      "image": "/ransom-letters/gt-01.png"
+    },
+    {
+      "character": ">",
+      "image": "/ransom-letters/gt-02.png"
+    },
+    {
+      "character": "*",
+      "image": "/ransom-letters/asterisk-01.png"
+    },
+    {
+      "character": "@",
+      "image": "/ransom-letters/at-01.png"
+    },
+    {
+      "character": ":",
+      "image": "/ransom-letters/colon-01.png"
+    },
+    {
+      "character": ",",
+      "image": "/ransom-letters/comma-01.png"
+    },
+    {
+      "character": "-",
+      "image": "/ransom-letters/dash-01.png"
+    },
+    {
+      "character": "-",
+      "image": "/ransom-letters/dash-02.png"
+    },
+    {
+      "character": "!",
+      "image": "/ransom-letters/excl-01.png"
+    },
+    {
+      "character": "!",
+      "image": "/ransom-letters/excl-02.png"
+    },
+    {
+      "character": "!",
+      "image": "/ransom-letters/excl-03.png"
+    },
+    {
+      "character": "!",
+      "image": "/ransom-letters/excl-04.png"
+    },
+    {
+      "character": "!",
+      "image": "/ransom-letters/excl-05.png"
+    },
+    {
+      "character": "#",
+      "image": "/ransom-letters/hash-01.png"
+    },
+    {
+      "character": "(",
+      "image": "/ransom-letters/paren-open-01.png"
+    },
+    {
+      "character": ")",
+      "image": "/ransom-letters/paren-close-01.png"
+    },
+    {
+      "character": "(",
+      "image": "/ransom-letters/paren-open-02.png"
+    },
+    {
+      "character": ")",
+      "image": "/ransom-letters/paren-close-02.png"
+    },
+    {
+      "character": "%",
+      "image": "/ransom-letters/percent-01.png"
+    },
+    {
+      "character": "+",
+      "image": "/ransom-letters/plus-01.png"
+    },
+    {
+      "character": ".",
+      "image": "/ransom-letters/dot-01.png"
+    },
+    {
+      "character": "?",
+      "image": "/ransom-letters/question-01.png"
+    },
+    {
+      "character": "?",
+      "image": "/ransom-letters/question-02.png"
+    },
+    {
+      "character": "?",
+      "image": "/ransom-letters/question-03.png"
+    },
+    {
+      "character": "\"",
+      "image": "/ransom-letters/quote-01.png"
+    },
+    {
+      "character": "\"",
+      "image": "/ransom-letters/quote-02.png"
+    },
+    {
+      "character": "\"",
+      "image": "/ransom-letters/quote-03.png"
+    },
+    {
+      "character": "\"",
+      "image": "/ransom-letters/quote-04.png"
+    },
+    {
+      "character": ";",
+      "image": "/ransom-letters/semicolon-01.png"
+    },
+    {
+      "character": "0",
+      "image": "/ransom-letters/0-01.png"
+    },
+    {
+      "character": "0",
+      "image": "/ransom-letters/0-02.png"
+    },
+    {
+      "character": "0",
+      "image": "/ransom-letters/0-03.png"
+    },
+    {
+      "character": "0",
+      "image": "/ransom-letters/0-04.png"
+    },
+    {
+      "character": "0",
+      "image": "/ransom-letters/0-05.png"
+    },
+    {
+      "character": "0",
+      "image": "/ransom-letters/0-06.png"
+    },
+    {
+      "character": "0",
+      "image": "/ransom-letters/0-07.png"
+    },
+    {
+      "character": "0",
+      "image": "/ransom-letters/0-08.png"
+    },
+    {
+      "character": "0",
+      "image": "/ransom-letters/0-09.png"
+    },
+    {
+      "character": "0",
+      "image": "/ransom-letters/0-10.png"
+    },
+    {
+      "character": "1",
+      "image": "/ransom-letters/1-01.png"
+    },
+    {
+      "character": "1",
+      "image": "/ransom-letters/1-02.png"
+    },
+    {
+      "character": "1",
+      "image": "/ransom-letters/1-03.png"
+    },
+    {
+      "character": "1",
+      "image": "/ransom-letters/1-04.png"
+    },
+    {
+      "character": "1",
+      "image": "/ransom-letters/1-05.png"
+    },
+    {
+      "character": "1",
+      "image": "/ransom-letters/1-06.png"
+    },
+    {
+      "character": "1",
+      "image": "/ransom-letters/1-07.png"
+    },
+    {
+      "character": "1",
+      "image": "/ransom-letters/1-08.png"
+    },
+    {
+      "character": "1",
+      "image": "/ransom-letters/1-09.png"
+    },
+    {
+      "character": "1",
+      "image": "/ransom-letters/1-10.png"
+    },
+    {
+      "character": "2",
+      "image": "/ransom-letters/2-01.png"
+    },
+    {
+      "character": "2",
+      "image": "/ransom-letters/2-02.png"
+    },
+    {
+      "character": "2",
+      "image": "/ransom-letters/2-03.png"
+    },
+    {
+      "character": "2",
+      "image": "/ransom-letters/2-04.png"
+    },
+    {
+      "character": "2",
+      "image": "/ransom-letters/2-05.png"
+    },
+    {
+      "character": "2",
+      "image": "/ransom-letters/2-06.png"
+    },
+    {
+      "character": "2",
+      "image": "/ransom-letters/2-07.png"
+    },
+    {
+      "character": "2",
+      "image": "/ransom-letters/2-08.png"
+    },
+    {
+      "character": "2",
+      "image": "/ransom-letters/2-09.png"
+    },
+    {
+      "character": "2",
+      "image": "/ransom-letters/2-10.png"
+    },
+    {
+      "character": "3",
+      "image": "/ransom-letters/3-01.png"
+    },
+    {
+      "character": "3",
+      "image": "/ransom-letters/3-02.png"
+    },
+    {
+      "character": "3",
+      "image": "/ransom-letters/3-03.png"
+    },
+    {
+      "character": "3",
+      "image": "/ransom-letters/3-04.png"
+    },
+    {
+      "character": "3",
+      "image": "/ransom-letters/3-05.png"
+    },
+    {
+      "character": "3",
+      "image": "/ransom-letters/3-06.png"
+    },
+    {
+      "character": "3",
+      "image": "/ransom-letters/3-07.png"
+    },
+    {
+      "character": "3",
+      "image": "/ransom-letters/3-08.png"
+    },
+    {
+      "character": "3",
+      "image": "/ransom-letters/3-09.png"
+    },
+    {
+      "character": "3",
+      "image": "/ransom-letters/3-10.png"
+    },
+    {
+      "character": "4",
+      "image": "/ransom-letters/4-01.png"
+    },
+    {
+      "character": "4",
+      "image": "/ransom-letters/4-02.png"
+    },
+    {
+      "character": "4",
+      "image": "/ransom-letters/4-03.png"
+    },
+    {
+      "character": "4",
+      "image": "/ransom-letters/4-04.png"
+    },
+    {
+      "character": "4",
+      "image": "/ransom-letters/4-05.png"
+    },
+    {
+      "character": "4",
+      "image": "/ransom-letters/4-06.png"
+    },
+    {
+      "character": "4",
+      "image": "/ransom-letters/4-07.png"
+    },
+    {
+      "character": "4",
+      "image": "/ransom-letters/4-08.png"
+    },
+    {
+      "character": "4",
+      "image": "/ransom-letters/4-09.png"
+    },
+    {
+      "character": "4",
+      "image": "/ransom-letters/4-10.png"
+    },
+    {
+      "character": "5",
+      "image": "/ransom-letters/5-01.png"
+    },
+    {
+      "character": "5",
+      "image": "/ransom-letters/5-02.png"
+    },
+    {
+      "character": "5",
+      "image": "/ransom-letters/5-03.png"
+    },
+    {
+      "character": "5",
+      "image": "/ransom-letters/5-04.png"
+    },
+    {
+      "character": "5",
+      "image": "/ransom-letters/5-05.png"
+    },
+    {
+      "character": "5",
+      "image": "/ransom-letters/5-06.png"
+    },
+    {
+      "character": "5",
+      "image": "/ransom-letters/5-07.png"
+    },
+    {
+      "character": "5",
+      "image": "/ransom-letters/5-08.png"
+    },
+    {
+      "character": "5",
+      "image": "/ransom-letters/5-09.png"
+    },
+    {
+      "character": "5",
+      "image": "/ransom-letters/5-10.png"
+    },
+    {
+      "character": "6",
+      "image": "/ransom-letters/6-01.png"
+    },
+    {
+      "character": "6",
+      "image": "/ransom-letters/6-02.png"
+    },
+    {
+      "character": "6",
+      "image": "/ransom-letters/6-03.png"
+    },
+    {
+      "character": "6",
+      "image": "/ransom-letters/6-04.png"
+    },
+    {
+      "character": "6",
+      "image": "/ransom-letters/6-05.png"
+    },
+    {
+      "character": "6",
+      "image": "/ransom-letters/6-06.png"
+    },
+    {
+      "character": "6",
+      "image": "/ransom-letters/6-07.png"
+    },
+    {
+      "character": "6",
+      "image": "/ransom-letters/6-08.png"
+    },
+    {
+      "character": "6",
+      "image": "/ransom-letters/6-09.png"
+    },
+    {
+      "character": "6",
+      "image": "/ransom-letters/6-10.png"
+    },
+    {
+      "character": "7",
+      "image": "/ransom-letters/7-01.png"
+    },
+    {
+      "character": "7",
+      "image": "/ransom-letters/7-02.png"
+    },
+    {
+      "character": "7",
+      "image": "/ransom-letters/7-03.png"
+    },
+    {
+      "character": "7",
+      "image": "/ransom-letters/7-04.png"
+    },
+    {
+      "character": "7",
+      "image": "/ransom-letters/7-05.png"
+    },
+    {
+      "character": "7",
+      "image": "/ransom-letters/7-06.png"
+    },
+    {
+      "character": "7",
+      "image": "/ransom-letters/7-07.png"
+    },
+    {
+      "character": "7",
+      "image": "/ransom-letters/7-08.png"
+    },
+    {
+      "character": "7",
+      "image": "/ransom-letters/7-09.png"
+    },
+    {
+      "character": "7",
+      "image": "/ransom-letters/7-10.png"
+    },
+    {
+      "character": "8",
+      "image": "/ransom-letters/8-01.png"
+    },
+    {
+      "character": "8",
+      "image": "/ransom-letters/8-02.png"
+    },
+    {
+      "character": "8",
+      "image": "/ransom-letters/8-03.png"
+    },
+    {
+      "character": "8",
+      "image": "/ransom-letters/8-04.png"
+    },
+    {
+      "character": "8",
+      "image": "/ransom-letters/8-05.png"
+    },
+    {
+      "character": "8",
+      "image": "/ransom-letters/8-06.png"
+    },
+    {
+      "character": "8",
+      "image": "/ransom-letters/8-07.png"
+    },
+    {
+      "character": "8",
+      "image": "/ransom-letters/8-08.png"
+    },
+    {
+      "character": "8",
+      "image": "/ransom-letters/8-09.png"
+    },
+    {
+      "character": "8",
+      "image": "/ransom-letters/8-10.png"
+    },
+    {
+      "character": "9",
+      "image": "/ransom-letters/9-01.png"
+    },
+    {
+      "character": "9",
+      "image": "/ransom-letters/9-02.png"
+    },
+    {
+      "character": "9",
+      "image": "/ransom-letters/9-03.png"
+    },
+    {
+      "character": "9",
+      "image": "/ransom-letters/9-04.png"
+    },
+    {
+      "character": "9",
+      "image": "/ransom-letters/9-05.png"
+    },
+    {
+      "character": "9",
+      "image": "/ransom-letters/9-06.png"
+    },
+    {
+      "character": "9",
+      "image": "/ransom-letters/9-07.png"
+    },
+    {
+      "character": "9",
+      "image": "/ransom-letters/9-08.png"
+    },
+    {
+      "character": "9",
+      "image": "/ransom-letters/9-09.png"
+    },
+    {
+      "character": "9",
+      "image": "/ransom-letters/9-10.png"
+    },
+    {
+      "character": "A",
+      "image": "/ransom-letters/a-01.png"
+    },
+    {
+      "character": "A",
+      "image": "/ransom-letters/a-02.png"
+    },
+    {
+      "character": "A",
+      "image": "/ransom-letters/a-03.png"
+    },
+    {
+      "character": "A",
+      "image": "/ransom-letters/a-04.png"
+    },
+    {
+      "character": "A",
+      "image": "/ransom-letters/a-05.png"
+    },
+    {
+      "character": "A",
+      "image": "/ransom-letters/a-06.png"
+    },
+    {
+      "character": "A",
+      "image": "/ransom-letters/a-07.png"
+    },
+    {
+      "character": "A",
+      "image": "/ransom-letters/a-08.png"
+    },
+    {
+      "character": "A",
+      "image": "/ransom-letters/a-09.png"
+    },
+    {
+      "character": "A",
+      "image": "/ransom-letters/a-10.png"
+    },
+    {
+      "character": "B",
+      "image": "/ransom-letters/b-01.png"
+    },
+    {
+      "character": "B",
+      "image": "/ransom-letters/b-02.png"
+    },
+    {
+      "character": "B",
+      "image": "/ransom-letters/b-03.png"
+    },
+    {
+      "character": "B",
+      "image": "/ransom-letters/b-04.png"
+    },
+    {
+      "character": "B",
+      "image": "/ransom-letters/b-05.png"
+    },
+    {
+      "character": "B",
+      "image": "/ransom-letters/b-06.png"
+    },
+    {
+      "character": "B",
+      "image": "/ransom-letters/b-07.png"
+    },
+    {
+      "character": "B",
+      "image": "/ransom-letters/b-08.png"
+    },
+    {
+      "character": "B",
+      "image": "/ransom-letters/b-09.png"
+    },
+    {
+      "character": "B",
+      "image": "/ransom-letters/b-10.png"
+    },
+    {
+      "character": "C",
+      "image": "/ransom-letters/c-01.png"
+    },
+    {
+      "character": "C",
+      "image": "/ransom-letters/c-02.png"
+    },
+    {
+      "character": "C",
+      "image": "/ransom-letters/c-03.png"
+    },
+    {
+      "character": "C",
+      "image": "/ransom-letters/c-04.png"
+    },
+    {
+      "character": "C",
+      "image": "/ransom-letters/c-05.png"
+    },
+    {
+      "character": "C",
+      "image": "/ransom-letters/c-06.png"
+    },
+    {
+      "character": "C",
+      "image": "/ransom-letters/c-07.png"
+    },
+    {
+      "character": "C",
+      "image": "/ransom-letters/c-08.png"
+    },
+    {
+      "character": "C",
+      "image": "/ransom-letters/c-09.png"
+    },
+    {
+      "character": "C",
+      "image": "/ransom-letters/c-10.png"
+    },
+    {
+      "character": "D",
+      "image": "/ransom-letters/d-01.png"
+    },
+    {
+      "character": "D",
+      "image": "/ransom-letters/d-02.png"
+    },
+    {
+      "character": "D",
+      "image": "/ransom-letters/d-03.png"
+    },
+    {
+      "character": "D",
+      "image": "/ransom-letters/d-04.png"
+    },
+    {
+      "character": "D",
+      "image": "/ransom-letters/d-05.png"
+    },
+    {
+      "character": "D",
+      "image": "/ransom-letters/d-06.png"
+    },
+    {
+      "character": "D",
+      "image": "/ransom-letters/d-07.png"
+    },
+    {
+      "character": "D",
+      "image": "/ransom-letters/d-08.png"
+    },
+    {
+      "character": "D",
+      "image": "/ransom-letters/d-09.png"
+    },
+    {
+      "character": "D",
+      "image": "/ransom-letters/d-10.png"
+    },
+    {
+      "character": "E",
+      "image": "/ransom-letters/e-01.png"
+    },
+    {
+      "character": "E",
+      "image": "/ransom-letters/e-02.png"
+    },
+    {
+      "character": "E",
+      "image": "/ransom-letters/e-03.png"
+    },
+    {
+      "character": "E",
+      "image": "/ransom-letters/e-04.png"
+    },
+    {
+      "character": "E",
+      "image": "/ransom-letters/e-05.png"
+    },
+    {
+      "character": "E",
+      "image": "/ransom-letters/e-06.png"
+    },
+    {
+      "character": "E",
+      "image": "/ransom-letters/e-07.png"
+    },
+    {
+      "character": "E",
+      "image": "/ransom-letters/e-08.png"
+    },
+    {
+      "character": "E",
+      "image": "/ransom-letters/e-09.png"
+    },
+    {
+      "character": "E",
+      "image": "/ransom-letters/e-10.png"
+    },
+    {
+      "character": "F",
+      "image": "/ransom-letters/f-01.png"
+    },
+    {
+      "character": "F",
+      "image": "/ransom-letters/f-02.png"
+    },
+    {
+      "character": "F",
+      "image": "/ransom-letters/f-03.png"
+    },
+    {
+      "character": "F",
+      "image": "/ransom-letters/f-04.png"
+    },
+    {
+      "character": "F",
+      "image": "/ransom-letters/f-05.png"
+    },
+    {
+      "character": "F",
+      "image": "/ransom-letters/f-06.png"
+    },
+    {
+      "character": "F",
+      "image": "/ransom-letters/f-07.png"
+    },
+    {
+      "character": "F",
+      "image": "/ransom-letters/f-08.png"
+    },
+    {
+      "character": "F",
+      "image": "/ransom-letters/f-09.png"
+    },
+    {
+      "character": "F",
+      "image": "/ransom-letters/f-10.png"
+    },
+    {
+      "character": "G",
+      "image": "/ransom-letters/g-01.png"
+    },
+    {
+      "character": "G",
+      "image": "/ransom-letters/g-02.png"
+    },
+    {
+      "character": "G",
+      "image": "/ransom-letters/g-03.png"
+    },
+    {
+      "character": "G",
+      "image": "/ransom-letters/g-04.png"
+    },
+    {
+      "character": "G",
+      "image": "/ransom-letters/g-05.png"
+    },
+    {
+      "character": "G",
+      "image": "/ransom-letters/g-06.png"
+    },
+    {
+      "character": "G",
+      "image": "/ransom-letters/g-07.png"
+    },
+    {
+      "character": "G",
+      "image": "/ransom-letters/g-08.png"
+    },
+    {
+      "character": "G",
+      "image": "/ransom-letters/g-09.png"
+    },
+    {
+      "character": "G",
+      "image": "/ransom-letters/g-10.png"
+    },
+    {
+      "character": "H",
+      "image": "/ransom-letters/h-01.png"
+    },
+    {
+      "character": "H",
+      "image": "/ransom-letters/h-02.png"
+    },
+    {
+      "character": "H",
+      "image": "/ransom-letters/h-03.png"
+    },
+    {
+      "character": "H",
+      "image": "/ransom-letters/h-04.png"
+    },
+    {
+      "character": "H",
+      "image": "/ransom-letters/h-05.png"
+    },
+    {
+      "character": "H",
+      "image": "/ransom-letters/h-06.png"
+    },
+    {
+      "character": "H",
+      "image": "/ransom-letters/h-07.png"
+    },
+    {
+      "character": "H",
+      "image": "/ransom-letters/h-08.png"
+    },
+    {
+      "character": "H",
+      "image": "/ransom-letters/h-09.png"
+    },
+    {
+      "character": "H",
+      "image": "/ransom-letters/h-10.png"
+    },
+    {
+      "character": "I",
+      "image": "/ransom-letters/i-01.png"
+    },
+    {
+      "character": "I",
+      "image": "/ransom-letters/i-02.png"
+    },
+    {
+      "character": "I",
+      "image": "/ransom-letters/i-03.png"
+    },
+    {
+      "character": "I",
+      "image": "/ransom-letters/i-04.png"
+    },
+    {
+      "character": "I",
+      "image": "/ransom-letters/i-05.png"
+    },
+    {
+      "character": "I",
+      "image": "/ransom-letters/i-06.png"
+    },
+    {
+      "character": "I",
+      "image": "/ransom-letters/i-07.png"
+    },
+    {
+      "character": "I",
+      "image": "/ransom-letters/i-08.png"
+    },
+    {
+      "character": "I",
+      "image": "/ransom-letters/i-09.png"
+    },
+    {
+      "character": "I",
+      "image": "/ransom-letters/i-10.png"
+    },
+    {
+      "character": "J",
+      "image": "/ransom-letters/j-01.png"
+    },
+    {
+      "character": "J",
+      "image": "/ransom-letters/j-02.png"
+    },
+    {
+      "character": "J",
+      "image": "/ransom-letters/j-03.png"
+    },
+    {
+      "character": "J",
+      "image": "/ransom-letters/j-04.png"
+    },
+    {
+      "character": "J",
+      "image": "/ransom-letters/j-05.png"
+    },
+    {
+      "character": "J",
+      "image": "/ransom-letters/j-06.png"
+    },
+    {
+      "character": "J",
+      "image": "/ransom-letters/j-07.png"
+    },
+    {
+      "character": "J",
+      "image": "/ransom-letters/j-08.png"
+    },
+    {
+      "character": "J",
+      "image": "/ransom-letters/j-09.png"
+    },
+    {
+      "character": "J",
+      "image": "/ransom-letters/j-10.png"
+    },
+    {
+      "character": "K",
+      "image": "/ransom-letters/k-01.png"
+    },
+    {
+      "character": "K",
+      "image": "/ransom-letters/k-02.png"
+    },
+    {
+      "character": "K",
+      "image": "/ransom-letters/k-03.png"
+    },
+    {
+      "character": "K",
+      "image": "/ransom-letters/k-04.png"
+    },
+    {
+      "character": "K",
+      "image": "/ransom-letters/k-05.png"
+    },
+    {
+      "character": "K",
+      "image": "/ransom-letters/k-06.png"
+    },
+    {
+      "character": "K",
+      "image": "/ransom-letters/k-07.png"
+    },
+    {
+      "character": "K",
+      "image": "/ransom-letters/k-08.png"
+    },
+    {
+      "character": "K",
+      "image": "/ransom-letters/k-09.png"
+    },
+    {
+      "character": "K",
+      "image": "/ransom-letters/k-10.png"
+    },
+    {
+      "character": "L",
+      "image": "/ransom-letters/l-01.png"
+    },
+    {
+      "character": "L",
+      "image": "/ransom-letters/l-02.png"
+    },
+    {
+      "character": "L",
+      "image": "/ransom-letters/l-03.png"
+    },
+    {
+      "character": "L",
+      "image": "/ransom-letters/l-04.png"
+    },
+    {
+      "character": "L",
+      "image": "/ransom-letters/l-05.png"
+    },
+    {
+      "character": "L",
+      "image": "/ransom-letters/l-06.png"
+    },
+    {
+      "character": "L",
+      "image": "/ransom-letters/l-07.png"
+    },
+    {
+      "character": "L",
+      "image": "/ransom-letters/l-08.png"
+    },
+    {
+      "character": "L",
+      "image": "/ransom-letters/l-09.png"
+    },
+    {
+      "character": "L",
+      "image": "/ransom-letters/l-10.png"
+    },
+    {
+      "character": "M",
+      "image": "/ransom-letters/m-01.png"
+    },
+    {
+      "character": "M",
+      "image": "/ransom-letters/m-02.png"
+    },
+    {
+      "character": "M",
+      "image": "/ransom-letters/m-03.png"
+    },
+    {
+      "character": "M",
+      "image": "/ransom-letters/m-04.png"
+    },
+    {
+      "character": "M",
+      "image": "/ransom-letters/m-05.png"
+    },
+    {
+      "character": "M",
+      "image": "/ransom-letters/m-06.png"
+    },
+    {
+      "character": "M",
+      "image": "/ransom-letters/m-07.png"
+    },
+    {
+      "character": "M",
+      "image": "/ransom-letters/m-08.png"
+    },
+    {
+      "character": "M",
+      "image": "/ransom-letters/m-09.png"
+    },
+    {
+      "character": "M",
+      "image": "/ransom-letters/m-10.png"
+    },
+    {
+      "character": "N",
+      "image": "/ransom-letters/n-01.png"
+    },
+    {
+      "character": "N",
+      "image": "/ransom-letters/n-02.png"
+    },
+    {
+      "character": "N",
+      "image": "/ransom-letters/n-03.png"
+    },
+    {
+      "character": "N",
+      "image": "/ransom-letters/n-04.png"
+    },
+    {
+      "character": "N",
+      "image": "/ransom-letters/n-05.png"
+    },
+    {
+      "character": "N",
+      "image": "/ransom-letters/n-06.png"
+    },
+    {
+      "character": "N",
+      "image": "/ransom-letters/n-07.png"
+    },
+    {
+      "character": "N",
+      "image": "/ransom-letters/n-08.png"
+    },
+    {
+      "character": "N",
+      "image": "/ransom-letters/n-09.png"
+    },
+    {
+      "character": "N",
+      "image": "/ransom-letters/n-10.png"
+    },
+    {
+      "character": "O",
+      "image": "/ransom-letters/o-01.png"
+    },
+    {
+      "character": "O",
+      "image": "/ransom-letters/o-02.png"
+    },
+    {
+      "character": "O",
+      "image": "/ransom-letters/o-03.png"
+    },
+    {
+      "character": "O",
+      "image": "/ransom-letters/o-04.png"
+    },
+    {
+      "character": "O",
+      "image": "/ransom-letters/o-05.png"
+    },
+    {
+      "character": "O",
+      "image": "/ransom-letters/o-06.png"
+    },
+    {
+      "character": "O",
+      "image": "/ransom-letters/o-07.png"
+    },
+    {
+      "character": "O",
+      "image": "/ransom-letters/o-08.png"
+    },
+    {
+      "character": "O",
+      "image": "/ransom-letters/o-09.png"
+    },
+    {
+      "character": "O",
+      "image": "/ransom-letters/o-10.png"
+    },
+    {
+      "character": "P",
+      "image": "/ransom-letters/p-01.png"
+    },
+    {
+      "character": "P",
+      "image": "/ransom-letters/p-02.png"
+    },
+    {
+      "character": "P",
+      "image": "/ransom-letters/p-03.png"
+    },
+    {
+      "character": "P",
+      "image": "/ransom-letters/p-04.png"
+    },
+    {
+      "character": "P",
+      "image": "/ransom-letters/p-05.png"
+    },
+    {
+      "character": "P",
+      "image": "/ransom-letters/p-06.png"
+    },
+    {
+      "character": "P",
+      "image": "/ransom-letters/p-07.png"
+    },
+    {
+      "character": "P",
+      "image": "/ransom-letters/p-08.png"
+    },
+    {
+      "character": "P",
+      "image": "/ransom-letters/p-09.png"
+    },
+    {
+      "character": "P",
+      "image": "/ransom-letters/p-10.png"
+    },
+    {
+      "character": "Q",
+      "image": "/ransom-letters/q-01.png"
+    },
+    {
+      "character": "Q",
+      "image": "/ransom-letters/q-02.png"
+    },
+    {
+      "character": "Q",
+      "image": "/ransom-letters/q-03.png"
+    },
+    {
+      "character": "Q",
+      "image": "/ransom-letters/q-04.png"
+    },
+    {
+      "character": "Q",
+      "image": "/ransom-letters/q-05.png"
+    },
+    {
+      "character": "Q",
+      "image": "/ransom-letters/q-06.png"
+    },
+    {
+      "character": "Q",
+      "image": "/ransom-letters/q-07.png"
+    },
+    {
+      "character": "Q",
+      "image": "/ransom-letters/q-08.png"
+    },
+    {
+      "character": "Q",
+      "image": "/ransom-letters/q-09.png"
+    },
+    {
+      "character": "Q",
+      "image": "/ransom-letters/q-10.png"
+    },
+    {
+      "character": "R",
+      "image": "/ransom-letters/r-01.png"
+    },
+    {
+      "character": "R",
+      "image": "/ransom-letters/r-02.png"
+    },
+    {
+      "character": "R",
+      "image": "/ransom-letters/r-03.png"
+    },
+    {
+      "character": "R",
+      "image": "/ransom-letters/r-04.png"
+    },
+    {
+      "character": "R",
+      "image": "/ransom-letters/r-05.png"
+    },
+    {
+      "character": "R",
+      "image": "/ransom-letters/r-06.png"
+    },
+    {
+      "character": "R",
+      "image": "/ransom-letters/r-07.png"
+    },
+    {
+      "character": "R",
+      "image": "/ransom-letters/r-08.png"
+    },
+    {
+      "character": "R",
+      "image": "/ransom-letters/r-09.png"
+    },
+    {
+      "character": "R",
+      "image": "/ransom-letters/r-10.png"
+    },
+    {
+      "character": "S",
+      "image": "/ransom-letters/s-01.png"
+    },
+    {
+      "character": "S",
+      "image": "/ransom-letters/s-02.png"
+    },
+    {
+      "character": "S",
+      "image": "/ransom-letters/s-03.png"
+    },
+    {
+      "character": "S",
+      "image": "/ransom-letters/s-04.png"
+    },
+    {
+      "character": "S",
+      "image": "/ransom-letters/s-05.png"
+    },
+    {
+      "character": "S",
+      "image": "/ransom-letters/s-06.png"
+    },
+    {
+      "character": "S",
+      "image": "/ransom-letters/s-07.png"
+    },
+    {
+      "character": "S",
+      "image": "/ransom-letters/s-08.png"
+    },
+    {
+      "character": "S",
+      "image": "/ransom-letters/s-09.png"
+    },
+    {
+      "character": "S",
+      "image": "/ransom-letters/s-10.png"
+    },
+    {
+      "character": "T",
+      "image": "/ransom-letters/t-01.png"
+    },
+    {
+      "character": "T",
+      "image": "/ransom-letters/t-02.png"
+    },
+    {
+      "character": "T",
+      "image": "/ransom-letters/t-03.png"
+    },
+    {
+      "character": "T",
+      "image": "/ransom-letters/t-04.png"
+    },
+    {
+      "character": "T",
+      "image": "/ransom-letters/t-05.png"
+    },
+    {
+      "character": "T",
+      "image": "/ransom-letters/t-06.png"
+    },
+    {
+      "character": "T",
+      "image": "/ransom-letters/t-07.png"
+    },
+    {
+      "character": "T",
+      "image": "/ransom-letters/t-08.png"
+    },
+    {
+      "character": "T",
+      "image": "/ransom-letters/t-09.png"
+    },
+    {
+      "character": "T",
+      "image": "/ransom-letters/t-10.png"
+    },
+    {
+      "character": "U",
+      "image": "/ransom-letters/u-01.png"
+    },
+    {
+      "character": "U",
+      "image": "/ransom-letters/u-02.png"
+    },
+    {
+      "character": "U",
+      "image": "/ransom-letters/u-03.png"
+    },
+    {
+      "character": "U",
+      "image": "/ransom-letters/u-04.png"
+    },
+    {
+      "character": "U",
+      "image": "/ransom-letters/u-05.png"
+    },
+    {
+      "character": "U",
+      "image": "/ransom-letters/u-06.png"
+    },
+    {
+      "character": "U",
+      "image": "/ransom-letters/u-07.png"
+    },
+    {
+      "character": "U",
+      "image": "/ransom-letters/u-08.png"
+    },
+    {
+      "character": "U",
+      "image": "/ransom-letters/u-09.png"
+    },
+    {
+      "character": "U",
+      "image": "/ransom-letters/u-10.png"
+    },
+    {
+      "character": "V",
+      "image": "/ransom-letters/v-01.png"
+    },
+    {
+      "character": "V",
+      "image": "/ransom-letters/v-02.png"
+    },
+    {
+      "character": "V",
+      "image": "/ransom-letters/v-03.png"
+    },
+    {
+      "character": "V",
+      "image": "/ransom-letters/v-04.png"
+    },
+    {
+      "character": "V",
+      "image": "/ransom-letters/v-05.png"
+    },
+    {
+      "character": "V",
+      "image": "/ransom-letters/v-06.png"
+    },
+    {
+      "character": "V",
+      "image": "/ransom-letters/v-07.png"
+    },
+    {
+      "character": "V",
+      "image": "/ransom-letters/v-08.png"
+    },
+    {
+      "character": "V",
+      "image": "/ransom-letters/v-09.png"
+    },
+    {
+      "character": "V",
+      "image": "/ransom-letters/v-10.png"
+    },
+    {
+      "character": "W",
+      "image": "/ransom-letters/w-01.png"
+    },
+    {
+      "character": "W",
+      "image": "/ransom-letters/w-02.png"
+    },
+    {
+      "character": "W",
+      "image": "/ransom-letters/w-03.png"
+    },
+    {
+      "character": "W",
+      "image": "/ransom-letters/w-04.png"
+    },
+    {
+      "character": "W",
+      "image": "/ransom-letters/w-05.png"
+    },
+    {
+      "character": "W",
+      "image": "/ransom-letters/w-06.png"
+    },
+    {
+      "character": "W",
+      "image": "/ransom-letters/w-07.png"
+    },
+    {
+      "character": "W",
+      "image": "/ransom-letters/w-08.png"
+    },
+    {
+      "character": "W",
+      "image": "/ransom-letters/w-09.png"
+    },
+    {
+      "character": "W",
+      "image": "/ransom-letters/w-10.png"
+    },
+    {
+      "character": "X",
+      "image": "/ransom-letters/x-01.png"
+    },
+    {
+      "character": "X",
+      "image": "/ransom-letters/x-02.png"
+    },
+    {
+      "character": "X",
+      "image": "/ransom-letters/x-03.png"
+    },
+    {
+      "character": "X",
+      "image": "/ransom-letters/x-04.png"
+    },
+    {
+      "character": "X",
+      "image": "/ransom-letters/x-05.png"
+    },
+    {
+      "character": "X",
+      "image": "/ransom-letters/x-06.png"
+    },
+    {
+      "character": "X",
+      "image": "/ransom-letters/x-07.png"
+    },
+    {
+      "character": "X",
+      "image": "/ransom-letters/x-08.png"
+    },
+    {
+      "character": "X",
+      "image": "/ransom-letters/x-09.png"
+    },
+    {
+      "character": "X",
+      "image": "/ransom-letters/x-10.png"
+    },
+    {
+      "character": "Y",
+      "image": "/ransom-letters/y-01.png"
+    },
+    {
+      "character": "Y",
+      "image": "/ransom-letters/y-02.png"
+    },
+    {
+      "character": "Y",
+      "image": "/ransom-letters/y-03.png"
+    },
+    {
+      "character": "Y",
+      "image": "/ransom-letters/y-04.png"
+    },
+    {
+      "character": "Y",
+      "image": "/ransom-letters/y-05.png"
+    },
+    {
+      "character": "Y",
+      "image": "/ransom-letters/y-06.png"
+    },
+    {
+      "character": "Y",
+      "image": "/ransom-letters/y-07.png"
+    },
+    {
+      "character": "Y",
+      "image": "/ransom-letters/y-08.png"
+    },
+    {
+      "character": "Y",
+      "image": "/ransom-letters/y-09.png"
+    },
+    {
+      "character": "Y",
+      "image": "/ransom-letters/y-10.png"
+    },
+    {
+      "character": "Z",
+      "image": "/ransom-letters/z-01.png"
+    },
+    {
+      "character": "Z",
+      "image": "/ransom-letters/z-02.png"
+    },
+    {
+      "character": "Z",
+      "image": "/ransom-letters/z-03.png"
+    },
+    {
+      "character": "Z",
+      "image": "/ransom-letters/z-04.png"
+    },
+    {
+      "character": "Z",
+      "image": "/ransom-letters/z-05.png"
+    },
+    {
+      "character": "Z",
+      "image": "/ransom-letters/z-06.png"
+    },
+    {
+      "character": "Z",
+      "image": "/ransom-letters/z-07.png"
+    },
+    {
+      "character": "Z",
+      "image": "/ransom-letters/z-08.png"
+    },
+    {
+      "character": "Z",
+      "image": "/ransom-letters/z-09.png"
+    },
+    {
+      "character": "Z",
+      "image": "/ransom-letters/z-10.png"
+    },
+    {
+      "character": "'",
+      "image": "/ransom-letters/quote-01.png"
+    },
+    {
+      "character": "'",
+      "image": "/ransom-letters/quote-02.png"
+    },
+    {
+      "character": "'",
+      "image": "/ransom-letters/quote-03.png"
+    },
+    {
+      "character": "'",
+      "image": "/ransom-letters/quote-04.png"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+---
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CategoryPills from '../../components/CategoryPills.astro';
+import StickerCard from '../../components/StickerCard.astro';
+import AdSlot from '../../components/AdSlot.astro';
+
+export async function getStaticPaths() {
+  const all = await getCollection('stickers');
+  const categories = [...new Set(all.map((s) => s.data.category))];
+
+  return categories.map((category) => ({
+    params: { category },
+    props: {
+      category,
+      items: all
+        .filter((s) => s.data.category === category)
+        .sort((a, b) => {
+          if (a.data.featured !== b.data.featured) return a.data.featured ? -1 : 1;
+          return b.data.date.valueOf() - a.data.date.valueOf();
+        }),
+    },
+  }));
+}
+
+interface Props {
+  category: string;
+  items: CollectionEntry<'stickers'>[];
+}
+
+const { category, items } = Astro.props;
+const site = Astro.site?.href ?? 'https://88cutouts.com/';
+const label = category.charAt(0).toUpperCase() + category.slice(1);
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${label} stickers for Instagram Stories`,
+    url: new URL(`/category/${category}/`, site).href,
+    isPartOf: { '@type': 'WebSite', name: '88cutouts', url: site },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: items.length,
+      itemListElement: items.slice(0, 30).map((s, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: new URL(`/stickers/${s.slug}/`, site).href,
+        name: s.data.title,
+      })),
+    },
+  },
+];
+---
+
+<BaseLayout
+  title={`${label} stickers — free transparent PNGs for Instagram Stories | 88cutouts`}
+  description={`Free ${category} stickers and cutouts as transparent PNGs. Tap to copy and paste straight into your Instagram Story — no login needed.`}
+  image={items[0]?.data.image}
+  jsonld={jsonld}
+>
+  <div class="wrap">
+    <p class="crumbs"><a href="/">Home</a><span>/</span>{label}</p>
+
+    <div class="section-head">
+      <h2>{label} stickers</h2>
+      <span class="count">{items.length} items</span>
+    </div>
+
+    <CategoryPills active={category} />
+
+    <div class="grid">
+      {
+        items.map((entry, i) => (
+          <>
+            <StickerCard entry={entry} eager={i < 6} />
+            {(i + 1) % 12 === 0 && i + 1 < items.length && <AdSlot />}
+          </>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

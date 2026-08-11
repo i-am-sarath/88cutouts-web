@@ -1,0 +1,304 @@
+---
+/**
+ * Canvas ransom-note typewriter. Letter cutouts come from the CMS-managed
+ * letters.json, exposed as /ransom-letters-manifest.json (character -> variants).
+ * Characters with no uploaded cutout fall back to a plain drawn glyph.
+ */
+---
+
+<div class="ransom-tool">
+  <label class="sr-only" for="ransom-input">Your message</label>
+  <textarea id="ransom-input" maxlength="140" placeholder="Type your message..."></textarea>
+  <p class="ransom-count"><span id="ransom-count">0</span>/140</p>
+
+  <div class="canvas-frame">
+    <canvas id="ransom-canvas" width="900" height="320" role="img"
+      aria-label="Live preview of your ransom-note message"></canvas>
+  </div>
+
+  <div class="action-row">
+    <button id="ransom-copy" class="btn-copy" type="button">Copy</button>
+    <button id="ransom-download" class="btn-download" type="button">Download</button>
+  </div>
+  <p class="copy-hint">
+    Works best pasted into Instagram <strong>Stories</strong> — feed posts don't show
+    transparency.
+  </p>
+</div>
+
+<script>
+  const SIZE = 56;
+  const PAD = 20;
+  const LINE_H = SIZE * 1.15;
+  /**
+   * Gap between adjacent cutouts, as a fraction of SIZE. Scrap widths vary a
+   * lot once trimmed, and each is rotated up to 8 degrees, so a small positive
+   * gap is needed to stop neighbours overlapping into illegibility.
+   */
+  const KERN = 0.06;
+  const ADV_TEXT = SIZE * 0.6;
+  const ADV_SPACE = SIZE * 0.6;
+  /** Fixed wrap width; the canvas itself is then trimmed to the content. */
+  const WRAP_W = 860;
+  const MIN_WIDTH = 360;
+  const MIN_HEIGHT = 200;
+
+  /** @type {Record<string, string[]>} */
+  let manifest = {};
+  /** @type {Map<string, Promise<HTMLImageElement|null>>} */
+  const imageCache = new Map();
+  /** Per-position choices, so already-typed letters don't reshuffle on each keystroke. */
+  let slots = [];
+  let renderToken = 0;
+
+  const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('ransom-canvas'));
+  const input = /** @type {HTMLTextAreaElement} */ (document.getElementById('ransom-input'));
+  const counter = document.getElementById('ransom-count');
+
+  function showToast(msg) {
+    let toast = document.getElementById('global-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'global-toast';
+      toast.setAttribute('role', 'status');
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  async function loadManifest() {
+    try {
+      const res = await fetch('/ransom-letters-manifest.json');
+      manifest = await res.json();
+    } catch {
+      manifest = {};
+    }
+    if (input?.value) render(input.value);
+  }
+
+  function variantsFor(char) {
+    return manifest[char.toLowerCase()] || [];
+  }
+
+  function loadImage(src) {
+    if (!imageCache.has(src)) {
+      imageCache.set(
+        src,
+        new Promise((resolve) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => resolve(img);
+          img.onerror = () => resolve(null);
+          img.src = src;
+        })
+      );
+    }
+    return imageCache.get(src);
+  }
+
+  /** Reuse the existing choice when the character at this position is unchanged. */
+  function syncSlots(chars) {
+    slots.length = chars.length;
+    chars.forEach((char, i) => {
+      if (slots[i] && slots[i].char === char) return;
+      const variants = variantsFor(char);
+      slots[i] = {
+        char,
+        src: variants.length ? variants[Math.floor(Math.random() * variants.length)] : null,
+        angle: (Math.random() * 16 - 8) * (Math.PI / 180),
+        jitterY: Math.random() * 8 - 4,
+      };
+    });
+  }
+
+  /**
+   * Cutouts are not square — a '!' scrap is tall and narrow, a '-' scrap is
+   * wide and short. Each is drawn at a fixed height with its own width, so the
+   * advance depends on the loaded image's aspect ratio.
+   */
+  function advance(slot) {
+    if (slot.char === ' ') return ADV_SPACE;
+    if (!slot.src) return ADV_TEXT;
+    return (slot.w || SIZE) + SIZE * KERN;
+  }
+
+  /** Fill in drawn width/height for each slot from its loaded image. */
+  function measure(slots, images) {
+    for (const slot of slots) {
+      const img = slot.src ? images.get(slot.src) : null;
+      if (!img || !img.naturalWidth) {
+        slot.w = SIZE;
+        slot.h = SIZE;
+        continue;
+      }
+      slot.h = SIZE;
+      slot.w = Math.max(1, (img.naturalWidth / img.naturalHeight) * SIZE);
+    }
+  }
+
+  /** Greedy word wrap; a single word longer than the line still breaks mid-word. */
+  function layout(slots, maxWidth) {
+    const lines = [];
+    let line = [];
+    let x = 0;
+    let word = [];
+    let wordWidth = 0;
+
+    const flushWord = () => {
+      if (!word.length) return;
+      if (x + wordWidth > maxWidth && line.length) {
+        lines.push(line);
+        line = [];
+        x = 0;
+      }
+      for (const s of word) {
+        if (x + advance(s) > maxWidth && line.length) {
+          lines.push(line);
+          line = [];
+          x = 0;
+        }
+        line.push({ ...s, x });
+        x += advance(s);
+      }
+      word = [];
+      wordWidth = 0;
+    };
+
+    for (const slot of slots) {
+      if (slot.char === '\n') {
+        flushWord();
+        lines.push(line);
+        line = [];
+        x = 0;
+      } else if (slot.char === ' ') {
+        flushWord();
+        if (line.length) {
+          line.push({ ...slot, x });
+          x += ADV_SPACE;
+        }
+      } else {
+        word.push(slot);
+        wordWidth += advance(slot);
+      }
+    }
+    flushWord();
+    if (line.length) lines.push(line);
+    return lines;
+  }
+
+  async function render(text) {
+    const token = ++renderToken;
+    const ctx = canvas.getContext('2d');
+
+    syncSlots([...text]);
+
+    // Preload every cutout this render needs before touching the canvas, so
+    // fast typing can never interleave two half-finished renders — and so the
+    // layout can measure each scrap's real aspect ratio.
+    const srcs = [...new Set(slots.map((s) => s.src).filter(Boolean))];
+    const images = new Map(
+      await Promise.all(srcs.map(async (src) => [src, await loadImage(src)]))
+    );
+    if (token !== renderToken) return;
+
+    measure(slots, images);
+    const lines = layout(slots, WRAP_W);
+
+    // Trim the canvas to the drawn content: empty transparent margin would
+    // otherwise shrink the sticker once it's pasted into a Story.
+    const contentW = lines.reduce((w, line) => {
+      const glyphs = line.filter((s) => s.char !== ' ');
+      const last = glyphs[glyphs.length - 1];
+      return last ? Math.max(w, last.x + advance(last)) : w;
+    }, 0);
+
+    canvas.width = Math.round(Math.max(MIN_WIDTH, contentW + PAD * 2));
+    canvas.height = Math.round(
+      Math.max(MIN_HEIGHT, PAD * 2 + Math.max(lines.length, 1) * LINE_H)
+    );
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let y = PAD + 20;
+    for (const line of lines) {
+      for (const slot of line) {
+        if (slot.char === ' ') continue;
+        const x = PAD + slot.x;
+        const img = slot.src ? images.get(slot.src) : null;
+
+        if (!img) {
+          ctx.font = `700 ${SIZE * 0.7}px Quicksand, sans-serif`;
+          ctx.fillStyle = '#2B2B2B';
+          ctx.fillText(slot.char, x, y + SIZE * 0.6);
+          continue;
+        }
+
+        const dw = slot.w || SIZE;
+        const dh = slot.h || SIZE;
+        ctx.save();
+        ctx.translate(x + dw / 2, y + slot.jitterY + dh / 2);
+        ctx.rotate(slot.angle);
+        ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
+        ctx.restore();
+      }
+      y += LINE_H;
+    }
+  }
+
+  function canvasBlob() {
+    return new Promise((resolve, reject) =>
+      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('encode failed'))), 'image/png')
+    );
+  }
+
+  input?.addEventListener('input', () => {
+    if (counter) counter.textContent = String(input.value.length);
+    render(input.value);
+  });
+
+  document.getElementById('ransom-copy')?.addEventListener('click', async () => {
+    if (!input?.value.trim()) {
+      showToast('Type something first.');
+      return;
+    }
+    if (!navigator.clipboard || typeof ClipboardItem === 'undefined') {
+      showToast("Copy isn't supported here — tap Download instead.");
+      return;
+    }
+
+    const pending = canvasBlob();
+    pending.catch(() => {});
+
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': pending })]);
+      showToast('Copied! Paste into your Instagram Story.');
+      return;
+    } catch {
+      /* retry with a resolved blob below */
+    }
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': await pending })]);
+      showToast('Copied! Paste into your Instagram Story.');
+    } catch {
+      showToast("Copy isn't supported here — tap Download instead.");
+    }
+  });
+
+  document.getElementById('ransom-download')?.addEventListener('click', () => {
+    if (!input?.value.trim()) {
+      showToast('Type something first.');
+      return;
+    }
+    const a = document.createElement('a');
+    a.download = 'ransom-note.png';
+    a.href = canvas.toDataURL('image/png');
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
+
+  loadManifest();
+</script>

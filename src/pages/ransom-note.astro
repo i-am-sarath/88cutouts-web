@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import RansomNoteComposer from '../components/RansomNoteComposer.astro';
+import AdSlot from '../components/AdSlot.astro';
+
+const site = Astro.site?.href ?? 'https://88cutouts.com/';
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Ransom Note Generator',
+    url: new URL('/ransom-note/', site).href,
+    applicationCategory: 'DesignApplication',
+    operatingSystem: 'Any',
+    description:
+      'Type a message and get it back as a cut-out ransom-note collage you can copy straight into an Instagram Story.',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  },
+];
+---
+
+<BaseLayout
+  title="Ransom note generator — cutout letter collage | 88cutouts"
+  description="Type anything and watch it turn into a magazine-cutout ransom note. Copy or download the transparent PNG and paste it into your Instagram Story."
+  jsonld={jsonld}
+>
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Ransom note typewriter</h2>
+    </div>
+    <p class="lede">
+      Type a message and each letter is swapped for a real cut-out scrap, tilted and
+      jittered like it was snipped out of a magazine. Copy the result or download it as a
+      transparent PNG.
+    </p>
+
+    <RansomNoteComposer />
+
+    <AdSlot />
+  </div>
+</BaseLayout>
