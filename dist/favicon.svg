@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect width="64" height="64" rx="16" fill="#FFFCF8"/>
-  <path d="M32 15c-4-6-14-5-15 3 -1 7 8 13 15 18 7-5 16-11 15-18 -1-8-11-9-15-3z" fill="#FFA6B4"/>
-  <path d="M48 10l1.6 4.4L54 16l-4.4 1.6L48 22l-1.6-4.4L42 16l4.4-1.6z" fill="#BFD8C4"/>
-  <text x="32" y="56" font-family="Gaegu, Quicksand, sans-serif" font-size="18" font-weight="700"
-        text-anchor="middle" fill="#2B2B2B">88</text>
-</svg>
