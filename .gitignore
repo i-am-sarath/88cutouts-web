@@ -1,5 +1,4 @@
 node_modules/
-dist/
 # generated at build time by scripts/generate-thumbs.mjs
 public/stickers/thumbs/
 
