@@ -47,7 +47,7 @@ collections:
         default: "general"
       - { label: "Tags", name: "tags", widget: "list", required: false }
       - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "Date Added", name: "date", widget: "datetime" }
+      - { label: "Date Added", name: "date", widget: "date", format: "YYYY-MM-DD" }
 
   - name: "ransomLetters"
     label: "Ransom Note Letters"
