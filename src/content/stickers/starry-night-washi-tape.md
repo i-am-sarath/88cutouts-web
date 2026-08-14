@@ -5,5 +5,5 @@ type: sticker
 category: paper
 tags: []
 featured: false
-date: 2026-08-14T16:02
+date: 2026-08-14
 ---

@@ -5,5 +5,5 @@ type: sticker
 category: flowers
 tags: []
 featured: false
-date: 2026-08-14T15:48
+date: 2026-08-14
 ---

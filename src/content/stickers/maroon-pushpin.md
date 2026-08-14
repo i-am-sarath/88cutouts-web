@@ -5,5 +5,5 @@ type: sticker
 category: general
 tags: []
 featured: false
-date: 2026-08-14T15:55
+date: 2026-08-14
 ---

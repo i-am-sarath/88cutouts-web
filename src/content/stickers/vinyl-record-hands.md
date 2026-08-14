@@ -5,5 +5,5 @@ type: sticker
 category: retro
 tags: []
 featured: false
-date: 2026-08-14T15:58
+date: 2026-08-14
 ---

@@ -5,5 +5,5 @@ type: sticker
 category: cute
 tags: []
 featured: false
-date: 2026-08-14T16:12
+date: 2026-08-14
 ---
