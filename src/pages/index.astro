@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CategoryPills from '../components/CategoryPills.astro';
 import StickerCard from '../components/StickerCard.astro';
-import AdSlot from '../components/AdSlot.astro';
+
 
 const stickers = (await getCollection('stickers')).sort((a, b) => {
   if (a.data.featured !== b.data.featured) return a.data.featured ? -1 : 1;
@@ -64,10 +64,7 @@ const jsonld = [
       ) : (
         <div class="grid">
           {stickers.map((entry, i) => (
-            <>
               <StickerCard entry={entry} eager={i < 6} />
-              {(i + 1) % 12 === 0 && i + 1 < stickers.length && <AdSlot />}
-            </>
           ))}
         </div>
       )

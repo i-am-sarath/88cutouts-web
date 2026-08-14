@@ -4,7 +4,7 @@ import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CategoryPills from '../../components/CategoryPills.astro';
 import StickerCard from '../../components/StickerCard.astro';
-import AdSlot from '../../components/AdSlot.astro';
+
 
 export async function getStaticPaths() {
   const all = await getCollection('stickers');
@@ -73,10 +73,7 @@ const jsonld = [
     <div class="grid">
       {
         items.map((entry, i) => (
-          <>
             <StickerCard entry={entry} eager={i < 6} />
-            {(i + 1) % 12 === 0 && i + 1 < items.length && <AdSlot />}
-          </>
         ))
       }
     </div>

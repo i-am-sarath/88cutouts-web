@@ -4,7 +4,7 @@ import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CopyDownloadButtons from '../../components/CopyDownloadButtons.astro';
 import StickerCard from '../../components/StickerCard.astro';
-import AdSlot from '../../components/AdSlot.astro';
+
 
 export async function getStaticPaths() {
   const items = await getCollection('stickers');
@@ -122,6 +122,6 @@ const jsonld = [
       )
     }
 
-    <AdSlot />
+
   </div>
 </BaseLayout>
