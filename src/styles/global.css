@@ -573,28 +573,6 @@ main { flex: 1 0 auto; padding-bottom: 3.5rem; }
 
 .ransom-count { font-size: 0.8rem; color: var(--muted); font-weight: 600; text-align: right; }
 
-/* ---------- ad slot ---------- */
-
-.ad-slot {
-  grid-column: 1 / -1;
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  min-height: 120px;
-  display: grid;
-  place-items: center;
-  padding: 1rem;
-  margin-block: 0.4rem;
-}
-
-.ad-slot__label {
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-weight: 700;
-}
-
 /* ---------- prose ---------- */
 
 .prose { max-width: 62ch; padding-top: 1.8rem; }

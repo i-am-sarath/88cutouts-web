@@ -5,7 +5,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import CopyDownloadButtons from '../../components/CopyDownloadButtons.astro';
 import StickerCard from '../../components/StickerCard.astro';
 
-
 export async function getStaticPaths() {
   const items = await getCollection('stickers');
   return items.map((s) => ({
@@ -121,7 +120,5 @@ const jsonld = [
         </>
       )
     }
-
-
   </div>
 </BaseLayout>

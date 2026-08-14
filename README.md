@@ -141,7 +141,6 @@ root. Changes land on disk; commit them yourself.
 
 | File | What to set |
 | --- | --- |
-| `src/components/AdSlot.astro` | AdSense `<ins>` unit — **only after the domain is approved** |
 | `src/components/Footer.astro`, `src/pages/about.astro`, `src/pages/privacy.astro` | Contact email (`hello@88cutouts.com`) |
 | `public/admin/index.html` | `@sveltia/cms` is loaded unpinned from unpkg; pin a version to stop an upstream release breaking the admin |
 | `public/admin/config.yml` | *(optional)* `backend.base_url` — only if you deploy a `sveltia-cms-auth` Worker for OAuth login |
@@ -192,5 +191,19 @@ has been replaced by the real sticker and letter sets.
 
 ## Ads
 
-Manual ad units only — no Auto Ads. `AdSlot.astro` currently renders a labelled,
-fixed-height placeholder so switching real ads on causes no layout shift.
+**There are no ad slots in the site right now.** The empty "Sponsored" placeholders were
+removed before launch — a boxed placeholder with nothing in it is just dead space, and
+AdSense isn't approved yet.
+
+To reintroduce them after approval: restore `src/components/AdSlot.astro` and the
+`.ad-slot` rules in `global.css` (both are in git history — see the commit that removed
+them), then render `<AdSlot />` every ~12 cards on the gallery and category pages and once
+below the fold on sticker and ransom-note pages.
+
+When that happens, keep to the original decisions: **manual ad units only, no Auto Ads**
+(Auto Ads inject unpredictably and wreck CLS), give every slot a fixed reserved height so
+switching ads on causes no layout shift, and keep each one visibly labelled and boxed —
+never styled to pass as a sticker card.
+
+`src/pages/privacy.astro` already discloses the intent to run AdSense, so that page needs
+no change either way.

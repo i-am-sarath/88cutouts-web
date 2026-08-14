@@ -5,7 +5,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import CategoryPills from '../../components/CategoryPills.astro';
 import StickerCard from '../../components/StickerCard.astro';
 
-
 export async function getStaticPaths() {
   const all = await getCollection('stickers');
   const categories = [...new Set(all.map((s) => s.data.category))];
