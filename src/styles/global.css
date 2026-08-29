@@ -577,8 +577,15 @@ main { flex: 1 0 auto; padding-bottom: 3.5rem; }
 
 .prose { max-width: 62ch; padding-top: 1.8rem; }
 .prose h1 { font-size: clamp(2rem, 5vw, 2.7rem); margin-bottom: 0.8rem; }
+.prose h2 { font-size: 1.4rem; margin: 1.8rem 0 0.6rem; }
+.prose h3 { font-size: 1.1rem; margin: 1.4rem 0 0.4rem; }
 .prose p { margin-bottom: 1rem; color: #4A4744; }
+.prose ul, .prose ol { margin: 0 0 1rem 1.2rem; color: #4A4744; }
+.prose li { margin-bottom: 0.4rem; }
 .prose a { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; }
+
+.sticker-desc { max-width: 62ch; color: #4A4744; margin: 1.6rem 0 0; line-height: 1.6; }
+.category-intro { max-width: 62ch; color: #4A4744; margin-bottom: 1.2rem; line-height: 1.6; }
 
 .lede {
   max-width: 58ch;
