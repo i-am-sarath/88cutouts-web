@@ -25,3 +25,8 @@ stickers/_duplicates/
 .env.production
 npm-debug.log*
 .vscode/
+
+# DP gallery. Uploaded originals live in uploads/ and MUST be committed —
+# they are the gallery. Their thumbnails are regenerated on every build by
+# scripts/generate-dp-thumbs.mjs, so they are not.
+public/dps/uploads/thumbs/

@@ -5,13 +5,13 @@
  */
 ---
 
-<label class="sr-only" for="site-search">Search stickers</label>
+<label class="sr-only" for="site-search">Search stickers and DPs</label>
 <input
   id="site-search"
   class="search-input"
   type="search"
   autocomplete="off"
-  placeholder="Search stickers…"
+  placeholder="Search stickers & DPs…"
   role="combobox"
   aria-expanded="false"
   aria-controls="search-results"
@@ -27,7 +27,7 @@
   const panel = document.getElementById('search-results');
 
   if (input && panel) {
-    /** @type {Array<{slug:string,title:string,category:string,tags:string[],image:string}>} */
+    /** @type {Array<{slug:string,title:string,category:string,tags:string[],image:string,url?:string}>} */
     let index = [];
     let loading = null;
 
@@ -65,14 +65,14 @@
         return;
       }
       if (!hits.length) {
-        panel.innerHTML = '<p class="search-empty">No stickers match that yet.</p>';
+        panel.innerHTML = '<p class="search-empty">Nothing matches that yet.</p>';
         setOpen(true);
         return;
       }
       panel.innerHTML = hits
         .map(
           (h) => `
-            <a class="search-hit" role="option" href="/stickers/${encodeURIComponent(h.slug)}/">
+            <a class="search-hit" role="option" href="${escapeHtml(h.url || `/stickers/${encodeURIComponent(h.slug)}/`)}">
               <img src="${escapeHtml(h.image)}" alt="" loading="lazy" width="38" height="38" />
               <span>
                 <span class="t">${escapeHtml(h.title)}</span><br />

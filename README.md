@@ -46,6 +46,75 @@ single form, and commits straight to `main`.
 | `stickers/_duplicates/` | exact and near-duplicate rejects |
 | `stickers/_on-hold/` | parked, not published — see below |
 
+## DP gallery and DP maker
+
+Two features, one subject — a square image that a platform will crop to a circle:
+
+- **`/dp/`** — a gallery of profile pictures, grouped into ten collections (`girls`,
+  `whatsapp-girls`, `attitude-girls`, `sad-girl`, …). Each collection has its own landing
+  page at `/dp/<collection>/` and every DP a detail page at `/dp/<collection>/<slug>/`.
+- **`/dp-maker/`** — a browser tool that turns *your own photo* into a circular
+  transparent PNG, with our cutouts and your name on top.
+
+Nothing in the gallery is generated and nothing is scraped: every DP is a file a person
+uploaded through `/admin`, which is what keeps the gallery safe to publish on an
+AdSense-monetised site.
+
+### Adding a DP
+
+`/admin` → **DPs & Profile Pictures**. Square images, 900×900 or larger; they are shown
+as circles, so keep the subject centred and away from the corners. Pick a collection, and
+the DP appears on that landing page on the next build.
+
+Until the first one is uploaded, `astro build` prints `The collection "dps" does not
+exist or is empty` — that warning is expected and harmless, and the gallery pages render
+an empty state pointing at the DP maker. Both disappear with the first entry.
+
+```bash
+npm run dp-thumbs               # 200/400/512px WebP thumbnails for what is in uploads/
+npm run dp-thumbs -- --force    # rebuild them all
+```
+
+`scripts/generate-dp-thumbs.mjs` runs automatically in `prebuild` and in `npm run dev`.
+The originals in `public/dps/uploads/` are what Copy and Download hand over, so they are
+committed; the thumbnails beside them are not.
+
+### What is committed and what is not
+
+| Path | Committed? | Why |
+| --- | --- | --- |
+| `src/data/dp-collections.json` | yes | collection config — SEO copy, FAQ, and the palettes the maker offers as swatches |
+| `src/content/dps/*.md` | yes | one file per uploaded DP, written by the CMS |
+| `public/dps/uploads/` | yes | the images themselves — this *is* the gallery |
+| `public/dps/uploads/thumbs/` | **no** | regenerated on every deploy, like `public/stickers/thumbs` |
+
+### Adding a collection
+
+Append an entry to `src/data/dp-collections.json` (it needs `slug`, `name`, `h1`,
+`title`, `blurb`, `intro`, `related`, `faq`, `palettes`), then add the slug to the `dps`
+collection's `options` list in `public/admin/config.yml`. Routes, sitemap entries,
+navigation pills and JSON-LD all follow automatically, and the page stands on its own
+copy until you upload the first image to it.
+
+The `intro` and `faq` fields are not decoration — they are what these pages rank on, and
+the FAQ is emitted as `FAQPage` JSON-LD. Write them per collection; don't template one
+block across all ten.
+
+### The DP maker
+
+`src/components/DpMaker.astro` — one file, no dependencies, everything on canvas:
+
+- the photo is decoded with `createImageBitmap(file, { imageOrientation: 'from-image' })`
+  so EXIF-rotated phone photos land upright, downscaled to 2400px, then drawn under a
+  circular clip that the user drags, pinches and rotates;
+- sticker PNGs are alpha-trimmed on load, so the size slider means the same thing for
+  every cutout regardless of how much transparent padding it ships with;
+- the export re-paints into an offscreen canvas with the selection outline turned off and
+  encodes **PNG** — the transparent corners are the product, and JPEG would fill them.
+
+Nothing is uploaded. The photo is read from disk, drawn, and saved back; there is no
+network call in the whole flow.
+
 ## Ransom-note letters
 
 ```bash
@@ -103,6 +172,9 @@ Everything is editable from `/admin` (Sveltia CMS, GitHub backend). Publishing c
 
 - **Stickers & Frames** → writes one `.md` file to `src/content/stickers/`, image uploaded
   to `public/stickers/`.
+- **DPs & Profile Pictures** → writes one `.md` file to `src/content/dps/`, image uploaded
+  to `public/dps/uploads/`. Only for curated artwork; the bulk of the gallery is generated
+  (see the DP section above).
 - **Ransom Note Letters** → appends to `src/content/ransomLetters/letters.json`, image
   uploaded to `public/ransom-letters/`. One entry per character *per style variant* —
   upload several images with the same `character` and the composer picks one at random for

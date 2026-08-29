@@ -2,18 +2,40 @@
 interface Props {
   imageSrc: string;
   filename: string;
+  /**
+   * Download the file exactly as served instead of re-encoding it to PNG.
+   * Stickers need the PNG round-trip to guarantee alpha; a DP is an opaque
+   * JPEG, and re-encoding a 900px photographic image to PNG turns a 90 KB
+   * download into well over a megabyte for no gain.
+   */
+  downloadOriginal?: boolean;
+  /** Replaces the Instagram-Stories transparency note. */
+  hint?: string;
 }
 
-const { imageSrc, filename } = Astro.props;
+const { imageSrc, filename, downloadOriginal = false, hint } = Astro.props;
 ---
 
-<div class="action-row" data-src={imageSrc} data-filename={filename}>
+<div
+  class="action-row"
+  data-src={imageSrc}
+  data-filename={filename}
+  data-download-original={downloadOriginal ? 'true' : undefined}
+>
   <button class="btn-copy" type="button">Copy</button>
   <button class="btn-download" type="button">Download</button>
 </div>
 <p class="copy-hint">
-  Works best pasted into Instagram <strong>Stories</strong> — feed posts don't show
-  transparency.
+  {
+    hint ? (
+      hint
+    ) : (
+      <>
+        Works best pasted into Instagram <strong>Stories</strong> — feed posts don't show
+        transparency.
+      </>
+    )
+  }
 </p>
 
 <script>
@@ -86,10 +108,10 @@ const { imageSrc, filename } = Astro.props;
     }
   }
 
-  async function downloadImage(src, filename) {
+  async function downloadImage(src, filename, original) {
     try {
-      const blob = await toPngBlob(src);
-      track('sticker_download', { sticker: filename.replace(/\.png$/, '') });
+      const blob = original ? await (await fetch(src)).blob() : await toPngBlob(src);
+      track('sticker_download', { sticker: filename.replace(/\.\w+$/, '') });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -107,11 +129,12 @@ const { imageSrc, filename } = Astro.props;
     const src = row.getAttribute('data-src');
     const filename = row.getAttribute('data-filename') || 'sticker.png';
     if (!src) return;
-    const slug = filename.replace(/\.png$/, '');
+    const slug = filename.replace(/\.\w+$/, '');
+    const original = row.getAttribute('data-download-original') === 'true';
 
     row.querySelector('.btn-copy')?.addEventListener('click', () => copyImage(src, slug));
     row
       .querySelector('.btn-download')
-      ?.addEventListener('click', () => downloadImage(src, filename));
+      ?.addEventListener('click', () => downloadImage(src, filename, original));
   });
 </script>

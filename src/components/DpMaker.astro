@@ -1,0 +1,1131 @@
+---
+/**
+ * DP maker — your photo, our cutouts, a circular transparent PNG.
+ *
+ * The whole point of the output is the alpha channel: WhatsApp, Instagram and
+ * Discord all crop a profile picture to a circle, so this exports the circle
+ * itself with the four corners transparent. Set it anywhere and there is no
+ * square edge left over to be clipped.
+ *
+ * Everything runs on canvas in the browser. The photo is never uploaded, which
+ * is the promise the page makes and the reason there is no server here at all.
+ */
+import collections from '../data/dp-collections.json';
+
+// Every palette on the site, de-duplicated, becomes a preset swatch for the
+// background that shows behind and around the photo.
+const seen = new Set<string>();
+const palettes = collections
+  .flatMap((c) => c.palettes)
+  .filter((p) => {
+    const key = p.bg.join('|');
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+---
+
+<div class="dp-maker">
+  <script type="application/json" id="dp-palettes" set:html={JSON.stringify(palettes)} />
+
+  <div class="dp-stage">
+    <div class="dp-canvas-frame" id="dp-frame">
+      <canvas
+        id="dp-canvas"
+        width="1080"
+        height="1080"
+        role="img"
+        aria-label="Live preview of the profile picture you are making"></canvas>
+
+      <div class="dp-dropzone" id="dp-dropzone">
+        <span class="dp-drop-icon" aria-hidden="true">＋</span>
+        <button class="btn-copy" id="dp-pick" type="button">Upload your photo</button>
+        <p>or drag one in, or paste with Ctrl&nbsp;+&nbsp;V</p>
+        <p class="dp-drop-small">It stays on your device — nothing is uploaded.</p>
+      </div>
+    </div>
+
+    <input type="file" id="dp-file" accept="image/*" hidden />
+
+    <div class="dp-stage-actions">
+      <p class="dp-stage-hint" id="dp-stage-hint" hidden>
+        Drag to reframe · pinch or scroll to zoom
+      </p>
+      <button class="btn-shuffle" id="dp-shuffle" type="button">✦ Shuffle colours</button>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-copy" id="dp-copy" type="button">Copy</button>
+      <button class="btn-download" id="dp-download" type="button">Download PNG</button>
+    </div>
+    <p class="copy-hint">
+      You get a <strong>1080 × 1080 PNG of the circle</strong>, corners transparent —
+      exactly the part WhatsApp and Instagram keep after they crop.
+    </p>
+  </div>
+
+  <div class="dp-controls">
+    <section class="dp-panel" id="dp-photo-panel">
+      <h3>Your photo</h3>
+
+      <div id="dp-photo-empty">
+        <p class="dp-tip">
+          Add a photo and it drops straight into the circle. Drag it to reframe, pinch or
+          scroll to zoom.
+        </p>
+        <button class="btn-shuffle" id="dp-pick-2" type="button">Choose a photo</button>
+      </div>
+
+      <div id="dp-photo-controls" hidden>
+        <label class="dp-field dp-field-block">
+          <span>Zoom</span>
+          <input type="range" id="dp-photo-zoom" min="100" max="400" value="100" />
+        </label>
+        <label class="dp-field dp-field-block">
+          <span>Straighten</span>
+          <input type="range" id="dp-photo-rot" min="-180" max="180" value="0" />
+        </label>
+        <div class="dp-btn-row">
+          <button class="btn-shuffle" id="dp-photo-flip" type="button">Flip</button>
+          <button class="btn-shuffle" id="dp-photo-replace" type="button">Replace</button>
+          <button class="btn-ghost" id="dp-photo-remove" type="button">Remove</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="dp-panel">
+      <h3>Behind the photo</h3>
+      <label class="dp-toggle dp-toggle-block">
+        <input type="checkbox" id="dp-bg-on" checked />
+        <span>Fill the gaps with colour</span>
+      </label>
+      <p class="dp-tip">
+        Turn it off to leave everything the photo doesn't cover transparent.
+      </p>
+      <div id="dp-bg-controls">
+        <div class="dp-swatches" id="dp-swatches"></div>
+        <div class="dp-field-row">
+          <label class="dp-field">
+            <span>From</span>
+            <input type="color" id="dp-bg-from" value="#FFF1F4" />
+          </label>
+          <label class="dp-field">
+            <span>To</span>
+            <input type="color" id="dp-bg-to" value="#FFD3DE" />
+          </label>
+          <label class="dp-field dp-field-grow">
+            <span>Angle</span>
+            <input type="range" id="dp-bg-angle" min="0" max="360" value="45" />
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="dp-panel">
+      <h3>Stickers on top</h3>
+      <input
+        class="dp-search"
+        id="dp-sticker-search"
+        type="search"
+        placeholder="Search stickers — bow, cat, heart..."
+        autocomplete="off"
+      />
+      <div class="dp-sticker-grid" id="dp-sticker-grid" role="listbox" aria-label="Stickers"></div>
+    </section>
+
+    <section class="dp-panel" id="dp-layer-panel" hidden>
+      <h3 id="dp-layer-title">Selected sticker</h3>
+      <label class="dp-field dp-field-block">
+        <span>Size</span>
+        <input type="range" id="dp-layer-size" min="4" max="100" value="32" />
+      </label>
+      <label class="dp-field dp-field-block">
+        <span>Rotation</span>
+        <input type="range" id="dp-layer-rot" min="-180" max="180" value="0" />
+      </label>
+      <p class="dp-tip">Drag it on the canvas to move it.</p>
+      <div class="dp-btn-row">
+        <button class="btn-shuffle" id="dp-layer-front" type="button">Bring to front</button>
+        <button class="btn-ghost" id="dp-layer-delete" type="button">Remove</button>
+      </div>
+    </section>
+
+    <section class="dp-panel">
+      <h3>Text</h3>
+      <input
+        class="dp-search"
+        id="dp-text"
+        type="text"
+        maxlength="24"
+        placeholder="Your name or initial"
+        autocomplete="off"
+      />
+      <div class="dp-field-row">
+        <label class="dp-field">
+          <span>Font</span>
+          <select id="dp-text-font">
+            <option value="Quicksand">Quicksand</option>
+            <option value="Gaegu">Gaegu</option>
+          </select>
+        </label>
+        <label class="dp-field">
+          <span>Colour</span>
+          <input type="color" id="dp-text-color" value="#FFFFFF" />
+        </label>
+        <label class="dp-field dp-field-grow">
+          <span>Size</span>
+          <input type="range" id="dp-text-size" min="4" max="30" value="12" />
+        </label>
+      </div>
+    </section>
+
+    <section class="dp-panel">
+      <h3>Finish</h3>
+      <label class="dp-toggle dp-toggle-block">
+        <input type="checkbox" id="dp-ring-on" />
+        <span>Ring around the edge</span>
+      </label>
+      <div class="dp-field-row">
+        <label class="dp-field">
+          <span>Ring colour</span>
+          <input type="color" id="dp-ring-color" value="#FFFFFF" />
+        </label>
+        <label class="dp-field dp-field-grow">
+          <span>Ring width</span>
+          <input type="range" id="dp-ring-width" min="1" max="10" value="3" />
+        </label>
+        <label class="dp-field dp-field-grow">
+          <span>Vignette</span>
+          <input type="range" id="dp-vignette" min="0" max="60" value="0" />
+        </label>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  import { track } from '../lib/track';
+
+  const SIZE = 1080;
+  const R = SIZE / 2;
+  const MAX_STICKERS = 5;
+  /** Photos off a modern phone are 4000px wide; nothing above this shows at 1080. */
+  const MAX_PHOTO = 2400;
+
+  const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('dp-canvas'));
+  const ctx = canvas.getContext('2d');
+
+  const el = (id) => document.getElementById(id);
+  const palettes = JSON.parse(el('dp-palettes').textContent || '[]');
+
+  const state = {
+    /** @type {null | {img:any,w:number,h:number,zoom:number,cx:number,cy:number,rot:number,flip:boolean,url:string|null}} */
+    photo: null,
+    bg: { on: true, from: '#FFF1F4', to: '#FFD3DE', angle: 45 },
+    blobs: [],
+    ring: { on: false, color: '#FFFFFF', width: 0.03 },
+    vignette: 0,
+    /** Stickers and text, painted in array order. */
+    layers: [],
+    active: null,
+  };
+
+  let stickers = [];
+
+  /* ---------------------------------------------------------------- utils */
+
+  function showToast(msg) {
+    let toast = document.getElementById('global-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'global-toast';
+      toast.setAttribute('role', 'status');
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.classList.remove('show'), 2400);
+  }
+
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+  function hexToRgb(hex) {
+    const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(hex);
+    return m
+      ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) }
+      : { r: 255, g: 255, b: 255 };
+  }
+
+  const rgba = (hex, a) => {
+    const { r, g, b } = hexToRgb(hex);
+    return `rgba(${r},${g},${b},${a})`;
+  };
+
+  /* ------------------------------------------------------------- the photo */
+
+  /**
+   * Phone photos carry an EXIF orientation flag that drawImage ignores, so a
+   * portrait shot lands on its side unless the decoder is told to respect it.
+   * createImageBitmap can be; the <img> fallback covers browsers where it will
+   * not take a Blob, and those apply the orientation themselves.
+   */
+  async function decodeImage(file) {
+    try {
+      return await createImageBitmap(file, { imageOrientation: 'from-image' });
+    } catch {
+      /* fall through to the <img> path */
+    }
+
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image();
+      img.src = url;
+      await img.decode();
+      return img;
+    } catch {
+      URL.revokeObjectURL(url);
+      return null;
+    }
+  }
+
+  /** Downsizes anything much larger than the output so dragging stays smooth. */
+  function shrink(source, w, h) {
+    const longest = Math.max(w, h);
+    if (longest <= MAX_PHOTO) return { img: source, w, h };
+
+    const scale = MAX_PHOTO / longest;
+    const out = document.createElement('canvas');
+    out.width = Math.round(w * scale);
+    out.height = Math.round(h * scale);
+    const c = out.getContext('2d');
+    c.imageSmoothingQuality = 'high';
+    c.drawImage(source, 0, 0, out.width, out.height);
+    return { img: out, w: out.width, h: out.height };
+  }
+
+  async function setPhoto(file) {
+    if (!file || !/^image\//.test(file.type)) {
+      showToast("That doesn't look like an image file.");
+      return;
+    }
+
+    const decoded = await decodeImage(file);
+    if (!decoded) {
+      showToast("Couldn't read that image — try a JPG or PNG.");
+      return;
+    }
+
+    const w = decoded.width || decoded.naturalWidth;
+    const h = decoded.height || decoded.naturalHeight;
+    const fitted = shrink(decoded, w, h);
+    const url = decoded instanceof HTMLImageElement ? decoded.src : null;
+
+    clearPhoto();
+    state.photo = {
+      img: fitted.img,
+      w: fitted.w,
+      h: fitted.h,
+      zoom: 1,
+      cx: 0.5,
+      cy: 0.5,
+      rot: 0,
+      flip: false,
+      url,
+    };
+
+    syncControls();
+    draw();
+    track('dp_maker_photo_added');
+  }
+
+  function clearPhoto() {
+    if (!state.photo) return;
+    if (state.photo.url) URL.revokeObjectURL(state.photo.url);
+    state.photo = null;
+  }
+
+  /** Photo size on canvas at zoom 1: the short side exactly covers the circle. */
+  function photoBox() {
+    const p = state.photo;
+    const base = SIZE / Math.min(p.w, p.h);
+    return { w: p.w * base * p.zoom, h: p.h * base * p.zoom };
+  }
+
+  /**
+   * Keeps the photo covering the frame so no accidental transparent wedge
+   * opens up at an edge. Rotation makes the covering rectangle awkward to
+   * solve for, so a straightened photo is pinned and a tilted one runs free.
+   */
+  function clampPhoto() {
+    const p = state.photo;
+    if (!p) return;
+
+    if (p.rot !== 0) {
+      p.cx = clamp(p.cx, -0.25, 1.25);
+      p.cy = clamp(p.cy, -0.25, 1.25);
+      return;
+    }
+
+    const { w, h } = photoBox();
+    const slackX = Math.max(0, (w - SIZE) / 2) / SIZE;
+    const slackY = Math.max(0, (h - SIZE) / 2) / SIZE;
+    p.cx = clamp(p.cx, 0.5 - slackX, 0.5 + slackX);
+    p.cy = clamp(p.cy, 0.5 - slackY, 0.5 + slackY);
+  }
+
+  /* ------------------------------------------------------- sticker loading */
+
+  const stickerCache = new Map();
+
+  /**
+   * Sticker PNGs carry different amounts of transparent padding, so a raw
+   * drawImage makes "30% of the canvas" mean a different physical size for
+   * every cutout. Trimming the alpha border first makes the size slider mean
+   * the same thing whichever sticker is on screen.
+   */
+  function loadSticker(src) {
+    if (stickerCache.has(src)) return stickerCache.get(src);
+
+    const promise = (async () => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = src;
+      await img.decode();
+
+      const work = document.createElement('canvas');
+      work.width = img.naturalWidth;
+      work.height = img.naturalHeight;
+      const wctx = work.getContext('2d', { willReadFrequently: true });
+      wctx.drawImage(img, 0, 0);
+
+      const { data } = wctx.getImageData(0, 0, work.width, work.height);
+      let minX = work.width;
+      let minY = work.height;
+      let maxX = -1;
+      let maxY = -1;
+
+      for (let y = 0; y < work.height; y++) {
+        for (let x = 0; x < work.width; x++) {
+          if (data[(y * work.width + x) * 4 + 3] > 10) {
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+
+      // A fully transparent image has nothing to trim.
+      if (maxX < 0) return img;
+
+      const out = document.createElement('canvas');
+      out.width = maxX - minX + 1;
+      out.height = maxY - minY + 1;
+      out
+        .getContext('2d')
+        .drawImage(img, minX, minY, out.width, out.height, 0, 0, out.width, out.height);
+      return out;
+    })().catch(() => null);
+
+    stickerCache.set(src, promise);
+    return promise;
+  }
+
+  /* -------------------------------------------------------------- rendering */
+
+  /**
+   * Draws the whole DP into any 2D context sized SIZE x SIZE.
+   *
+   * Everything happens inside a circular clip, the background included, so
+   * whatever falls outside the circle is left transparent rather than painted
+   * and thrown away later. `ui` adds the selection outline and is off for the
+   * export pass — that outline must never reach the downloaded file.
+   */
+  async function paint(c, { ui = false } = {}) {
+    c.clearRect(0, 0, SIZE, SIZE);
+    c.save();
+    c.beginPath();
+    c.arc(R, R, R, 0, Math.PI * 2);
+    c.clip();
+
+    if (state.bg.on) {
+      const rad = (state.bg.angle * Math.PI) / 180;
+      const x1 = R - (Math.cos(rad) * SIZE) / 2;
+      const y1 = R - (Math.sin(rad) * SIZE) / 2;
+      const grad = c.createLinearGradient(x1, y1, SIZE - x1, SIZE - y1);
+      grad.addColorStop(0, state.bg.from);
+      grad.addColorStop(1, state.bg.to);
+      c.fillStyle = grad;
+      c.fillRect(0, 0, SIZE, SIZE);
+
+      for (const blob of state.blobs) {
+        const g = c.createRadialGradient(
+          blob.cx * SIZE,
+          blob.cy * SIZE,
+          0,
+          blob.cx * SIZE,
+          blob.cy * SIZE,
+          blob.r * SIZE
+        );
+        g.addColorStop(0, rgba(blob.color, blob.opacity));
+        g.addColorStop(1, rgba(blob.color, 0));
+        c.fillStyle = g;
+        c.fillRect(0, 0, SIZE, SIZE);
+      }
+    }
+
+    if (state.photo) {
+      const p = state.photo;
+      const { w, h } = photoBox();
+      c.save();
+      c.translate(p.cx * SIZE, p.cy * SIZE);
+      c.rotate((p.rot * Math.PI) / 180);
+      if (p.flip) c.scale(-1, 1);
+      c.drawImage(p.img, -w / 2, -h / 2, w, h);
+      c.restore();
+    }
+
+    for (const layer of state.layers) {
+      c.save();
+      c.translate(layer.cx * SIZE, layer.cy * SIZE);
+      c.rotate((layer.rot * Math.PI) / 180);
+      c.shadowColor = 'rgba(0,0,0,0.22)';
+      c.shadowBlur = 22;
+      c.shadowOffsetY = 6;
+
+      if (layer.type === 'sticker') {
+        const art = await loadSticker(layer.src);
+        if (art) {
+          const aw = art.width || art.naturalWidth;
+          const ah = art.height || art.naturalHeight;
+          const scale = (layer.size * SIZE) / Math.max(aw, ah);
+          layer._hw = (aw * scale) / 2;
+          layer._hh = (ah * scale) / 2;
+          c.drawImage(art, -layer._hw, -layer._hh, aw * scale, ah * scale);
+        }
+      } else {
+        const px = layer.size * SIZE;
+        c.font = `700 ${px}px ${layer.font}, sans-serif`;
+        c.fillStyle = layer.color;
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        layer._hw = c.measureText(layer.text).width / 2;
+        layer._hh = px * 0.62;
+        c.fillText(layer.text, 0, 0);
+      }
+      c.restore();
+    }
+
+    if (state.vignette > 0) {
+      const v = c.createRadialGradient(R, R, SIZE * 0.28, R, R, R);
+      v.addColorStop(0, 'rgba(0,0,0,0)');
+      v.addColorStop(1, `rgba(0,0,0,${state.vignette})`);
+      c.fillStyle = v;
+      c.fillRect(0, 0, SIZE, SIZE);
+    }
+
+    c.restore();
+
+    if (state.ring.on) {
+      const lw = state.ring.width * SIZE;
+      c.save();
+      c.lineWidth = lw;
+      c.strokeStyle = state.ring.color;
+      c.beginPath();
+      c.arc(R, R, R - lw / 2, 0, Math.PI * 2);
+      c.stroke();
+      c.restore();
+    }
+
+    if (ui) paintSelection(c);
+  }
+
+  function paintSelection(c) {
+    const layer = activeLayer();
+    if (!layer || layer._hw == null) return;
+
+    const x = -layer._hw - 12;
+    const y = -layer._hh - 12;
+    const w = layer._hw * 2 + 24;
+    const h = layer._hh * 2 + 24;
+
+    c.save();
+    c.translate(layer.cx * SIZE, layer.cy * SIZE);
+    c.rotate((layer.rot * Math.PI) / 180);
+    c.lineWidth = 3;
+    c.setLineDash([14, 10]);
+    // Two passes, offset from each other, so the outline reads on a light and
+    // a dark photo alike without a solid box behind it.
+    c.strokeStyle = 'rgba(255,255,255,0.95)';
+    c.strokeRect(x, y, w, h);
+    c.strokeStyle = 'rgba(43,43,43,0.5)';
+    c.lineDashOffset = 12;
+    c.strokeRect(x, y, w, h);
+    c.restore();
+  }
+
+  // Painting is async (a sticker may still be decoding), so a burst of slider
+  // input collapses into one trailing repaint instead of queueing dozens.
+  let painting = false;
+  let queued = false;
+  async function draw() {
+    if (painting) {
+      queued = true;
+      return;
+    }
+    painting = true;
+    await paint(ctx, { ui: true });
+    painting = false;
+    if (queued) {
+      queued = false;
+      draw();
+    }
+  }
+
+  /** A clean copy with no selection outline — what Copy and Download hand over. */
+  async function exportCanvas() {
+    const out = document.createElement('canvas');
+    out.width = SIZE;
+    out.height = SIZE;
+    await paint(out.getContext('2d'), { ui: false });
+    return out;
+  }
+
+  /* --------------------------------------------------------------- controls */
+
+  function activeLayer() {
+    return state.active != null ? state.layers[state.active] : null;
+  }
+
+  function randomBlobs(colors) {
+    return colors.map((color) => ({
+      color,
+      cx: 0.1 + Math.random() * 0.8,
+      cy: 0.1 + Math.random() * 0.8,
+      r: 0.26 + Math.random() * 0.2,
+      opacity: 0.5 + Math.random() * 0.35,
+    }));
+  }
+
+  function syncControls() {
+    el('dp-bg-on').checked = state.bg.on;
+    el('dp-bg-controls').hidden = !state.bg.on;
+    el('dp-bg-from').value = state.bg.from;
+    el('dp-bg-to').value = state.bg.to;
+    el('dp-bg-angle').value = String(state.bg.angle);
+    el('dp-vignette').value = String(Math.round(state.vignette * 100));
+    el('dp-ring-on').checked = state.ring.on;
+    el('dp-ring-color').value = state.ring.color;
+    el('dp-ring-width').value = String(Math.round(state.ring.width * 100));
+
+    const hasPhoto = Boolean(state.photo);
+    el('dp-dropzone').hidden = hasPhoto;
+    el('dp-photo-empty').hidden = hasPhoto;
+    el('dp-photo-controls').hidden = !hasPhoto;
+    el('dp-stage-hint').hidden = !hasPhoto;
+    if (hasPhoto) {
+      el('dp-photo-zoom').value = String(Math.round(state.photo.zoom * 100));
+      el('dp-photo-rot').value = String(Math.round(state.photo.rot));
+    }
+
+    const layer = activeLayer();
+    const panel = el('dp-layer-panel');
+    if (layer) {
+      panel.hidden = false;
+      el('dp-layer-title').textContent =
+        layer.type === 'sticker' ? 'Selected sticker' : 'Selected text';
+      el('dp-layer-size').value = String(Math.round(layer.size * 100));
+      el('dp-layer-rot').value = String(Math.round(layer.rot));
+    } else {
+      panel.hidden = true;
+    }
+  }
+
+  /* ------------------------------------------------------------ photo input */
+
+  el('dp-file').addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (file) setPhoto(file);
+    // Cleared so picking the same file twice in a row still fires a change.
+    e.target.value = '';
+  });
+
+  const openPicker = () => el('dp-file').click();
+  el('dp-pick').addEventListener('click', openPicker);
+  el('dp-pick-2').addEventListener('click', openPicker);
+  el('dp-photo-replace').addEventListener('click', openPicker);
+
+  el('dp-photo-remove').addEventListener('click', () => {
+    clearPhoto();
+    syncControls();
+    draw();
+  });
+
+  el('dp-photo-flip').addEventListener('click', () => {
+    if (!state.photo) return;
+    state.photo.flip = !state.photo.flip;
+    draw();
+  });
+
+  el('dp-photo-zoom').addEventListener('input', (e) => {
+    if (!state.photo) return;
+    state.photo.zoom = +e.target.value / 100;
+    clampPhoto();
+    draw();
+  });
+
+  el('dp-photo-rot').addEventListener('input', (e) => {
+    if (!state.photo) return;
+    state.photo.rot = +e.target.value;
+    clampPhoto();
+    draw();
+  });
+
+  const frame = el('dp-frame');
+
+  ['dragenter', 'dragover'].forEach((type) =>
+    frame.addEventListener(type, (e) => {
+      e.preventDefault();
+      frame.classList.add('is-dropping');
+    })
+  );
+
+  ['dragleave', 'dragend'].forEach((type) =>
+    frame.addEventListener(type, () => frame.classList.remove('is-dropping'))
+  );
+
+  frame.addEventListener('drop', (e) => {
+    e.preventDefault();
+    frame.classList.remove('is-dropping');
+    const file = e.dataTransfer?.files?.[0];
+    if (file) setPhoto(file);
+  });
+
+  document.addEventListener('paste', (e) => {
+    const item = [...(e.clipboardData?.items || [])].find((i) => i.type.startsWith('image/'));
+    if (!item) return;
+    const file = item.getAsFile();
+    if (file) setPhoto(file);
+  });
+
+  /* -------------------------------------------------------------- background */
+
+  el('dp-bg-on').addEventListener('change', (e) => {
+    state.bg.on = e.target.checked;
+    el('dp-bg-controls').hidden = !state.bg.on;
+    draw();
+  });
+  el('dp-bg-from').addEventListener('input', (e) => {
+    state.bg.from = e.target.value;
+    draw();
+  });
+  el('dp-bg-to').addEventListener('input', (e) => {
+    state.bg.to = e.target.value;
+    draw();
+  });
+  el('dp-bg-angle').addEventListener('input', (e) => {
+    state.bg.angle = +e.target.value;
+    draw();
+  });
+
+  el('dp-shuffle').addEventListener('click', () => {
+    const p = palettes[Math.floor(Math.random() * palettes.length)];
+    if (!p) return;
+    state.bg = { on: true, from: p.bg[0], to: p.bg[1], angle: Math.floor(Math.random() * 360) };
+    state.blobs = randomBlobs(p.blobs);
+    syncControls();
+    draw();
+    track('dp_maker_shuffle');
+  });
+
+  /* ------------------------------------------------------------------ finish */
+
+  el('dp-ring-on').addEventListener('change', (e) => {
+    state.ring.on = e.target.checked;
+    draw();
+  });
+  el('dp-ring-color').addEventListener('input', (e) => {
+    state.ring.color = e.target.value;
+    if (state.ring.on) draw();
+  });
+  el('dp-ring-width').addEventListener('input', (e) => {
+    state.ring.width = +e.target.value / 100;
+    if (state.ring.on) draw();
+  });
+  el('dp-vignette').addEventListener('input', (e) => {
+    state.vignette = +e.target.value / 100;
+    draw();
+  });
+
+  /* ------------------------------------------------------------ layer panel */
+
+  el('dp-layer-size').addEventListener('input', (e) => {
+    const layer = activeLayer();
+    if (!layer) return;
+    layer.size = +e.target.value / 100;
+    if (layer.type === 'text') el('dp-text-size').value = e.target.value;
+    draw();
+  });
+
+  el('dp-layer-rot').addEventListener('input', (e) => {
+    const layer = activeLayer();
+    if (!layer) return;
+    layer.rot = +e.target.value;
+    draw();
+  });
+
+  el('dp-layer-front').addEventListener('click', () => {
+    const layer = activeLayer();
+    if (!layer) return;
+    state.layers.splice(state.active, 1);
+    state.layers.push(layer);
+    state.active = state.layers.length - 1;
+    draw();
+  });
+
+  el('dp-layer-delete').addEventListener('click', () => {
+    const layer = activeLayer();
+    if (!layer) return;
+    if (layer.type === 'text') el('dp-text').value = '';
+    state.layers.splice(state.active, 1);
+    state.active = null;
+    syncControls();
+    draw();
+  });
+
+  /* ------------------------------------------------------------------ text */
+
+  function textLayerIndex() {
+    return state.layers.findIndex((l) => l.type === 'text');
+  }
+
+  function updateText() {
+    const value = el('dp-text').value.trim();
+    const idx = textLayerIndex();
+
+    if (!value) {
+      if (idx >= 0) {
+        state.layers.splice(idx, 1);
+        if (state.active === idx) state.active = null;
+        else if (state.active != null && state.active > idx) state.active--;
+      }
+      syncControls();
+      draw();
+      return;
+    }
+
+    const patch = {
+      type: 'text',
+      text: value,
+      font: el('dp-text-font').value,
+      color: el('dp-text-color').value,
+      size: +el('dp-text-size').value / 100,
+    };
+
+    if (idx >= 0) {
+      state.layers[idx] = { ...state.layers[idx], ...patch };
+      if (state.active === idx) syncControls();
+    } else {
+      // Low in the frame, where a name sits without landing on a face.
+      state.layers.push({ ...patch, cx: 0.5, cy: 0.76, rot: 0 });
+    }
+    draw();
+  }
+
+  ['dp-text', 'dp-text-font', 'dp-text-color', 'dp-text-size'].forEach((id) =>
+    el(id).addEventListener('input', updateText)
+  );
+
+  /* -------------------------------------------------------- sticker picker */
+
+  function renderStickerGrid(filter = '') {
+    const q = filter.trim().toLowerCase();
+    const list = q
+      ? stickers.filter(
+          (s) =>
+            s.title.toLowerCase().includes(q) ||
+            s.category.toLowerCase().includes(q) ||
+            (s.tags || []).some((t) => t.toLowerCase().includes(q))
+        )
+      : stickers;
+
+    const grid = el('dp-sticker-grid');
+    grid.innerHTML = '';
+
+    if (!list.length) {
+      grid.innerHTML = '<p class="dp-tip">Nothing matched that.</p>';
+      return;
+    }
+
+    for (const s of list.slice(0, 60)) {
+      const base = s.image.replace(/^\/stickers\//, '').replace(/\.png$/i, '');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'dp-sticker-btn';
+      btn.title = s.title;
+      btn.innerHTML = `<img src="/stickers/thumbs/${base}-200.webp" alt="${s.title}" width="200" height="200" loading="lazy" decoding="async" />`;
+      btn.addEventListener('click', () => addSticker(s.image));
+      grid.appendChild(btn);
+    }
+  }
+
+  function addSticker(src) {
+    const count = state.layers.filter((l) => l.type === 'sticker').length;
+    if (count >= MAX_STICKERS) {
+      showToast(`That's the limit — ${MAX_STICKERS} stickers.`);
+      return;
+    }
+
+    // Low and to one side by default: a DP is usually a face, and a cutout
+    // dropped dead centre lands on the nose.
+    state.layers.push({
+      type: 'sticker',
+      src,
+      cx: count === 0 ? 0.7 : 0.3 + Math.random() * 0.4,
+      cy: count === 0 ? 0.72 : 0.3 + Math.random() * 0.4,
+      size: count === 0 ? 0.32 : 0.24,
+      rot: Math.random() * 16 - 8,
+    });
+    state.active = state.layers.length - 1;
+    syncControls();
+    draw();
+    track('dp_maker_add_sticker');
+  }
+
+  el('dp-sticker-search').addEventListener('input', (e) => renderStickerGrid(e.target.value));
+
+  /* -------------------------------------------------- dragging and zooming */
+
+  function canvasPoint(evt) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: ((evt.clientX - rect.left) / rect.width) * SIZE,
+      y: ((evt.clientY - rect.top) / rect.height) * SIZE,
+    };
+  }
+
+  /** Topmost layer whose box contains the point, so overlapping picks the visible one. */
+  function hitTest(pt) {
+    for (let i = state.layers.length - 1; i >= 0; i--) {
+      const l = state.layers[i];
+      if (l._hw == null) continue;
+
+      // Into the layer's own rotated frame, where the box is axis-aligned.
+      const rad = (-l.rot * Math.PI) / 180;
+      const dx = pt.x - l.cx * SIZE;
+      const dy = pt.y - l.cy * SIZE;
+      const lx = dx * Math.cos(rad) - dy * Math.sin(rad);
+      const ly = dx * Math.sin(rad) + dy * Math.cos(rad);
+      if (Math.abs(lx) <= l._hw + 10 && Math.abs(ly) <= l._hh + 10) return i;
+    }
+    return null;
+  }
+
+  /** Pointer id -> latest position, so two fingers can pinch the photo. */
+  const pointers = new Map();
+  let dragging = null;
+  let pinch = null;
+
+  function pinchDistance() {
+    const [a, b] = [...pointers.values()];
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
+  canvas.addEventListener('pointerdown', (e) => {
+    const pt = canvasPoint(e);
+    pointers.set(e.pointerId, pt);
+    canvas.setPointerCapture(e.pointerId);
+
+    if (pointers.size === 2 && state.photo) {
+      dragging = null;
+      pinch = { dist: pinchDistance(), zoom: state.photo.zoom };
+      return;
+    }
+
+    const hit = hitTest(pt);
+    state.active = hit;
+    syncControls();
+    draw();
+
+    if (hit != null) {
+      const l = state.layers[hit];
+      dragging = { kind: 'layer', offX: pt.x - l.cx * SIZE, offY: pt.y - l.cy * SIZE };
+    } else if (state.photo) {
+      const p = state.photo;
+      dragging = { kind: 'photo', offX: pt.x - p.cx * SIZE, offY: pt.y - p.cy * SIZE };
+    } else {
+      dragging = null;
+    }
+
+    if (dragging) canvas.classList.add('is-dragging');
+  });
+
+  canvas.addEventListener('pointermove', (e) => {
+    if (!pointers.has(e.pointerId)) return;
+    const pt = canvasPoint(e);
+    pointers.set(e.pointerId, pt);
+
+    if (pinch && pointers.size === 2 && state.photo) {
+      e.preventDefault();
+      state.photo.zoom = clamp(pinch.zoom * (pinchDistance() / pinch.dist), 1, 4);
+      el('dp-photo-zoom').value = String(Math.round(state.photo.zoom * 100));
+      clampPhoto();
+      draw();
+      return;
+    }
+
+    if (!dragging) return;
+    e.preventDefault();
+
+    if (dragging.kind === 'layer') {
+      const l = activeLayer();
+      if (!l) return;
+      l.cx = clamp((pt.x - dragging.offX) / SIZE, -0.1, 1.1);
+      l.cy = clamp((pt.y - dragging.offY) / SIZE, -0.1, 1.1);
+    } else {
+      const p = state.photo;
+      if (!p) return;
+      p.cx = (pt.x - dragging.offX) / SIZE;
+      p.cy = (pt.y - dragging.offY) / SIZE;
+      clampPhoto();
+    }
+    draw();
+  });
+
+  function endPointer(e) {
+    pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinch = null;
+    if (pointers.size === 0) {
+      dragging = null;
+      canvas.classList.remove('is-dragging');
+    }
+  }
+
+  canvas.addEventListener('pointerup', endPointer);
+  canvas.addEventListener('pointercancel', endPointer);
+
+  canvas.addEventListener(
+    'wheel',
+    (e) => {
+      if (!state.photo) return;
+      e.preventDefault();
+      state.photo.zoom = clamp(state.photo.zoom * (1 - e.deltaY * 0.0015), 1, 4);
+      el('dp-photo-zoom').value = String(Math.round(state.photo.zoom * 100));
+      clampPhoto();
+      draw();
+    },
+    { passive: false }
+  );
+
+  /* ----------------------------------------------------------- copy/download */
+
+  function toBlob(source) {
+    return new Promise((resolve, reject) =>
+      source.toBlob((b) => (b ? resolve(b) : reject(new Error('encode failed'))), 'image/png')
+    );
+  }
+
+  el('dp-copy').addEventListener('click', async () => {
+    if (!navigator.clipboard || typeof ClipboardItem === 'undefined') {
+      showToast("Copy isn't supported here — tap Download instead.");
+      return;
+    }
+
+    // Built inside the click so Safari keeps the gesture alive, then handed to
+    // ClipboardItem as a promise rather than an awaited blob.
+    const pendingBlob = exportCanvas().then(toBlob);
+    pendingBlob.catch(() => {});
+
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': pendingBlob })]);
+      showToast('Copied! Paste it wherever you set your DP.');
+      track('dp_maker_copy', { method: 'promise' });
+      return;
+    } catch {
+      /* Browser rejects promise-valued ClipboardItem — retry with the blob. */
+    }
+
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': await pendingBlob })]);
+      showToast('Copied! Paste it wherever you set your DP.');
+      track('dp_maker_copy', { method: 'blob' });
+    } catch {
+      showToast("Copy isn't supported here — tap Download instead.");
+    }
+  });
+
+  el('dp-download').addEventListener('click', async () => {
+    try {
+      // PNG, always: the corners outside the circle are transparent, and that
+      // transparency is the entire product. JPEG would fill them with black.
+      const blob = await toBlob(await exportCanvas());
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'my-dp.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      track('dp_maker_download');
+    } catch {
+      showToast('Download failed — try again.');
+    }
+  });
+
+  /* ------------------------------------------------------------------ boot */
+
+  function buildSwatches() {
+    const wrap = el('dp-swatches');
+    for (const p of palettes.slice(0, 20)) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'dp-swatch';
+      btn.style.background = `linear-gradient(135deg, ${p.bg[0]}, ${p.bg[1]})`;
+      btn.setAttribute('aria-label', `Background ${p.bg[0]} to ${p.bg[1]}`);
+      btn.addEventListener('click', () => {
+        state.bg = { on: true, from: p.bg[0], to: p.bg[1], angle: state.bg.angle };
+        state.blobs = randomBlobs(p.blobs);
+        syncControls();
+        draw();
+      });
+      wrap.appendChild(btn);
+    }
+  }
+
+  async function boot() {
+    buildSwatches();
+
+    const first = palettes[Math.floor(Math.random() * palettes.length)];
+    if (first) {
+      state.bg = { on: true, from: first.bg[0], to: first.bg[1], angle: 45 };
+      state.blobs = randomBlobs(first.blobs);
+    }
+
+    syncControls();
+    draw();
+
+    // Canvas text does not wait on a webfont the way the DOM does — without
+    // this the first name typed silently renders in the fallback sans.
+    try {
+      await Promise.all([
+        document.fonts.load('700 100px Quicksand'),
+        document.fonts.load('700 100px Gaegu'),
+      ]);
+    } catch {
+      /* the fallback stack is fine */
+    }
+
+    try {
+      const index = await (await fetch('/search-index.json')).json();
+      stickers = index.filter((i) => i.kind === 'sticker');
+    } catch {
+      stickers = [];
+    }
+    renderStickerGrid();
+    draw();
+  }
+
+  boot();
+</script>

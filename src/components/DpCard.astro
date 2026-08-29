@@ -1,0 +1,28 @@
+---
+import type { Dp } from '../lib/dps';
+
+interface Props {
+  dp: Dp;
+  /** The first row of a gallery loads eagerly; everything else lazily. */
+  eager?: boolean;
+}
+
+const { dp, eager = false } = Astro.props;
+const thumb = (size: number) => `${dp.thumbBase}-${size}.webp`;
+---
+
+<a class="dp-card" href={`/dp/${dp.collection}/${dp.slug}/`}>
+  <div class="dp-thumb">
+    <img
+      src={thumb(400)}
+      srcset={`${thumb(200)} 200w, ${thumb(400)} 400w`}
+      sizes="(max-width: 480px) 45vw, 200px"
+      alt={`${dp.title} — free profile picture`}
+      width="400"
+      height="400"
+      loading={eager ? 'eager' : 'lazy'}
+      decoding="async"
+    />
+  </div>
+  <div class="dp-card-title">{dp.title}</div>
+</a>

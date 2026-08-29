@@ -1,0 +1,198 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import '../../../styles/dp.css';
+import DpCard from '../../../components/DpCard.astro';
+import {
+  dpCollections,
+  getDpCollection,
+  getDpsIn,
+  getRelatedDps,
+  type Dp,
+  type DpCollectionMeta,
+} from '../../../lib/dps';
+
+export async function getStaticPaths() {
+  return Promise.all(
+    dpCollections.map(async (meta) => ({
+      params: { collection: meta.slug },
+      props: {
+        meta,
+        dps: await getDpsIn(meta.slug),
+        related: await getRelatedDps(meta.slug, 6),
+      },
+    }))
+  );
+}
+
+interface Props {
+  meta: DpCollectionMeta;
+  dps: Dp[];
+  related: Dp[];
+}
+
+const { meta, dps, related } = Astro.props;
+
+const site = Astro.site?.href ?? 'https://88cutouts.com/';
+const pageUrl = new URL(`/dp/${meta.slug}/`, site).href;
+
+const siblings = meta.related
+  .map((slug) => getDpCollection(slug))
+  .filter((c): c is NonNullable<typeof c> => Boolean(c));
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: meta.h1,
+    description: meta.blurb,
+    url: pageUrl,
+    isPartOf: { '@type': 'WebSite', name: '88cutouts', url: site },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: dps.length,
+      itemListElement: dps.slice(0, 30).map((d, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: new URL(`/dp/${d.collection}/${d.slug}/`, site).href,
+        name: d.title,
+      })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: site },
+      { '@type': 'ListItem', position: 2, name: 'DP', item: new URL('/dp/', site).href },
+      { '@type': 'ListItem', position: 3, name: meta.name, item: pageUrl },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: meta.faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<BaseLayout
+  title={`${meta.title} | 88cutouts`}
+  description={meta.blurb}
+  image={dps[0]?.image}
+  jsonld={jsonld}
+>
+  <div class="wrap">
+    <p class="crumbs">
+      <a href="/">Home</a><span>/</span><a href="/dp/">DP</a><span>/</span>{meta.name}
+    </p>
+
+    <h1 class="dp-h1">{meta.h1}</h1>
+    <p class="lede dp-intro">{meta.intro}</p>
+
+    <nav class="pills" aria-label="DP collections">
+      {
+        dpCollections.map((c) => (
+          <a
+            class="pill"
+            href={`/dp/${c.slug}/`}
+            aria-current={c.slug === meta.slug ? 'true' : undefined}
+          >
+            {c.name}
+          </a>
+        ))
+      }
+      <a class="pill is-tool" href="/dp-maker/">✦ Make your own</a>
+    </nav>
+
+    {
+      dps.length > 0 ? (
+        <>
+          <div class="section-head">
+            <h2>{meta.name}</h2>
+            <span class="count">{dps.length} images</span>
+          </div>
+
+          <div class="grid dp-grid">
+            {dps.map((dp, i) => (
+              <DpCard dp={dp} eager={i < 6} />
+            ))}
+          </div>
+        </>
+      ) : (
+        <section class="dp-empty">
+          <h2>Nothing in this set yet</h2>
+          <p>
+            Every DP here is picked and added by hand, and this collection is still being
+            filled. Make one from your own photo in the meantime, or look through the sets
+            that are already stocked below.
+          </p>
+          <a class="btn-copy" href="/dp-maker/">Open the DP maker</a>
+        </section>
+      )
+    }
+
+    <section class="maker-cta">
+      <div>
+        <h2>Want one nobody else has?</h2>
+        <p>
+          Upload your own photo to the free DP maker, fit it inside the circle, add a
+          cutout or your name, and download it as a transparent circular PNG.
+        </p>
+      </div>
+      <a class="btn-copy" href="/dp-maker/">Open the DP maker</a>
+    </section>
+
+    <section class="faq">
+      <h2>Questions about {meta.name.toLowerCase()}</h2>
+      <dl>
+        {
+          meta.faq.map((f) => (
+            <div class="faq-item">
+              <dt>{f.q}</dt>
+              <dd>{f.a}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    {
+      siblings.length > 0 && (
+        <>
+          <div class="section-head">
+            <h2>Related collections</h2>
+          </div>
+          <nav class="pills" aria-label="Related collections">
+            {siblings.map((c) => (
+              <a class="pill" href={`/dp/${c.slug}/`}>
+                {c.name}
+              </a>
+            ))}
+          </nav>
+        </>
+      )
+    }
+
+    {
+      related.length > 0 && (
+        <>
+          <div class="section-head">
+            <h2>More DPs</h2>
+            <a class="count" href="/dp/">
+              Browse all →
+            </a>
+          </div>
+          <div class="grid dp-grid">
+            {related.map((dp) => (
+              <DpCard dp={dp} />
+            ))}
+          </div>
+        </>
+      )
+    }
+  </div>
+</BaseLayout>

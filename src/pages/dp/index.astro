@@ -1,0 +1,120 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/dp.css';
+import DpCard from '../../components/DpCard.astro';
+import { dpCollections, getAllDps, getDpsIn } from '../../lib/dps';
+
+const all = await getAllDps();
+
+// Each collection contributes a short preview strip on the hub; the full set
+// lives on its own page, which is the one built to rank.
+const strips = (
+  await Promise.all(
+    dpCollections.map(async (c) => ({ meta: c, dps: (await getDpsIn(c.slug)).slice(0, 6) }))
+  )
+).filter((s) => s.dps.length > 0);
+
+const site = Astro.site?.href ?? 'https://88cutouts.com/';
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Free DP and profile pictures',
+    description:
+      'Free DP and profile pictures for WhatsApp and Instagram. Copy or download, or make your own from a photo in the DP maker.',
+    url: new URL('/dp/', site).href,
+    isPartOf: { '@type': 'WebSite', name: '88cutouts', url: site },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: dpCollections.length,
+      itemListElement: dpCollections.map((c, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: new URL(`/dp/${c.slug}/`, site).href,
+        name: c.name,
+      })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: site },
+      { '@type': 'ListItem', position: 2, name: 'DP', item: new URL('/dp/', site).href },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="Free DP & profile pictures for WhatsApp and Instagram | 88cutouts"
+  description={`Free DP and profile pictures — girls, attitude, sad, stylish, aesthetic and cute. Tap to copy or download, or make your own from a photo in the free DP maker.`}
+  image={all[0]?.image}
+  jsonld={jsonld}
+>
+  <section class="hero">
+    <div class="wrap">
+      <h1>Free DP &amp; profile pictures</h1>
+      <p>
+        {
+          all.length > 0
+            ? `${all.length} profile pictures for WhatsApp, Instagram and anywhere else — tap to copy, or make your own from a photo.`
+            : 'Profile pictures for WhatsApp, Instagram and anywhere else — or make your own from a photo in the DP maker.'
+        }
+      </p>
+      <div class="rule"></div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <nav class="pills" aria-label="DP collections">
+      {dpCollections.map((c) => <a class="pill" href={`/dp/${c.slug}/`}>{c.name}</a>)}
+      <a class="pill is-tool" href="/dp-maker/">✦ Make your own</a>
+    </nav>
+
+    <section class="maker-cta">
+      <div>
+        <h2>Make your own DP</h2>
+        <p>
+          Upload your photo, fit it inside the circle, add cutouts and your name, then
+          download it as a transparent circular PNG — free, in the browser, no account.
+          Your photo never leaves your device.
+        </p>
+      </div>
+      <a class="btn-copy" href="/dp-maker/">Open the DP maker</a>
+    </section>
+
+    {
+      strips.length === 0 && (
+        <section class="dp-empty">
+          <h2>The gallery is being restocked</h2>
+          <p>
+            New DPs are added by hand, so there is nothing here just yet. In the meantime
+            the DP maker will turn any photo on your phone into one.
+          </p>
+          <a class="btn-copy" href="/dp-maker/">Open the DP maker</a>
+        </section>
+      )
+    }
+
+    {
+      strips.map(({ meta, dps }) => (
+        <>
+          <div class="section-head">
+            <h2>{meta.name}</h2>
+            <a class="count" href={`/dp/${meta.slug}/`}>
+              See all →
+            </a>
+          </div>
+          <p class="lede">{meta.blurb}</p>
+          <div class="grid dp-grid">
+            {dps.map((dp, i) => (
+              <DpCard dp={dp} eager={i < 3 && meta.slug === strips[0].meta.slug} />
+            ))}
+          </div>
+        </>
+      ))
+    }
+  </div>
+</BaseLayout>

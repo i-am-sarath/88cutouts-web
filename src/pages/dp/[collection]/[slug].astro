@@ -1,0 +1,164 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import '../../../styles/dp.css';
+import CopyDownloadButtons from '../../../components/CopyDownloadButtons.astro';
+import DpCard from '../../../components/DpCard.astro';
+import {
+  getAllDps,
+  getDpCollection,
+  getDpsIn,
+  getRelatedDps,
+  type Dp,
+  type DpCollectionMeta,
+} from '../../../lib/dps';
+
+export async function getStaticPaths() {
+  const all = await getAllDps();
+
+  return Promise.all(
+    all.map(async (dp) => {
+      const meta = getDpCollection(dp.collection)!;
+      const siblings = (await getDpsIn(dp.collection)).filter((d) => d.slug !== dp.slug);
+
+      return {
+        params: { collection: dp.collection, slug: dp.slug },
+        props: {
+          dp,
+          meta,
+          // Fill out of the wider gallery when a collection is small, so the
+          // row under every DP is a consistent length.
+          related:
+            siblings.length >= 6
+              ? siblings.slice(0, 6)
+              : [...siblings, ...(await getRelatedDps(dp.collection, 6 - siblings.length, dp.slug))],
+        },
+      };
+    })
+  );
+}
+
+interface Props {
+  dp: Dp;
+  meta: DpCollectionMeta;
+  related: Dp[];
+}
+
+const { dp, meta, related } = Astro.props;
+
+const site = Astro.site?.href ?? 'https://88cutouts.com/';
+const pageUrl = new URL(`/dp/${dp.collection}/${dp.slug}/`, site).href;
+const hero = `${dp.thumbBase}-512.webp`;
+const ext = dp.image.split('.').pop()?.toLowerCase();
+const mime = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
+const blurb =
+  dp.description ??
+  `Free profile picture — ${dp.title}. Copy or download it for WhatsApp, Instagram or anywhere else.`;
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ImageObject',
+    name: dp.title,
+    description: blurb,
+    contentUrl: new URL(dp.image, site).href,
+    url: pageUrl,
+    encodingFormat: mime,
+    creator: { '@type': 'Organization', name: '88cutouts', url: site },
+    license: pageUrl,
+    acquireLicensePage: new URL('/about/', site).href,
+    isAccessibleForFree: true,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: site },
+      { '@type': 'ListItem', position: 2, name: 'DP', item: new URL('/dp/', site).href },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: meta.name,
+        item: new URL(`/dp/${dp.collection}/`, site).href,
+      },
+      { '@type': 'ListItem', position: 4, name: dp.title, item: pageUrl },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title={`${dp.title} — free profile picture | 88cutouts`}
+  description={`${dp.title} — a free ${meta.name.toLowerCase()} you can copy or download. Square and ready for WhatsApp and Instagram.`}
+  image={dp.image}
+  jsonld={jsonld}
+>
+  <div class="wrap">
+    <p class="crumbs">
+      <a href="/">Home</a><span>/</span><a href="/dp/">DP</a><span>/</span><a
+        href={`/dp/${dp.collection}/`}>{meta.name}</a
+      ><span>/</span>{dp.title}
+    </p>
+
+    <article class="dp-page">
+      <div class="dp-previews">
+        <figure class="dp-preview-square">
+          <img
+            src={hero}
+            alt={`${dp.title} — free profile picture`}
+            width="512"
+            height="512"
+            loading="eager"
+            fetchpriority="high"
+          />
+          <figcaption>The file you download</figcaption>
+        </figure>
+        <figure class="dp-preview-circle">
+          <img src={hero} alt="" width="512" height="512" loading="eager" aria-hidden="true" />
+          <figcaption>How it looks as a DP</figcaption>
+        </figure>
+      </div>
+
+      <div>
+        <h1>{dp.title}</h1>
+        <div class="meta">
+          <a class="tag is-category" href={`/dp/${dp.collection}/`}>{meta.name}</a>
+          <span class="tag">Square</span>
+          <span class="tag">Free</span>
+        </div>
+
+        {dp.description && <p class="lede dp-intro">{dp.description}</p>}
+
+        <CopyDownloadButtons
+          imageSrc={dp.image}
+          filename={`${dp.slug}-dp.${ext ?? 'jpg'}`}
+          downloadOriginal={true}
+          hint="Copy puts it straight on your clipboard — paste it into WhatsApp or Instagram. Download saves the full-size file."
+        />
+
+        <a class="btn-remix" href="/dp-maker/">✦ Make one from your own photo</a>
+        <p class="copy-hint">
+          The DP maker crops your photo to the circle, lets you add cutouts on top, and
+          downloads it as a transparent PNG.
+        </p>
+      </div>
+    </article>
+
+    {
+      related.length > 0 && (
+        <>
+          <div class="section-head">
+            <h2>More like this</h2>
+            <a class="count" href={`/dp/${dp.collection}/`}>
+              See all {meta.name} →
+            </a>
+          </div>
+          <div class="grid dp-grid">
+            {related.map((r) => (
+              <DpCard dp={r} />
+            ))}
+          </div>
+        </>
+      )
+    }
+  </div>
+</BaseLayout>

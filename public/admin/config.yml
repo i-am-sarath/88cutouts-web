@@ -49,6 +49,31 @@ collections:
       - { label: "Featured", name: "featured", widget: "boolean", default: false }
       - { label: "Date Added", name: "date", widget: "datetime", type: "date", format: "YYYY-MM-DD" }
 
+  - name: "dps"
+    label: "DPs & Profile Pictures"
+    folder: "src/content/dps"
+    create: true
+    slug: "{{slug}}"
+    # The DP gallery is entirely what you upload here — nothing is generated.
+    # Use square images, 900x900 or larger. They are shown as circles, so keep
+    # the subject centred and away from the corners.
+    fields:
+      - { label: "Title", name: "title", widget: "string", hint: "Shown on the card and as the page heading, e.g. \"Moonlit Sad Girl DP\"" }
+      - label: "Image (square, 900x900 or larger)"
+        name: "image"
+        widget: "image"
+        media_folder: "/public/dps/uploads"
+        public_folder: "/dps/uploads"
+      - label: "Collection"
+        name: "collection"
+        widget: "select"
+        options: ["girls", "stylish-girls", "attitude-girls", "sad-girl", "whatsapp", "whatsapp-girls", "instagram", "instagram-aesthetic", "cute", "aesthetic"]
+        default: "girls"
+      - { label: "Description", name: "description", widget: "text", required: false, hint: "One line about it — used as the page's search description. Optional." }
+      - { label: "Tags", name: "tags", widget: "list", required: false }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false, hint: "Featured DPs sort to the top of their collection." }
+      - { label: "Date Added", name: "date", widget: "datetime", type: "date", format: "YYYY-MM-DD" }
+
   - name: "ransomLetters"
     label: "Ransom Note Letters"
     files:

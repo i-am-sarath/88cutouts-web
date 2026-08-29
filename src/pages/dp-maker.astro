@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/dp.css';
+import DpMaker from '../components/DpMaker.astro';
+import { dpCollections } from '../lib/dps';
+
+const site = Astro.site?.href ?? 'https://88cutouts.com/';
+
+const faq = [
+  {
+    q: 'How do I make a DP from my own photo?',
+    a: 'Upload a photo, drag it around inside the circle until it is framed the way you want, and pinch or scroll to zoom. Add a sticker or your name if you like, then tap Download. The whole thing takes under a minute.',
+  },
+  {
+    q: 'Is my photo uploaded anywhere?',
+    a: 'No. The maker runs entirely in your browser using canvas — your photo is read off your device, drawn on screen and saved back to your device. It is never sent to us or to anyone else, and nothing is stored.',
+  },
+  {
+    q: 'Why is the download a circle with transparent corners?',
+    a: 'Because WhatsApp, Instagram and Discord all crop a profile picture to a circle and throw the corners away. Exporting the circle itself means what you see is exactly what those apps will show, and the transparent PNG also drops cleanly onto a Story or a Discord banner without a square edge behind it.',
+  },
+  {
+    q: 'Is the DP maker free?',
+    a: 'Yes — free, no account, no watermark and no limit on how many you make.',
+  },
+  {
+    q: 'What size does it make?',
+    a: 'Every DP comes out 1080 × 1080 pixels as a PNG with an alpha channel. That is comfortably above what WhatsApp and Instagram need, so it still looks sharp after they compress it.',
+  },
+  {
+    q: 'Can I use it on my phone?',
+    a: 'Yes. Tap to pick a photo from your camera roll, drag with one finger to reframe and pinch with two to zoom. Download saves it to your photos, ready to set as your DP.',
+  },
+];
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'DP Maker',
+    url: new URL('/dp-maker/', site).href,
+    applicationCategory: 'DesignApplication',
+    operatingSystem: 'Any',
+    description:
+      'Turn your own photo into a profile picture in your browser — crop it to the circle, add cutouts and your name, then download a transparent 1080×1080 PNG.',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    featureList: [
+      'Upload your own photo',
+      'Drag, pinch and rotate to frame it in the circle',
+      'Transparent PNG sticker cutouts on top',
+      'Name and initial text',
+      'Circular transparent PNG download',
+      'Runs offline in the browser — no upload',
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: site },
+      { '@type': 'ListItem', position: 2, name: 'DP', item: new URL('/dp/', site).href },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: 'DP maker',
+        item: new URL('/dp-maker/', site).href,
+      },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="DP maker — turn your photo into a circle DP, free | 88cutouts"
+  description="Upload your photo, crop it to the circle, add stickers and your name, then download a transparent 1080×1080 PNG profile picture. Free, no account, nothing uploaded."
+  jsonld={jsonld}
+>
+  <div class="wrap">
+    <p class="crumbs">
+      <a href="/">Home</a><span>/</span><a href="/dp/">DP</a><span>/</span>DP maker
+    </p>
+
+    <div class="section-head">
+      <h1 class="dp-h1">DP maker</h1>
+    </div>
+    <p class="lede dp-intro">
+      Upload your photo, drag it into the circle, drop a cutout or your name on top, and
+      download it as a transparent circular PNG — the exact shape WhatsApp, Instagram and
+      Discord show. It all happens in your browser, so your photo never leaves your device.
+    </p>
+
+    <DpMaker />
+
+    <section class="faq">
+      <h2>About the DP maker</h2>
+      <dl>
+        {
+          faq.map((f) => (
+            <div class="faq-item">
+              <dt>{f.q}</dt>
+              <dd>{f.a}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <div class="section-head">
+      <h2>Or start from a ready-made DP</h2>
+      <a class="count" href="/dp/">Browse all →</a>
+    </div>
+    <nav class="pills" aria-label="DP collections">
+      {dpCollections.map((c) => <a class="pill" href={`/dp/${c.slug}/`}>{c.name}</a>)}
+    </nav>
+  </div>
+</BaseLayout>

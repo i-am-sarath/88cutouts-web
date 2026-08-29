@@ -17,6 +17,10 @@ const isActive = (href: string) =>
     </div>
 
     <nav class="header-nav" aria-label="Main">
+      <a href="/dp/" aria-current={isActive('/dp/') ? 'page' : undefined}>DP</a>
+      <a href="/dp-maker/" aria-current={isActive('/dp-maker') ? 'page' : undefined}>
+        DP Maker
+      </a>
       <a href="/ransom-note/" aria-current={isActive('/ransom-note') ? 'page' : undefined}>
         Ransom Note
       </a>

@@ -1,0 +1,512 @@
+/* ==========================================================================
+   DP gallery + DP maker
+   Extends the design system in global.css — same tokens, same rhythm.
+   Kept in its own file because only /dp/* and /dp-maker/ need it.
+   ========================================================================== */
+
+/* ---------- gallery ---------- */
+
+.dp-h1 {
+  font-size: clamp(1.9rem, 4.6vw, 2.6rem);
+  margin-bottom: 0.6rem;
+}
+
+.dp-intro {
+  max-width: 66ch;
+  color: #4A4744;
+  font-weight: 500;
+  line-height: 1.62;
+}
+
+.dp-grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.dp-card {
+  display: block;
+  text-align: center;
+}
+
+/* The grid shows DPs as circles because that is how every platform they are
+   made for renders them — it is the honest preview, and it doubles as the
+   thing that visually separates this gallery from the sticker grid. */
+.dp-thumb {
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  aspect-ratio: 1;
+  transition: transform 0.12s ease, box-shadow 0.15s ease;
+}
+
+.dp-card:hover .dp-thumb {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(43, 43, 43, 0.14);
+}
+
+.dp-card:active .dp-thumb { transform: scale(0.97); }
+
+.dp-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dp-card-title {
+  margin-top: 0.5rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.pill.is-tool {
+  background: var(--accent-2);
+  border-color: var(--accent-2);
+}
+
+/* ---------- detail page ---------- */
+
+.dp-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2.2rem;
+  align-items: start;
+  padding-block: 1rem 2rem;
+}
+
+@media (max-width: 780px) {
+  .dp-page { grid-template-columns: 1fr; gap: 1.4rem; }
+}
+
+.dp-previews {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.dp-previews figure { margin: 0; }
+
+.dp-previews figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: center;
+}
+
+.dp-preview-square img {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.dp-preview-circle img {
+  width: 100%;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.dp-page h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); margin-bottom: 0.5rem; }
+
+.btn-remix {
+  display: inline-block;
+  margin-top: 0.9rem;
+  padding: 0.7rem 1.6rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--ink);
+  background: var(--surface);
+  font-weight: 700;
+  font-size: 0.98rem;
+  transition: transform 0.12s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.btn-remix:hover { background: var(--ink); color: var(--bg); }
+.btn-remix:active { transform: scale(0.97); }
+
+.dp-credit {
+  margin-top: 1.2rem;
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.dp-credit a {
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-transform: capitalize;
+}
+
+/* ---------- FAQ ---------- */
+
+.faq { padding-block: 1.4rem 0.6rem; max-width: 70ch; }
+.faq h2 { font-size: 1.5rem; margin-bottom: 1rem; }
+
+.faq-item {
+  border-top: 1px solid var(--border);
+  padding-block: 1rem;
+}
+
+.faq dt {
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.faq dd {
+  margin: 0;
+  color: #4A4744;
+  line-height: 1.62;
+}
+
+/* ---------- maker call-out ---------- */
+
+.maker-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.4rem;
+  flex-wrap: wrap;
+  margin: 2.2rem 0 0.6rem;
+  padding: 1.4rem 1.6rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+}
+
+.maker-cta h2 { font-size: 1.35rem; margin-bottom: 0.3rem; }
+
+.maker-cta p {
+  color: var(--muted);
+  font-weight: 500;
+  max-width: 52ch;
+  margin: 0;
+  line-height: 1.55;
+}
+
+.maker-cta .btn-copy {
+  flex: none;
+  display: inline-block;
+  text-align: center;
+}
+
+/* ---------- the maker ---------- */
+
+.dp-maker {
+  display: grid;
+  grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+  padding-block: 1rem 2rem;
+}
+
+@media (max-width: 860px) {
+  .dp-maker { grid-template-columns: 1fr; gap: 1.4rem; }
+}
+
+.dp-stage { position: sticky; top: 1rem; }
+
+@media (max-width: 860px) {
+  .dp-stage { position: static; }
+}
+
+.dp-canvas-frame {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  aspect-ratio: 1;
+  /* The export is a circle with transparent corners, so the stage sits on the
+     same checker used everywhere else transparency needs to be visible —
+     otherwise the corners read as white and the PNG looks square. */
+  background-color: var(--checker-a);
+  background-image:
+    linear-gradient(45deg, var(--checker-b) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--checker-b) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--checker-b) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--checker-b) 75%);
+  background-size: 24px 24px;
+  background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+  transition: border-color 0.15s ease;
+}
+
+.dp-canvas-frame.is-dropping {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 166, 180, 0.35);
+}
+
+#dp-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;      /* pointermove must move the photo, not scroll */
+  cursor: grab;
+}
+
+#dp-canvas.is-dragging { cursor: grabbing; }
+
+/* Sits over the canvas until there is a photo. The canvas underneath still
+   shows the background and any sticker, so this stays translucent. */
+.dp-dropzone {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  text-align: center;
+  background: rgba(255, 252, 248, 0.82);
+  backdrop-filter: blur(2px);
+}
+
+/* An author `display` beats the UA rule for [hidden], so say it explicitly —
+   without this the drop zone stays over the canvas after a photo loads. */
+.dp-dropzone[hidden] { display: none; }
+
+.dp-dropzone p {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--muted);
+  max-width: 28ch;
+}
+
+.dp-drop-small { font-size: 0.78rem; font-weight: 500; }
+
+.dp-drop-icon {
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--accent-ink);
+  opacity: 0.7;
+}
+
+.dp-stage-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.8rem 0;
+  flex-wrap: wrap;
+}
+
+.dp-stage-hint {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.dp-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.dp-toggle input { accent-color: var(--accent); }
+
+.dp-toggle-block {
+  margin-bottom: 0.6rem;
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.dp-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.btn-shuffle {
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.15s ease;
+}
+
+.btn-shuffle:hover { border-color: var(--accent); }
+.btn-shuffle:active { transform: scale(0.97); }
+
+/* ---------- maker controls ---------- */
+
+.dp-controls {
+  display: grid;
+  gap: 1rem;
+}
+
+.dp-panel {
+  padding: 1.1rem 1.2rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.dp-panel h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+}
+
+.dp-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+
+.dp-swatch {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s ease, border-color 0.15s ease;
+}
+
+.dp-swatch:hover { border-color: var(--accent); transform: scale(1.06); }
+.dp-swatch:active { transform: scale(0.95); }
+
+.dp-field-row {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.dp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.dp-field-grow { flex: 1 1 140px; }
+.dp-field-block { display: flex; margin-bottom: 0.8rem; }
+
+.dp-field input[type='color'] {
+  width: 46px;
+  height: 34px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.dp-field input[type='range'] {
+  accent-color: var(--accent);
+  width: 100%;
+}
+
+.dp-field select {
+  padding: 0.45rem 0.6rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dp-search {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+}
+
+.dp-search::placeholder { color: var(--muted); font-weight: 500; }
+.dp-search:focus { border-color: var(--accent); background: var(--surface); outline: none; }
+
+.dp-sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 0.5rem;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.dp-sticker-btn {
+  aspect-ratio: 1;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.15s ease;
+}
+
+.dp-sticker-btn:hover { border-color: var(--accent); }
+.dp-sticker-btn:active { transform: scale(0.94); }
+
+.dp-sticker-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.dp-tip {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.7rem;
+}
+
+.btn-ghost {
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: #8A3A44;
+}
+
+.btn-ghost:hover { border-color: #8A3A44; }
+
+/* ---------- empty gallery ---------- */
+
+.dp-empty {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  padding: 2.2rem 1.5rem;
+  text-align: center;
+  margin-block: 1.4rem;
+}
+
+.dp-empty h2 { margin-bottom: 0.5rem; }
+
+.dp-empty p {
+  color: var(--muted);
+  font-weight: 500;
+  max-width: 52ch;
+  margin: 0 auto 1.2rem;
+  line-height: 1.6;
+}
+
+.dp-empty .btn-copy { display: inline-block; text-decoration: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dp-thumb,
+  .dp-swatch,
+  .dp-sticker-btn,
+  .btn-shuffle,
+  .btn-remix { transition: none; }
+}
