@@ -27,6 +27,7 @@ const { entry, related } = Astro.props;
 const { title, image, category, type } = entry.data;
 // The category already has its own chip — don't repeat it in the tag row.
 const tags = entry.data.tags.filter((t) => t.toLowerCase() !== category.toLowerCase());
+const { Content } = await entry.render();
 
 // Hero shows the lightweight WebP; Copy/Download still fetch the full PNG.
 const heroThumb = `/stickers/thumbs/${image
@@ -100,6 +101,9 @@ const jsonld = [
           {tags.map((t) => <span class="tag">{t}</span>)}
         </div>
         <CopyDownloadButtons imageSrc={image} filename={`${entry.slug}.png`} />
+        <div class="sticker-desc">
+          <Content />
+        </div>
       </div>
     </article>
 

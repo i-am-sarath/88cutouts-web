@@ -32,6 +32,34 @@ const { category, items } = Astro.props;
 const site = Astro.site?.href ?? 'https://88cutouts.com/';
 const label = category.charAt(0).toUpperCase() + category.slice(1);
 
+const categoryIntros: Record<string, string> = {
+  flowers:
+    'Watercolour blooms, pressed petals and bouquets — the kind of stickers that work over a garden photo, a bunch someone gave you, or just a good outfit.',
+  cute:
+    'Cats and other small animals, all drawn with the same rounded, hand-inked outline. Built for photo dumps, pet updates and anything that needs a bit of softness.',
+  coquette:
+    'Bows in satin, gingham and ribbon, in the soft pinks and reds that go with the coquette look. Small enough to sit in a corner without taking over the photo.',
+  hearts:
+    'Hearts in paper, pixel and glossy finishes — some plain, some textured, all sized to sit near a caption without crowding it.',
+  retro:
+    'Cassette tapes, vinyl records, film cameras and a guitar — cutouts built around an analogue, pre-digital feel rather than a specific decade.',
+  y2k:
+    'Pixel-edged graphics — sunglasses, a health bar, a boxy computer — pulled from the early-2000s look rather than smoothed into modern vector art.',
+  text:
+    'Lettering and speech-bubble stickers meant to be read at a glance: birthday letters, a love coupon, a comic burst, a "new" badge.',
+  general:
+    "Stickers that didn't fit neatly into one of the other shelves — a mix of small, useful cutouts for whatever a photo needs.",
+  seasonal:
+    'Stickers tied to a specific date on the calendar rather than a fixed theme — added and swapped out as the year moves along.',
+  aesthetic:
+    'Small decorative charms — a sun swirl, an evil eye, a glass flower — meant as an accent rather than the main subject of a Story.',
+  paper:
+    'Washi tape and torn-paper scraps, built to sit underneath other stickers as a background layer rather than stand alone.',
+  frames:
+    'Frames go under a photo rather than on top of one — a border to drop your own picture into, not a sticker in the usual sense.',
+};
+const intro = categoryIntros[category];
+
 const jsonld = [
   {
     '@context': 'https://schema.org',
@@ -66,6 +94,7 @@ const jsonld = [
       <h2>{label} stickers</h2>
       <span class="count">{items.length} items</span>
     </div>
+    {intro && <p class="category-intro">{intro}</p>}
 
     <CategoryPills active={category} />
 
