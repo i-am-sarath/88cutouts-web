@@ -1,0 +1,51 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'blog'>;
+  /** Wider card with the summary shown — used for the newest post. */
+  wide?: boolean;
+  /** The first row loads eagerly; everything else lazily. */
+  eager?: boolean;
+}
+
+const { entry, wide = false, eager = false } = Astro.props;
+const { title, description, date, category, cover } = entry.data;
+
+// Covers are ordinary stickers, so they get the same generated WebP thumbs the
+// gallery uses. No cover is fine — the tile falls back to its category wash.
+const thumb = cover
+  ? `/stickers/thumbs/${cover.replace(/^\/stickers\//, '').replace(/\.png$/i, '')}-${
+      wide ? 512 : 400
+    }.webp`
+  : null;
+
+const readable = date.toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+});
+---
+
+<a class:list={['post-card', wide && 'is-wide']} href={`/blog/${entry.slug}/`}>
+  <div class:list={['post-thumb', `cat-${category}`]}>
+    {
+      thumb && (
+        <img
+          src={thumb}
+          alt=""
+          width="400"
+          height="400"
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
+        />
+      )
+    }
+  </div>
+  <div class="post-card-body">
+    <span class="post-cat">{category}</span>
+    <h3 class="post-card-title">{title}</h3>
+    {wide && <p class="post-card-desc">{description}</p>}
+    <time class="post-date" datetime={date.toISOString().slice(0, 10)}>{readable}</time>
+  </div>
+</a>

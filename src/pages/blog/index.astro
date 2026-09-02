@@ -1,0 +1,81 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogCard from '../../components/BlogCard.astro';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+
+const [latest, ...rest] = posts;
+
+const site = Astro.site?.href ?? 'https://88cutouts.com/';
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: '88cutouts Blog',
+    description:
+      'Guides on Instagram Story stickers, transparent PNGs, profile pictures and the aesthetics behind them.',
+    url: new URL('/blog/', site).href,
+    isPartOf: { '@type': 'WebSite', name: '88cutouts', url: site },
+    blogPost: posts.map((p) => ({
+      '@type': 'BlogPosting',
+      headline: p.data.title,
+      description: p.data.description,
+      datePublished: p.data.date.toISOString().slice(0, 10),
+      url: new URL(`/blog/${p.slug}/`, site).href,
+    })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: site },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: new URL('/blog/', site).href },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="Blog — guides to stickers, Stories and profile pictures | 88cutouts"
+  description="Practical guides on adding stickers to Instagram Stories, transparent PNGs, WhatsApp DP sizes and the aesthetics behind them. Written by hand, no fluff."
+  jsonld={jsonld}
+>
+  <section class="hero">
+    <div class="wrap">
+      <h1>The 88cutouts blog</h1>
+      <p>
+        Everything we've worked out while making this library — how to paste a sticker into
+        a Story without a white box, what size a profile picture actually needs to be, why
+        transparency survives in some places and dies in others, and how the aesthetics
+        people ask for are put together. No listicles, no filler.
+      </p>
+      <div class="rule"></div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    {
+      posts.length === 0 ? (
+        <p class="lede">No posts yet.</p>
+      ) : (
+        <>
+          <div class="section-head">
+            <h2>Latest</h2>
+            <span class="count">{posts.length} articles</span>
+          </div>
+
+          <div class="post-grid">
+            <BlogCard entry={latest} wide eager />
+            {rest.map((p, i) => (
+              <BlogCard entry={p} eager={i < 3} />
+            ))}
+          </div>
+        </>
+      )
+    }
+  </div>
+</BaseLayout>

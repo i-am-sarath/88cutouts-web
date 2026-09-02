@@ -74,6 +74,42 @@ collections:
       - { label: "Featured", name: "featured", widget: "boolean", default: false, hint: "Featured DPs sort to the top of their collection." }
       - { label: "Date Added", name: "date", widget: "datetime", type: "date", format: "YYYY-MM-DD" }
 
+  - name: "blog"
+    label: "Blog Posts"
+    folder: "src/content/blog"
+    create: true
+    slug: "{{slug}}"
+    # Long-form guides. Aim for something that actually answers the question in
+    # the title — thin posts help nobody and get the site nowhere.
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "text", hint: "One or two sentences. Used as the meta description and the standfirst under the headline." }
+      - { label: "Date", name: "date", widget: "datetime", type: "date", format: "YYYY-MM-DD" }
+      - { label: "Last updated", name: "updated", widget: "datetime", type: "date", format: "YYYY-MM-DD", required: false }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options: ["guides", "aesthetics", "technical", "instagram", "whatsapp"]
+        default: "guides"
+      - { label: "Tags", name: "tags", widget: "list", required: false }
+      - label: "Cover sticker (optional)"
+        name: "cover"
+        widget: "image"
+        required: false
+        media_folder: "/public/stickers"
+        public_folder: "/stickers"
+        hint: "A sticker from the library, shown on the blog card."
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - label: "FAQ"
+        name: "faq"
+        widget: "list"
+        required: false
+        summary: "{{fields.q}}"
+        fields:
+          - { label: "Question", name: "q", widget: "string" }
+          - { label: "Answer", name: "a", widget: "text" }
+      - { label: "Body", name: "body", widget: "markdown" }
+
   - name: "ransomLetters"
     label: "Ransom Note Letters"
     files:
