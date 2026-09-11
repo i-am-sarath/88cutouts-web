@@ -1,5 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
+import { getStickers } from '../lib/stickers';
 
 interface Props {
   /** Category slug currently being viewed, or 'all' on the home page. */
@@ -8,7 +8,7 @@ interface Props {
 
 const { active = 'all' } = Astro.props;
 
-const stickers = await getCollection('stickers');
+const stickers = await getStickers();
 const categories = [...new Set(stickers.map((s) => s.data.category))].sort();
 ---
 

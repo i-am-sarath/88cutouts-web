@@ -10,6 +10,11 @@
  * Square canvas on purpose: it makes width/height attributes correct for every
  * sticker regardless of its own aspect ratio, which keeps CLS at zero.
  *
+ * Every PNG in public/stickers gets thumbnails, and so does any sticker or blog
+ * cover whose frontmatter points somewhere else — the CMS can drop an upload
+ * into another collection's folder, and its page still needs a thumbnail.
+ * Paths come from src/lib/thumbs.mjs, which the templates also use.
+ *
  * Runs from `prebuild`. Output is gitignored — Cloudflare regenerates it.
  */
 import sharp from 'sharp';
@@ -17,28 +22,38 @@ import { globby } from 'globby';
 import { mkdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { THUMB_SIZES as SIZES, stickerThumb } from '../src/lib/thumbs.mjs';
+import { contentImages } from './content-images.mjs';
 
 const ROOT = path.resolve(fileURLToPath(import.meta.url), '../..');
-const PUB = path.join(ROOT, 'public/stickers');
-const THUMBS = path.join(PUB, 'thumbs');
+const PUBLIC = path.join(ROOT, 'public');
 
-/** Card srcset widths, plus the detail-page hero size. */
-export const SIZES = [200, 400, 512];
-
-await mkdir(THUMBS, { recursive: true });
-
-const files = await globby(['public/stickers/*.png'], { cwd: ROOT, absolute: true });
+/** Root-relative image paths, e.g. `/stickers/foo.png`. */
+const images = new Set([
+  ...(await globby(['public/stickers/*.png'], { cwd: ROOT })).map((f) => f.replace(/^public/, '')),
+  ...(await contentImages(ROOT, ['src/content/stickers', 'src/content/blog'], ['image', 'cover'])),
+]);
 
 let written = 0;
 let skipped = 0;
+let missing = 0;
 let bytes = 0;
 
-for (const file of files) {
-  const base = path.basename(file, '.png');
-  const srcStat = await stat(file);
+for (const image of images) {
+  const file = path.join(PUBLIC, image);
+  let srcStat;
+  try {
+    srcStat = await stat(file);
+  } catch {
+    // src/lib/stickers.ts leaves the entry out of the build for the same reason.
+    console.warn(`Thumbnails: ${image} is referenced in content but does not exist.`);
+    missing++;
+    continue;
+  }
 
   for (const size of SIZES) {
-    const out = path.join(THUMBS, `${base}-${size}.webp`);
+    const out = path.join(PUBLIC, stickerThumb(image, size));
+    await mkdir(path.dirname(out), { recursive: true });
 
     // skip if the thumbnail is newer than its source
     try {
@@ -68,5 +83,5 @@ for (const file of files) {
 
 console.log(
   `Thumbnails: ${written} written, ${skipped} up to date ` +
-    `(${files.length} stickers x ${SIZES.length} sizes, ${(bytes / 1024).toFixed(0)} KB total).`
+    `(${images.size - missing} images x ${SIZES.length} sizes, ${(bytes / 1024).toFixed(0)} KB total).`
 );

@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { inPublic, stickerThumb } from '../lib/thumbs.mjs';
 
 interface Props {
   entry: CollectionEntry<'blog'>;
@@ -13,12 +14,9 @@ const { entry, wide = false, eager = false } = Astro.props;
 const { title, description, date, category, cover } = entry.data;
 
 // Covers are ordinary stickers, so they get the same generated WebP thumbs the
-// gallery uses. No cover is fine — the tile falls back to its category wash.
-const thumb = cover
-  ? `/stickers/thumbs/${cover.replace(/^\/stickers\//, '').replace(/\.png$/i, '')}-${
-      wide ? 512 : 400
-    }.webp`
-  : null;
+// gallery uses. No cover (or one whose file is gone) is fine — the tile falls
+// back to its category wash.
+const thumb = cover && inPublic(cover) ? stickerThumb(cover, wide ? 512 : 400) : null;
 
 const readable = date.toLocaleDateString('en-GB', {
   day: 'numeric',

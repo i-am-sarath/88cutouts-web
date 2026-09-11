@@ -1,6 +1,6 @@
 ---
 title: Vintage Brown Button
-image: /dps/uploads/27.png
+image: /stickers/vintage-brown-button.png
 type: sticker
 category: retro
 tags:

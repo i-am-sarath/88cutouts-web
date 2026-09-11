@@ -1,6 +1,6 @@
 ---
 title: Stitched Chocolate Heart
-image: /dps/uploads/21.png
+image: /stickers/stitched-chocolate-heart.png
 type: sticker
 category: hearts
 tags:

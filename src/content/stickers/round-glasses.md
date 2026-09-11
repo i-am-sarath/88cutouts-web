@@ -1,6 +1,6 @@
 ---
 title: Round Glasses
-image: /dps/uploads/6.png
+image: /stickers/round-glasses.png
 type: sticker
 category: aesthetic
 tags:

@@ -1,6 +1,6 @@
 ---
 title: Facepalm Cat
-image: /dps/uploads/2.png
+image: /stickers/facepalm-cat.png
 type: sticker
 category: cute
 tags:

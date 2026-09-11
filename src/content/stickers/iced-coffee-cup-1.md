@@ -1,6 +1,6 @@
 ---
 title: Iced Coffee Cup
-image: /dps/uploads/19.png
+image: /stickers/iced-coffee-cup-1.png
 type: sticker
 category: aesthetic
 tags:

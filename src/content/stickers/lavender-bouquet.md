@@ -1,6 +1,6 @@
 ---
 title: Lavender Bouquet
-image: /dps/uploads/8.png
+image: /stickers/lavender-bouquet.png
 type: sticker
 category: flowers
 tags:

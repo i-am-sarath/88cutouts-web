@@ -26,6 +26,12 @@ collections:
   - name: "stickers"
     label: "Stickers & Frames"
     folder: "src/content/stickers"
+    # Set at collection and field level so every picker in this collection
+    # starts in public/stickers. The picker can still browse other folders and
+    # there is no setting to lock it; the build copes either way (see
+    # src/lib/thumbs.mjs), but stickers belong here.
+    media_folder: "/public/stickers"
+    public_folder: "/stickers"
     create: true
     slug: "{{slug}}"
     fields:
@@ -35,6 +41,7 @@ collections:
         widget: "image"
         media_folder: "/public/stickers"
         public_folder: "/stickers"
+        hint: "Upload into the Stickers folder, not DPs. An entry saved without its image is left off the site until the image is uploaded."
       - label: "Type"
         name: "type"
         widget: "select"
@@ -52,6 +59,8 @@ collections:
   - name: "dps"
     label: "DPs & Profile Pictures"
     folder: "src/content/dps"
+    media_folder: "/public/dps/uploads"
+    public_folder: "/dps/uploads"
     create: true
     slug: "{{slug}}"
     # The DP gallery is entirely what you upload here — nothing is generated.

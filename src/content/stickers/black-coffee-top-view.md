@@ -1,6 +1,6 @@
 ---
 title: Black Coffee Top View
-image: /dps/uploads/10.png
+image: /stickers/black-coffee-top-view.png
 type: sticker
 category: aesthetic
 tags:

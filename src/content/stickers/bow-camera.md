@@ -1,6 +1,6 @@
 ---
 title: Bow Camera
-image: /dps/uploads/3.png
+image: /stickers/bow-camera.png
 type: sticker
 category: coquette
 tags:

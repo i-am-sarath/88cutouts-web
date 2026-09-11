@@ -1,6 +1,6 @@
 ---
 title: Vintage Denim Jacket
-image: /dps/uploads/7.png
+image: /stickers/vintage-denim-jacket.png
 type: sticker
 category: retro
 tags:

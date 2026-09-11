@@ -1,6 +1,6 @@
 ---
 title: Soft Pretzel
-image: /dps/uploads/17.png
+image: /stickers/soft-pretzel.png
 type: sticker
 category: cute
 tags:

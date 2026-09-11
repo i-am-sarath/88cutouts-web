@@ -1,6 +1,6 @@
 ---
 title: Leopard Print Star
-image: /dps/uploads/16.png
+image: /stickers/leopard-print-star.png
 type: sticker
 category: retro
 tags:

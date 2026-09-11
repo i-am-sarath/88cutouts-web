@@ -1,6 +1,6 @@
 ---
 title: Purple Voice Message
-image: /dps/uploads/9.png
+image: /stickers/purple-voice-message.png
 type: sticker
 category: aesthetic
 tags:

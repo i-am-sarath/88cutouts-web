@@ -1,6 +1,6 @@
 ---
 title: Cocoa Powder Heart
-image: /dps/uploads/11.png
+image: /stickers/cocoa-powder-heart.png
 type: sticker
 category: hearts
 tags:

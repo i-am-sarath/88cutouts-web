@@ -1,6 +1,6 @@
 ---
 title: Chocolate Star Button
-image: /dps/uploads/20.png
+image: /stickers/chocolate-star-button.png
 type: sticker
 category: cute
 tags:

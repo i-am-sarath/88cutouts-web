@@ -12,6 +12,7 @@
  */
 import { getCollection } from 'astro:content';
 import collectionsData from '../data/dp-collections.json';
+import { dpThumbBase, inPublic } from './thumbs.mjs';
 
 export interface DpFaq {
   q: string;
@@ -64,21 +65,31 @@ export function getDpCollection(slug: string) {
 
 let cache: Dp[] | null = null;
 
-/** Every DP on the site — featured first, then newest. */
+/**
+ * Every DP on the site — featured first, then newest.
+ *
+ * An entry whose image isn't in the repo (saved from the CMS before the upload
+ * finished, or the file deleted since) is left out with a build warning rather
+ * than published as a broken page. It appears on the next build once the image
+ * is there.
+ */
 export async function getAllDps(): Promise<Dp[]> {
   if (cache) return cache;
 
-  const entries = await getCollection('dps');
+  const entries = await getCollection('dps', (entry) => {
+    if (inPublic(entry.data.image)) return true;
+    console.warn(`[dps] Skipping "${entry.slug}": ${entry.data.image} does not exist.`);
+    return false;
+  });
 
   cache = entries
     .map((entry) => {
-      const base = entry.data.image.replace(/^\/dps\/uploads\//, '').replace(/\.\w+$/, '');
       return {
         slug: entry.slug,
         collection: entry.data.collection,
         title: entry.data.title,
         image: entry.data.image,
-        thumbBase: `/dps/uploads/thumbs/${base}`,
+        thumbBase: dpThumbBase(entry.data.image),
         description: entry.data.description,
         tags: entry.data.tags,
         featured: entry.data.featured,

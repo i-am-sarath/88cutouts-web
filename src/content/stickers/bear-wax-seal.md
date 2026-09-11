@@ -1,6 +1,6 @@
 ---
 title: Bear Wax Seal
-image: /dps/uploads/29.png
+image: /stickers/bear-wax-seal.png
 type: sticker
 category: cute
 tags:

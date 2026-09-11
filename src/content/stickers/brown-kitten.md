@@ -1,6 +1,6 @@
 ---
 title: Brown Kitten
-image: /dps/uploads/18.png
+image: /stickers/brown-kitten.png
 type: sticker
 category: cute
 tags:

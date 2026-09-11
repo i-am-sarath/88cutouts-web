@@ -1,6 +1,6 @@
 ---
 title: Chocolate Chip Cookie Heart
-image: /dps/uploads/23.png
+image: /stickers/chocolate-chip-cookie-heart.png
 type: sticker
 category: hearts
 tags:

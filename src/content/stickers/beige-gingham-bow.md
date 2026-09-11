@@ -1,6 +1,6 @@
 ---
 title: Beige Gingham Bow
-image: /dps/uploads/26.png
+image: /stickers/beige-gingham-bow.png
 type: sticker
 category: coquette
 tags:

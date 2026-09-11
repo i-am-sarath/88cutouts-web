@@ -1,5 +1,6 @@
-import { getCollection } from 'astro:content';
 import { getAllDps, getDpCollection } from '../lib/dps';
+import { getStickers } from '../lib/stickers';
+import { stickerThumb } from '../lib/thumbs.mjs';
 
 /**
  * Powers the header search. Stickers and DPs live at different URL shapes, so
@@ -9,12 +10,13 @@ import { getAllDps, getDpCollection } from '../lib/dps';
  * the sticker entries keep their original field names.
  */
 export async function GET() {
-  const stickers = (await getCollection('stickers')).map((i) => ({
+  const stickers = (await getStickers()).map((i) => ({
     slug: i.slug,
     title: i.data.title,
     category: i.data.category,
     tags: i.data.tags,
     image: i.data.image,
+    thumb: stickerThumb(i.data.image, 200),
     url: `/stickers/${i.slug}/`,
     kind: 'sticker' as const,
   }));

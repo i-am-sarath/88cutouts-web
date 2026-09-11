@@ -1,6 +1,6 @@
 ---
 title: Heart Palmier Pastry
-image: /dps/uploads/24.png
+image: /stickers/heart-palmier-pastry.png
 type: sticker
 category: hearts
 tags:

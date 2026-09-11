@@ -1,6 +1,6 @@
 ---
 title: Vintage Gramophone
-image: /dps/uploads/4.png
+image: /stickers/vintage-gramophone.png
 type: sticker
 category: retro
 tags:

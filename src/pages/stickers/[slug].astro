@@ -1,12 +1,13 @@
 ---
-import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
+import { getStickers } from '../../lib/stickers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CopyDownloadButtons from '../../components/CopyDownloadButtons.astro';
 import StickerCard from '../../components/StickerCard.astro';
+import { stickerThumb } from '../../lib/thumbs.mjs';
 
 export async function getStaticPaths() {
-  const items = await getCollection('stickers');
+  const items = await getStickers();
   return items.map((s) => ({
     params: { slug: s.slug },
     props: {
@@ -30,9 +31,7 @@ const tags = entry.data.tags.filter((t) => t.toLowerCase() !== category.toLowerC
 const { Content } = await entry.render();
 
 // Hero shows the lightweight WebP; Copy/Download still fetch the full PNG.
-const heroThumb = `/stickers/thumbs/${image
-  .replace(/^\/stickers\//, '')
-  .replace(/\.png$/i, '')}-512.webp`;
+const heroThumb = stickerThumb(image, 512);
 
 const site = Astro.site?.href ?? 'https://88cutouts.com/';
 const pageUrl = new URL(`/stickers/${entry.slug}/`, site).href;

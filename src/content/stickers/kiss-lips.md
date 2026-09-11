@@ -1,6 +1,6 @@
 ---
 title: Kiss Lips
-image: /dps/uploads/28.png
+image: /stickers/kiss-lips.png
 type: sticker
 category: coquette
 tags:

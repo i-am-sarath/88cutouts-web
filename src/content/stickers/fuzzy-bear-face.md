@@ -1,6 +1,6 @@
 ---
 title: Fuzzy Bear Face
-image: /dps/uploads/30.png
+image: /stickers/fuzzy-bear-face.png
 type: sticker
 category: cute
 tags:

@@ -1,6 +1,6 @@
 ---
 title: Brown Satin Bow
-image: /dps/uploads/13.png
+image: /stickers/brown-satin-bow.png
 type: sticker
 category: coquette
 tags:

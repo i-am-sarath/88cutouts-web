@@ -1,6 +1,6 @@
 ---
 title: Tan Stitched Star Patch
-image: /dps/uploads/15.png
+image: /stickers/tan-stitched-star-patch.png
 type: sticker
 category: retro
 tags:

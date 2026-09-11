@@ -1,6 +1,6 @@
 ---
 title: Billiard Ball Number 7
-image: /dps/uploads/25.png
+image: /stickers/billiard-ball-number-7.png
 type: sticker
 category: retro
 tags:

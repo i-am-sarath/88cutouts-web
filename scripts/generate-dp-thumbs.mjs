@@ -11,42 +11,47 @@
  * so an upload that is slightly off-square should be cropped to the middle,
  * not letterboxed onto bars.
  *
+ * Only images a DP entry actually uses get thumbnails — wherever the CMS saved
+ * them. Anything else in uploads/ (a sticker dropped in the wrong folder) is
+ * not a DP and doesn't need cover-cropped copies. Paths come from
+ * src/lib/thumbs.mjs, which src/lib/dps.ts also uses.
+ *
  * Runs from `prebuild` and `dev`. Output is gitignored — Cloudflare
  * regenerates it from the committed originals on every build.
  */
 import sharp from 'sharp';
-import { mkdir, readdir, stat, writeFile } from 'node:fs/promises';
+import { mkdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { THUMB_SIZES as SIZES, dpThumbBase } from '../src/lib/thumbs.mjs';
+import { contentImages } from './content-images.mjs';
 
 const ROOT = path.resolve(fileURLToPath(import.meta.url), '../..');
-const UPLOADS = path.join(ROOT, 'public/dps/uploads');
-const THUMBS = path.join(UPLOADS, 'thumbs');
-
-/** Card srcset widths, plus the detail-page hero size. */
-const SIZES = [200, 400, 512];
+const PUBLIC = path.join(ROOT, 'public');
 
 const FORCE = process.argv.includes('--force');
 
-let files = [];
-try {
-  files = (await readdir(UPLOADS)).filter((f) => /\.(png|jpe?g|webp)$/i.test(f));
-} catch {
-  /* nothing uploaded yet — nothing to do */
-}
-
-if (files.length) await mkdir(THUMBS, { recursive: true });
+const images = [...new Set(await contentImages(ROOT, ['src/content/dps'], ['image']))];
 
 let written = 0;
 let skipped = 0;
+let missing = 0;
 
-for (const file of files) {
-  const base = file.replace(/\.\w+$/, '');
-  const src = path.join(UPLOADS, file);
-  const srcStat = await stat(src);
+for (const image of images) {
+  const src = path.join(PUBLIC, image);
+  let srcStat;
+  try {
+    srcStat = await stat(src);
+  } catch {
+    // src/lib/dps.ts leaves the entry out of the build for the same reason.
+    console.warn(`DP thumbnails: ${image} is referenced in content but does not exist.`);
+    missing++;
+    continue;
+  }
 
   for (const size of SIZES) {
-    const out = path.join(THUMBS, `${base}-${size}.webp`);
+    const out = path.join(PUBLIC, `${dpThumbBase(image)}-${size}.webp`);
+    await mkdir(path.dirname(out), { recursive: true });
 
     // skip if the thumbnail is newer than its source
     try {
@@ -71,5 +76,5 @@ for (const file of files) {
 
 console.log(
   `DP thumbnails: ${written} written, ${skipped} up to date ` +
-    `(${files.length} uploaded DP${files.length === 1 ? '' : 's'} x ${SIZES.length} sizes).`
+    `(${images.length - missing} DP${images.length - missing === 1 ? '' : 's'} x ${SIZES.length} sizes).`
 );

@@ -1,6 +1,6 @@
 ---
 title: Stacked Macarons
-image: /dps/uploads/22.png
+image: /stickers/stacked-macarons.png
 type: sticker
 category: cute
 tags:

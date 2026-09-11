@@ -859,12 +859,11 @@ const palettes = collections
     }
 
     for (const s of list.slice(0, 60)) {
-      const base = s.image.replace(/^\/stickers\//, '').replace(/\.png$/i, '');
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'dp-sticker-btn';
       btn.title = s.title;
-      btn.innerHTML = `<img src="/stickers/thumbs/${base}-200.webp" alt="${s.title}" width="200" height="200" loading="lazy" decoding="async" />`;
+      btn.innerHTML = `<img src="${s.thumb}" alt="${s.title}" width="200" height="200" loading="lazy" decoding="async" />`;
       btn.addEventListener('click', () => addSticker(s.image));
       grid.appendChild(btn);
     }

@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { stickerThumb } from '../lib/thumbs.mjs';
 
 interface Props {
   entry: CollectionEntry<'stickers'>;
@@ -12,8 +13,7 @@ const { title, image, category, type } = entry.data;
 
 // Display uses the generated square WebP thumbnails; the full PNG in `image`
 // stays reserved for copy/download. See scripts/generate-thumbs.mjs.
-const base = image.replace(/^\/stickers\//, '').replace(/\.png$/i, '');
-const thumb = (size: number) => `/stickers/thumbs/${base}-${size}.webp`;
+const thumb = (size: number) => stickerThumb(image, size);
 ---
 
 <a class="card" href={`/stickers/${entry.slug}/`}>

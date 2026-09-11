@@ -1,6 +1,6 @@
 ---
 title: Brown Teddy Bear
-image: /dps/uploads/14.png
+image: /stickers/brown-teddy-bear.png
 type: sticker
 category: cute
 tags:

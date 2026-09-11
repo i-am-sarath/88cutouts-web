@@ -1,6 +1,6 @@
 ---
 title: Floral Vinyl Record
-image: /dps/uploads/5.png
+image: /stickers/floral-vinyl-record.png
 type: sticker
 category: retro
 tags:

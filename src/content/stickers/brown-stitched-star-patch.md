@@ -1,6 +1,6 @@
 ---
 title: Brown Stitched Star Patch
-image: /dps/uploads/12.png
+image: /stickers/brown-stitched-star-patch.png
 type: sticker
 category: retro
 tags:
