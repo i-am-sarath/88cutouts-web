@@ -12,7 +12,8 @@
  */
 import { getCollection } from 'astro:content';
 import collectionsData from '../data/dp-collections.json';
-import { dpThumbBase, inPublic } from './thumbs.mjs';
+import { inPublic } from './public-images';
+import { dpThumbBase } from './thumbs.mjs';
 
 export interface DpFaq {
   q: string;

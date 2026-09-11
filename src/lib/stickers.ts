@@ -9,7 +9,7 @@
  */
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
-import { inPublic } from './thumbs.mjs';
+import { inPublic } from './public-images';
 
 let cache: CollectionEntry<'stickers'>[] | null = null;
 

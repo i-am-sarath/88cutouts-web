@@ -1,9 +1,10 @@
 /**
- * Where generated WebP thumbnails live, and whether an image is really there.
+ * Where generated WebP thumbnails live.
  *
  * Shared by the thumbnail scripts (which write them) and every template that
  * links one, so the two can't drift apart. Plain .mjs so the Node build
- * scripts can import it without a TypeScript step. Server/build-time only.
+ * scripts can import it without a TypeScript step. Keep it free of Node
+ * built-ins: on Cloudflare the pages are bundled for Workers, which can't.
  *
  * Images in their home folder map flat, as they always have:
  *   /stickers/foo.png      -> /stickers/thumbs/foo-400.webp
@@ -15,9 +16,6 @@
  * so a sticker saved to /dps/uploads/ has to work, not 404:
  *   /dps/uploads/29.png    -> /stickers/thumbs/dps/uploads/29-400.webp
  */
-import { existsSync } from 'node:fs';
-import path from 'node:path';
-
 /** Card srcset widths, plus the detail-page hero size. */
 export const THUMB_SIZES = [200, 400, 512];
 
@@ -41,13 +39,4 @@ export function stickerThumb(image, size) {
  */
 export function dpThumbBase(image) {
   return `/dps/uploads/thumbs/${key(image, '/dps/uploads/')}`;
-}
-
-/**
- * True if a root-relative path like `/stickers/foo.png` exists in public/.
- * Builds run from the project root, so cwd is where public/ lives.
- * @param {string} image
- */
-export function inPublic(image) {
-  return existsSync(path.join(process.cwd(), 'public', image));
 }
