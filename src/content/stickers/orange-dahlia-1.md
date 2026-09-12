@@ -1,0 +1,11 @@
+---
+title: Orange Dahlia
+image: /dps/uploads/9-1.png
+type: sticker
+category: flowers
+tags:
+  - dahlia
+  - orange
+featured: false
+date: 2026-09-12
+---
