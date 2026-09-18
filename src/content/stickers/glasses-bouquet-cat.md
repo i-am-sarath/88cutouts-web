@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Glasses Bouquet Cat is drawn with a thick outline and a slightly uneven edge, the same hand-made look used across the sticker library here. It joins the cat and animal lineup, all drawn with the same rounded, friendly style so they stack together without clashing. Pair it with a caption box or a washi-tape frame if you want to layer more than one sticker on the same Story.
+A ginger tabby kitten in round glasses, holding a wrapped bouquet of pink tulips. Photoreal and upright. The glasses are the detail that gives it a character rather than just being a cat, but they are also fine dark lines that vanish at small sizes — so place this one with enough room for the face to resolve.

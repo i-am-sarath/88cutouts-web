@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Star Vinyl Record keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. It sits with the retro shelf — vinyl, cassette and camera cutouts built around an old analogue feel. Pair it with a caption box or a washi-tape frame if you want to layer more than one sticker on the same Story.
+A black vinyl record with a red centre label and two red stars set into the grooves at the upper left. Clean circular cutout with no backing panel, so it drops onto a photo properly. The stars break the symmetry of the disc, which gives it a right way up — worth noticing, since the other records here can be rotated freely.

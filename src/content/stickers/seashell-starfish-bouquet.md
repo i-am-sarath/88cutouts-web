@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Seashell & Starfish Bouquet is drawn with a thick outline and a slightly uneven edge, the same hand-made look used across the sticker library here. It sits in the aesthetic shelf, a small decorative charm rather than a full scene. It reads clearly even shrunk down small, so it holds up in the corner of a vertical Story.
+A small arrangement of a white scallop shell with pale blue starfish and tiny flowers tucked around it, painted in soft watercolour. Very light overall and quite fine in its detail — it needs a darker photo behind it and more size than its small footprint suggests, or it dissolves. The most delicate cutout in the library.

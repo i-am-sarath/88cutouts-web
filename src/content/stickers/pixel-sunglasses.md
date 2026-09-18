@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Pixel Sunglasses is drawn with a thick outline and a slightly uneven edge, the same hand-made look used across the sticker library here. It's part of the y2k set, built around sunglasses, pixel, meme and deal with it. Drop it over a plain background if the photo underneath is already busy — it still stands out.
+The deal-with-it sunglasses — a solid black pixel bar with stepped edges and two small white highlight blocks. Pure silhouette, no colour, no internal detail. It scales to almost any size and lands correctly over a face at a wide range of positions, which is exactly why this shape became a meme in the first place. Useless on a dark photo.

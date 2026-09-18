@@ -3,13 +3,47 @@ import { getStickers } from '../lib/stickers';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CategoryPills from '../components/CategoryPills.astro';
 import StickerCard from '../components/StickerCard.astro';
+import StickerShuffle from '../components/StickerShuffle.astro';
 
-const stickers = [...(await getStickers())].sort((a, b) => {
+const all = await getStickers();
+
+const stickers = [...all].sort((a, b) => {
   if (a.data.featured !== b.data.featured) return a.data.featured ? -1 : 1;
   return b.data.date.valueOf() - a.data.date.valueOf();
 });
 
+/** Newest first, regardless of the featured flag. */
+const fresh = [...all].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 12);
+
+/** Hand-picked in the CMS — the ones that get used most. */
+const popular = all.filter((s) => s.data.featured).slice(0, 8);
+
+const categories = [...new Set(all.map((s) => s.data.category))].sort();
+
 const site = Astro.site?.href ?? 'https://88cutouts.com/';
+
+const faq = [
+  {
+    q: 'Are these stickers really free?',
+    a: 'Yes. Every cutout here is free for personal use on your own Stories, posts, chats and notes. There is no account, no watermark and no attribution requirement. The full terms are on the about page.',
+  },
+  {
+    q: 'Do I need an app to use them?',
+    a: 'No. Open a sticker, tap Copy, then long-press inside an Instagram Story to paste it. The whole thing happens in your browser — nothing is installed and nothing is uploaded.',
+  },
+  {
+    q: 'Why does my sticker have a white box around it?',
+    a: 'Because it landed somewhere that flattens transparency. Instagram Stories keep the alpha channel; feed posts and some chat apps do not. Pasting into a Story, or saving the PNG and adding it as a sticker, keeps the edges clean.',
+  },
+  {
+    q: 'Can I make a sticker see-through?',
+    a: 'Yes — every sticker page has an opacity slider. Drag it down and the Copy and Download output becomes translucent, which is what you want when the cutout sits over a photo rather than on a plain background.',
+  },
+  {
+    q: 'What format are the files?',
+    a: 'Transparent PNG-32, trimmed to the artwork and normalised to a 900 pixel maximum edge. That is large enough to fill a good part of a Story without softening, and small enough to paste instantly.',
+  },
+];
 
 const jsonld = [
   {
@@ -17,7 +51,7 @@ const jsonld = [
     '@type': 'CollectionPage',
     name: 'Free aesthetic Instagram Story stickers',
     description:
-      'Free transparent PNG stickers and frames for Instagram Stories. Tap to copy, no login needed.',
+      'Free transparent PNG stickers and frames for Instagram Stories. Tap to copy, adjust the opacity, no login needed.',
     url: site,
     isPartOf: { '@type': 'WebSite', name: '88cutouts', url: site },
     mainEntity: {
@@ -31,23 +65,32 @@ const jsonld = [
       })),
     },
   },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
 ];
 ---
 
 <BaseLayout
   title="88cutouts — free aesthetic stickers for Instagram Stories"
-  description="Free transparent PNG stickers, frames and cutouts for your Instagram Stories. Tap to copy and paste straight into your Story — no login, no app."
+  description="Free transparent PNG stickers, frames and cutouts for your Instagram Stories. Tap to copy, set the opacity you want, and paste straight in — no login, no app."
   jsonld={jsonld}
 >
   <section class="hero">
     <div class="wrap">
       <h1>Aesthetic stickers, ready to paste</h1>
       <p>
-        Free transparent PNG stickers, frames and cutouts for your Instagram Stories — tap
-        <strong>Copy</strong> and paste straight in, no login and no app to install. Every
-        sticker keeps its alpha transparency, so it drops onto a Story without a white box
-        around it. There's also a <a href="/ransom-note/">ransom-note typewriter</a> if you'd
-        rather turn a whole message into a cut-out collage.
+        {stickers.length} free transparent PNG stickers, frames and cutouts — tap
+        <strong>Copy</strong> and paste straight into a Story, no login and no app to
+        install. Every one keeps its alpha channel, and every sticker page has an
+        <strong>opacity slider</strong> so you can take the same cutout from solid to
+        see-through before you copy it.
       </p>
       <div class="rule"></div>
     </div>
@@ -55,6 +98,73 @@ const jsonld = [
 
   <div class="wrap">
     <CategoryPills active="all" />
+
+    {
+      fresh.length > 0 && (
+        <>
+          <div class="section-head">
+            <h2>Just added</h2>
+            <span class="count">newest first</span>
+          </div>
+          <p class="lede">
+            New cutouts go up a few times a week. These are the most recent — worth a look
+            before everyone else finds them.
+          </p>
+          <div class="grid">
+            {fresh.map((entry, i) => (
+              <StickerCard entry={entry} eager={i < 6} />
+            ))}
+          </div>
+        </>
+      )
+    }
+
+    {
+      popular.length > 0 && (
+        <>
+          <div class="section-head">
+            <h2>Popular picks</h2>
+            <span class="count">the ones people reach for</span>
+          </div>
+          <p class="lede">
+            The cutouts that go furthest: simple shapes, clean edges and colours that sit on
+            almost any photo without fighting it.
+          </p>
+          <div class="grid">
+            {popular.map((entry) => (
+              <StickerCard entry={entry} />
+            ))}
+          </div>
+        </>
+      )
+    }
+
+    <StickerShuffle
+      pool={all}
+      count={6}
+      id="home"
+      heading="Don't know what you want?"
+      blurb="Six at random from the whole library. Hit shuffle until something catches your eye — half the good Stories start this way."
+    />
+
+    <section class="browse-cats">
+      <div class="section-head">
+        <h2>Browse by mood</h2>
+      </div>
+      <p class="lede">
+        Each set is small on purpose, so you can look through the whole thing in a minute
+        instead of scrolling a stock library.
+      </p>
+      <nav class="pills" aria-label="All categories">
+        {categories.map((c) => (
+          <a class="pill" href={`/category/${c}/`}>
+            {c}
+          </a>
+        ))}
+        <a class="pill" href="/ransom-note/">✦ cutout text</a>
+        <a class="pill" href="/dp/">✦ profile pictures</a>
+      </nav>
+    </section>
 
     <div class="section-head">
       <h2>All stickers &amp; frames</h2>
@@ -66,11 +176,87 @@ const jsonld = [
         <p class="lede">No stickers yet — add the first one from /admin.</p>
       ) : (
         <div class="grid">
-          {stickers.map((entry, i) => (
-              <StickerCard entry={entry} eager={i < 6} />
+          {stickers.map((entry) => (
+            <StickerCard entry={entry} />
           ))}
         </div>
       )
     }
+
+    <article class="prose home-prose">
+      <h2>What these are, and how to use them</h2>
+      <p>
+        Every cutout on this site is a transparent PNG — a piece of artwork with no
+        background at all, rather than a picture of artwork on a white square. That
+        difference is the whole point. Paste a transparent PNG into an Instagram Story and
+        it lands as a sticker you can pinch, rotate and place over your photo. Paste a
+        flattened one and you get a white box sitting in the middle of your image.
+      </p>
+      <p>
+        The usual route is: open a sticker, tap <strong>Copy</strong>, switch to Instagram,
+        start a Story, then tap once on the screen and long-press to paste. If your browser
+        will not copy images — some older mobile browsers refuse —
+        <strong>Download</strong> saves the same PNG to your camera roll and you can add it
+        from there. The
+        <a href="/blog/how-to-add-stickers-to-instagram-stories/">full walkthrough</a>
+        covers both routes, plus WhatsApp and the places transparency gets flattened.
+      </p>
+
+      <h2>Solid, soft or see-through</h2>
+      <p>
+        Every sticker page carries an opacity control. At full strength a cutout reads as
+        the subject of the Story. Around 70% it softens into the photo underneath. Below
+        45% it behaves like a watermark — a bow in the corner, a frame around the edge, a
+        repeated shape across the background — present without competing with whatever you
+        photographed.
+      </p>
+      <p>
+        The transparency is written into the PNG itself, so what the preview shows is
+        exactly what gets copied. That matters because Instagram's own sticker opacity
+        controls are limited, and layering a faded cutout is far easier when the file
+        already arrives faded.
+      </p>
+
+      <h2>Why the library is small</h2>
+      <p>
+        {stickers.length} cutouts is not a lot next to a stock site, and that is deliberate.
+        Every one is drawn or photographed for this site, cut out by hand, cleaned at the
+        edges so no grey halo survives on a dark background, trimmed to the artwork and
+        normalised to a 900 pixel maximum edge. A pack of ten thousand auto-traced PNGs is
+        worse than fifty that actually paste cleanly.
+      </p>
+      <p>
+        If you want to make your own to the same standard, the
+        <a href="/blog/how-to-make-transparent-png-stickers/">guide to cutting transparent PNGs</a>
+        walks through the edge decontamination step most tutorials skip — it is the reason
+        stickers from elsewhere often show a faint outline once they are on a photo.
+      </p>
+
+      <h2>Beyond single stickers</h2>
+      <ul>
+        <li>
+          <a href="/ransom-note/">Cutout text</a> — type a phrase and get it back as paper
+          letters, at whatever opacity you want. Best for two or three words.
+        </li>
+        <li>
+          <a href="/dp/">Profile pictures</a> — ready-made square DPs composed for the
+          circular crop WhatsApp and Instagram apply.
+        </li>
+        <li>
+          <a href="/blog/">The blog</a> — sizing, safe zones, file formats, and the
+          aesthetics behind the sets here, written to be read once and remembered.
+        </li>
+      </ul>
+
+      <h2>Common questions</h2>
+      {
+        faq.map((f) => (
+          <>
+            <h3>{f.q}</h3>
+            <p>{f.a}</p>
+          </>
+        ))
+      }
+    </article>
   </div>
 </BaseLayout>

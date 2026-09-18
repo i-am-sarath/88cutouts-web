@@ -8,4 +8,4 @@ featured: true
 date: 2026-08-11
 ---
 
-2026 Paper Cutout Year keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. It's tied to the calendar rather than a fixed theme, built around 2026, new year, number, cutout and ransom note. It reads clearly even shrunk down small, so it holds up in the corner of a vertical Story.
+The four digits are each cut from a different paper stock — two warm browns, a tan and a mustard — with visible torn edges and a slight tilt on every character, so the year reads as assembled rather than typed. The mismatched weights are the point: no two numerals share a typeface. It is wide and short, so it wants a horizontal band across a Story rather than a corner, and it holds up small because numerals stay legible long after letters give up.

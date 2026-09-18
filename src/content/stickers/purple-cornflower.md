@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Purple Cornflower keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. Its cornflower, flower, floral and purple put it with the other floral cutouts — good for anything about gardens, dates, or a good hair day. It reads clearly even shrunk down small, so it holds up in the corner of a vertical Story.
+A watercolour cornflower in violet and lavender, the petals feathered at their tips and the pigment darkening toward a dark centre. Fully open and shot face-on, so it reads as a soft disc. Purple is the one colour here that holds up against both light and dark backgrounds, which makes this a safe choice when you do not know what photo it is going on.

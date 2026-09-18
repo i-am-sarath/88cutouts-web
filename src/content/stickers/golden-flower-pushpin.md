@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Golden Flower Pushpin is one of the free stickers in this set, exported as an alpha-transparent PNG so it pastes cleanly onto any background. Its  put it with the other floral cutouts — good for anything about gardens, dates, or a good hair day. Drop it over a plain background if the photo underneath is already busy — it still stands out.
+A gold pushpin with a small red flower at its base, drawn at an angle as though pressed into a surface. The angle is what makes it work: it implies a board or a page underneath, so put it overlapping the corner of a photo or a paper scrap rather than sitting on its own in clear space. Small, and easily lost if you scale it down too far.

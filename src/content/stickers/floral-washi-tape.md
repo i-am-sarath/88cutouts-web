@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Floral Washi Tape is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. It's built to look like a scrap torn from an actual sheet, edges rough on purpose — useful as a background layer under other stickers. A good one to combine with a couple of the other stickers from the same shelf for a fuller collage look.
+A short strip of washi tape printed with sunflowers on a dark ground, torn at both ends so the fibres show. It is small and narrow — a fastening rather than a subject. Put it crossing something: the corner of a photo, the join between two elements, the top of a block of text. Floating in clear space it loses the point.

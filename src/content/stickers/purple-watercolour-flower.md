@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Purple Watercolour Flower is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. Its flower, watercolour, purple and floral put it with the other floral cutouts — good for anything about gardens, dates, or a good hair day. Drop it over a plain background if the photo underneath is already busy — it still stands out.
+A five-petalled watercolour bloom where purple bleeds into hot pink toward the centre of each petal, with fine radiating veins left visible. The two-colour bleed is what separates it from the plainer purple flower — more going on, and correspondingly more demanding of a quiet background. Large and roughly square.

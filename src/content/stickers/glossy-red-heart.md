@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Glossy Red Heart is one of the free stickers in this set, exported as an alpha-transparent PNG so it pastes cleanly onto any background. It belongs with the other hearts on the site, each one built around heart, love, red and glossy. Drop it over a plain background if the photo underneath is already busy — it still stands out.
+A three-dimensional heart in glossy red with a hard white highlight across the upper left and a deep shadow underneath. The most conventional heart in the set and the loudest: high saturation, high gloss, no texture. It will dominate whatever frame it is in, so use it alone rather than alongside another heart, and keep it off bright photos where the highlight competes.

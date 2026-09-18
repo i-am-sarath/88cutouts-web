@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Beanie Glasses Cat is one of the free stickers in this set, exported as an alpha-transparent PNG so it pastes cleanly onto any background. It joins the cat and animal lineup, all drawn with the same rounded, friendly style so they stack together without clashing. Pair it with a caption box or a washi-tape frame if you want to layer more than one sticker on the same Story.
+A striped kitten in a black beanie and heavy square glasses, with a small shoulder bag. The dark accessories do the work: against a light photo the beanie and frames anchor the shape, which is why this one still reads at small sizes where a plain cat would turn to mush. Keep it away from dark backgrounds, where the beanie disappears and the face floats.

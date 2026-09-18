@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Deep Red Butterfly is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. It doesn't fit neatly into one category, but the butterfly, red, insect and wings make it an easy one to drop into most Stories. Drop it over a plain background if the photo underneath is already busy — it still stands out.
+A butterfly with deep crimson wings shading to near-black at the body, wings spread symmetrically, finished with a white die-cut sticker border. The wing veins are visible but fine. The white keyline keeps it readable on dark photos where the crimson would otherwise vanish. Symmetrical and wide, so it sits naturally across a horizontal band rather than tucked into a corner.

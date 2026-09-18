@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Vinyl Record Sleeve keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. It sits with the retro shelf — vinyl, cassette and camera cutouts built around vinyl, record, music and sleeve. Drop it over a plain background if the photo underneath is already busy — it still stands out.
+A record half pulled out of a blank cream sleeve, so you get the square of the sleeve and the arc of the black disc together. The blank sleeve is the useful part — it reads as a label waiting to be filled, which makes it a natural place to put text next to. Wide, and strongly horizontal.

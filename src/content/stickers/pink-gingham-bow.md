@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Pink Gingham Bow keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. The bow, gingham, pink and checked shape sits with the rest of the coquette bows — soft colours, satin folds, nothing sharp-edged. Drop it over a plain background if the photo underneath is already busy — it still stands out.
+A large pink gingham bow with four tails and a crisp fabric weave, the check clearly visible across every loop. The pattern is the appeal and small checks are the first thing compression destroys, so place this one big. It is the loudest of the gingham bows here — the pink check carries much further than the beige one does.

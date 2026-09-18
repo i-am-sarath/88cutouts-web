@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Mix Tape Stack is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. It sits with the retro shelf — vinyl, cassette and camera cutouts built around mix tape, cassette and music. Pair it with a caption box or a washi-tape frame if you want to layer more than one sticker on the same Story.
+An illustrated stack of five VHS-style cases, hand-labelled Mix Tape Vol. 1, Live Show 1995 and Retro Movie, drawn with a loose black outline. The stack is slightly untidy, which is what sells it. It is a wide, low shape with legible text, so place it large enough to read the labels — that lettering is most of the charm.

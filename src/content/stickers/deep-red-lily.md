@@ -8,4 +8,4 @@ featured: true
 date: 2026-08-11
 ---
 
-Deep Red Lily is one of the free stickers in this set, exported as an alpha-transparent PNG so it pastes cleanly onto any background. Its lily, flower, floral, red and botanical put it with the other floral cutouts — good for anything about gardens, dates, or a good hair day. It works well tucked into a corner over a selfie, a food photo, or a travel shot without covering the subject.
+A photographed lily in deep red with speckled petals and a long curved stem still attached, shot from slightly above so the petals splay outward. The stem is the useful bit — it gives the flower a direction, so it can point into the frame rather than just sitting in it. Large and dark; it wants a pale photo to contrast against.

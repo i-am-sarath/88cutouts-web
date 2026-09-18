@@ -8,4 +8,4 @@ featured: true
 date: 2026-08-11
 ---
 
-Heart Vinyl Record keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. It sits with the retro shelf — vinyl, cassette and camera cutouts built around vinyl, record, heart, music and love. Drop it over a plain background if the photo underneath is already busy — it still stands out.
+A black vinyl record shot straight on, with a red heart printed across the grey centre label. The record fills the cutout edge to edge as a clean circle with no backing panel, which makes this the most usable of the record cutouts here. The grooves catch light in fine concentric rings, so keep it reasonably large or they compress into flat grey.

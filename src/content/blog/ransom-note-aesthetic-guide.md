@@ -11,7 +11,7 @@ faq:
   - q: "Why does the ransom note style feel urgent or threatening?"
     a: "Two reasons. Historically it signals anonymity, which reads as someone with something to hide. Formally, the irregular baselines and clashing letterforms force the eye to work harder on each character, and that friction reads as tension."
   - q: "How do I make ransom note text without design software?"
-    a: "Use the ransom-note typewriter on this site. Type your message and it returns a transparent PNG of cut-out letters that you can paste straight into an Instagram Story, a chat or a document."
+    a: "Use the free cutout text maker on this site. Tap a preset or type your own message and it returns a transparent PNG of cut-out letters you can paste straight into an Instagram Story, a chat or a document."
   - q: "Is the ransom note style the same as punk zine typography?"
     a: "They are closely related. Punk zines of the mid-1970s deliberately adopted the ransom note look as an anti-professional statement, most famously on the Sex Pistols' Never Mind the Bollocks sleeve. Zine typography is the ransom note style used as a design choice rather than for anonymity."
 ---
@@ -68,7 +68,7 @@ So the rules are about limits, not chaos.
 
 **Let a few letters overlap.** Two or three overlaps across a phrase, by a few pixels. This is what physical paper does and what software defaults never do.
 
-The [ransom-note typewriter](/ransom-note/) here applies all of these constraints automatically — it draws from a fixed set of hand-cut paper letters, keeps rotation and baseline within believable bands, and returns the result as a transparent PNG. It is faster than doing it by hand, and the constraints are why it comes out looking assembled rather than randomised.
+The [cutout text maker](/ransom-note/) here applies all of these constraints automatically — it draws from a fixed set of hand-cut paper letters, keeps rotation and baseline within believable bands, and returns the result as a transparent PNG. It is faster than doing it by hand, and the constraints are why it comes out looking assembled rather than randomised.
 
 ## Where to use it, and where not
 

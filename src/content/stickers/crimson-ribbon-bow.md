@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Crimson Ribbon Bow keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. The bow, ribbon, crimson and red shape sits with the rest of the coquette bows — soft colours, satin folds, nothing sharp-edged. A good one to combine with a couple of the other stickers from the same shelf for a fuller collage look.
+A crimson bow drawn in a flat illustrated style with bold outlines and a white die-cut border around the whole shape, so it looks like a vinyl sticker rather than real fabric. The white keyline is the distinguishing feature here and it does the heavy lifting on busy photos, giving the bow an edge it would otherwise lose. Two long tails hang below, which makes it taller than most of the bows.

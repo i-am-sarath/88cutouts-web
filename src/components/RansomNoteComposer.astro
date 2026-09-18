@@ -1,19 +1,109 @@
 ---
 /**
- * Canvas ransom-note typewriter. Letter cutouts come from the CMS-managed
+ * Canvas cut-out text maker. Letter cutouts come from the CMS-managed
  * letters.json, exposed as /ransom-letters-manifest.json (character -> variants).
  * Characters with no uploaded cutout fall back to a plain drawn glyph.
+ *
+ * It opens with a phrase already rendered rather than an empty box: the tool
+ * is hard to understand from a label alone, and one look at the output
+ * explains it faster than any instruction does.
  */
+
+/** Tapping one of these is the fastest possible path to a finished image. */
+const presets = [
+  'happy birthday',
+  'hi bestie',
+  'miss you',
+  'save the date',
+  'congrats!',
+  'thank you',
+  'good vibes',
+  'best friends',
+  'my era',
+  '2026',
+];
 ---
 
-<div class="ransom-tool">
+<div class="text-tool">
+  <div class="tt-step">
+    <span class="tt-step-n">1</span>
+    <h3>Tap a phrase, or type your own</h3>
+  </div>
+
+  <div class="tt-presets" role="group" aria-label="Example phrases">
+    {
+      presets.map((p) => (
+        <button type="button" class="chip" data-preset={p}>
+          {p}
+        </button>
+      ))
+    }
+  </div>
+
   <label class="sr-only" for="ransom-input">Your message</label>
-  <textarea id="ransom-input" maxlength="140" placeholder="Type your message..."></textarea>
+  <textarea
+    id="ransom-input"
+    maxlength="140"
+    rows="2"
+    placeholder="Type your message…"
+    autocapitalize="none"
+    spellcheck="false"></textarea>
   <p class="ransom-count"><span id="ransom-count">0</span>/140</p>
 
+  <div class="tt-step">
+    <span class="tt-step-n">2</span>
+    <h3>Check the preview</h3>
+  </div>
+
   <div class="canvas-frame">
-    <canvas id="ransom-canvas" width="900" height="320" role="img"
-      aria-label="Live preview of your ransom-note message"></canvas>
+    <canvas
+      id="ransom-canvas"
+      width="900"
+      height="320"
+      role="img"
+      aria-label="Live preview of your cut-out letter message"></canvas>
+  </div>
+
+  <div class="tt-tweaks">
+    <button type="button" class="chip tt-shuffle" id="ransom-shuffle">
+      ↻ Shuffle the cut
+    </button>
+    <div class="tt-sizes" role="group" aria-label="Letter size">
+      <button type="button" class="chip" data-size="42" aria-pressed="false">Small</button>
+      <button type="button" class="chip" data-size="56" aria-pressed="true">Medium</button>
+      <button type="button" class="chip" data-size="76" aria-pressed="false">Large</button>
+    </div>
+  </div>
+
+  <div class="opacity-ctl">
+    <div class="opacity-head">
+      <span class="opacity-title">Opacity</span>
+      <span class="opacity-val">100%</span>
+    </div>
+    <div class="opacity-presets" role="group" aria-label="Opacity presets">
+      <button type="button" class="chip" data-op="100" aria-pressed="true">Solid</button>
+      <button type="button" class="chip" data-op="70" aria-pressed="false">Soft</button>
+      <button type="button" class="chip" data-op="45" aria-pressed="false">Faded</button>
+      <button type="button" class="chip" data-op="20" aria-pressed="false">Ghost</button>
+    </div>
+    <input
+      class="opacity-range"
+      type="range"
+      min="5"
+      max="100"
+      step="5"
+      value="100"
+      aria-label="Letter opacity percentage"
+    />
+    <p class="opacity-note">
+      Lower it for lettering that sits over a photo without covering it.
+      <strong>Copy</strong> and <strong>Download</strong> both use what you set here.
+    </p>
+  </div>
+
+  <div class="tt-step">
+    <span class="tt-step-n">3</span>
+    <h3>Copy it, then paste into your Story</h3>
   </div>
 
   <div class="action-row">
@@ -21,29 +111,33 @@
     <button id="ransom-download" class="btn-download" type="button">Download</button>
   </div>
   <p class="copy-hint">
-    Works best pasted into Instagram <strong>Stories</strong> — feed posts don't show
-    transparency.
+    Open Instagram, start a Story, and long-press to paste. Works best in
+    <strong>Stories</strong> — feed posts don't show transparency.
   </p>
 </div>
 
 <script>
   import { track } from '../lib/track';
 
-  const SIZE = 56;
+  /** Rendered before anyone types, so the tool explains itself on arrival. */
+  const OPENING_PHRASE = 'hi bestie';
+
+  let SIZE = 56;
   const PAD = 20;
-  const LINE_H = SIZE * 1.15;
   /**
    * Gap between adjacent cutouts, as a fraction of SIZE. Scrap widths vary a
    * lot once trimmed, and each is rotated up to 8 degrees, so a small positive
    * gap is needed to stop neighbours overlapping into illegibility.
    */
   const KERN = 0.06;
-  const ADV_TEXT = SIZE * 0.6;
-  const ADV_SPACE = SIZE * 0.6;
   /** Fixed wrap width; the canvas itself is then trimmed to the content. */
   const WRAP_W = 860;
   const MIN_WIDTH = 360;
   const MIN_HEIGHT = 200;
+
+  const lineHeight = () => SIZE * 1.15;
+  const advText = () => SIZE * 0.6;
+  const advSpace = () => SIZE * 0.6;
 
   /** @type {Record<string, string[]>} */
   let manifest = {};
@@ -52,6 +146,7 @@
   /** Per-position choices, so already-typed letters don't reshuffle on each keystroke. */
   let slots = [];
   let renderToken = 0;
+  let alpha = 1;
 
   const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('ransom-canvas'));
   const input = /** @type {HTMLTextAreaElement} */ (document.getElementById('ransom-input'));
@@ -78,7 +173,12 @@
     } catch {
       manifest = {};
     }
-    if (input?.value) render(input.value);
+    // The opening phrase is rendered before this resolves, and syncSlots keeps
+    // an existing slot when its character hasn't changed — so without clearing
+    // them, those first letters would stay on the drawn-glyph fallback for the
+    // life of the page.
+    slots = [];
+    render(input?.value ?? '');
   }
 
   function variantsFor(char) {
@@ -122,8 +222,8 @@
    * advance depends on the loaded image's aspect ratio.
    */
   function advance(slot) {
-    if (slot.char === ' ') return ADV_SPACE;
-    if (!slot.src) return ADV_TEXT;
+    if (slot.char === ' ') return advSpace();
+    if (!slot.src) return advText();
     return (slot.w || SIZE) + SIZE * KERN;
   }
 
@@ -179,7 +279,7 @@
         flushWord();
         if (line.length) {
           line.push({ ...slot, x });
-          x += ADV_SPACE;
+          x += advSpace();
         }
       } else {
         word.push(slot);
@@ -219,10 +319,11 @@
 
     canvas.width = Math.round(Math.max(MIN_WIDTH, contentW + PAD * 2));
     canvas.height = Math.round(
-      Math.max(MIN_HEIGHT, PAD * 2 + Math.max(lines.length, 1) * LINE_H)
+      Math.max(MIN_HEIGHT, PAD * 2 + Math.max(lines.length, 1) * lineHeight())
     );
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.globalAlpha = alpha;
 
     let y = PAD + 20;
     for (const line of lines) {
@@ -246,8 +347,17 @@
         ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
         ctx.restore();
       }
-      y += LINE_H;
+      y += lineHeight();
     }
+    ctx.globalAlpha = 1;
+  }
+
+  function setText(value, source) {
+    if (!input) return;
+    input.value = value.slice(0, 140);
+    if (counter) counter.textContent = String(input.value.length);
+    render(input.value);
+    if (source) track('ransom_preset', { phrase: value });
   }
 
   function canvasBlob() {
@@ -261,9 +371,70 @@
     render(input.value);
   });
 
+  // ---- presets -------------------------------------------------------------
+
+  document.querySelectorAll('.tt-presets .chip[data-preset]').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      setText(chip.getAttribute('data-preset') || '', 'preset');
+      input?.focus();
+    });
+  });
+
+  // ---- shuffle -------------------------------------------------------------
+
+  document.getElementById('ransom-shuffle')?.addEventListener('click', () => {
+    slots = [];
+    render(input?.value ?? '');
+    track('ransom_shuffle', {});
+  });
+
+  // ---- letter size ---------------------------------------------------------
+
+  const sizeChips = [...document.querySelectorAll('.tt-sizes .chip[data-size]')];
+  for (const chip of sizeChips) {
+    chip.addEventListener('click', () => {
+      SIZE = Number(chip.getAttribute('data-size'));
+      for (const c of sizeChips) {
+        c.setAttribute('aria-pressed', c === chip ? 'true' : 'false');
+      }
+      render(input?.value ?? '');
+    });
+  }
+
+  // ---- opacity -------------------------------------------------------------
+
+  const opCtl = document.querySelector('.text-tool .opacity-ctl');
+  if (opCtl) {
+    const range = opCtl.querySelector('.opacity-range');
+    const readout = opCtl.querySelector('.opacity-val');
+    const opChips = [...opCtl.querySelectorAll('.chip[data-op]')];
+
+    const applyOpacity = (next, fromRange) => {
+      const value = Math.min(100, Math.max(5, Math.round(next)));
+      alpha = value / 100;
+      if (range && !fromRange) range.value = String(value);
+      if (readout) readout.textContent = `${value}%`;
+      for (const c of opChips) {
+        c.setAttribute(
+          'aria-pressed',
+          Number(c.getAttribute('data-op')) === value ? 'true' : 'false'
+        );
+      }
+      render(input?.value ?? '');
+    };
+
+    range?.addEventListener('input', () => applyOpacity(Number(range.value), true));
+    for (const c of opChips) {
+      c.addEventListener('click', () => applyOpacity(Number(c.getAttribute('data-op')), false));
+    }
+  }
+
+  // ---- export --------------------------------------------------------------
+
   document.getElementById('ransom-copy')?.addEventListener('click', async () => {
     if (!input?.value.trim()) {
-      showToast('Type something first.');
+      showToast('Tap a phrase above, or type your own.');
+      input?.focus();
       return;
     }
     if (!navigator.clipboard || typeof ClipboardItem === 'undefined') {
@@ -273,11 +444,12 @@
 
     const pending = canvasBlob();
     pending.catch(() => {});
+    const opacity = Math.round(alpha * 100);
 
     try {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': pending })]);
       showToast('Copied! Paste into your Instagram Story.');
-      track('ransom_copy', { length: input.value.length });
+      track('ransom_copy', { length: input.value.length, opacity });
       return;
     } catch {
       /* retry with a resolved blob below */
@@ -285,7 +457,7 @@
     try {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': await pending })]);
       showToast('Copied! Paste into your Instagram Story.');
-      track('ransom_copy', { length: input.value.length });
+      track('ransom_copy', { length: input.value.length, opacity });
     } catch {
       showToast("Copy isn't supported here — tap Download instead.");
       track('ransom_copy_unsupported', { length: input.value.length });
@@ -294,17 +466,20 @@
 
   document.getElementById('ransom-download')?.addEventListener('click', () => {
     if (!input?.value.trim()) {
-      showToast('Type something first.');
+      showToast('Tap a phrase above, or type your own.');
+      input?.focus();
       return;
     }
-    track('ransom_download', { length: input.value.length });
+    const opacity = Math.round(alpha * 100);
+    track('ransom_download', { length: input.value.length, opacity });
     const a = document.createElement('a');
-    a.download = 'ransom-note.png';
+    a.download = opacity >= 100 ? 'cutout-text.png' : `cutout-text-${opacity}.png`;
     a.href = canvas.toDataURL('image/png');
     document.body.appendChild(a);
     a.click();
     a.remove();
   });
 
+  setText(OPENING_PHRASE);
   loadManifest();
 </script>

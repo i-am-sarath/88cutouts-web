@@ -1,0 +1,147 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { stickerThumb } from '../lib/thumbs.mjs';
+
+/**
+ * A row of randomly chosen stickers with a Shuffle button.
+ *
+ * The whole pool ships as a small JSON blob (slug, title, category, thumb —
+ * a few KB for the entire library) so shuffling is instant and needs no
+ * request. The server renders a spread of the pool first, which keeps the row
+ * useful without JavaScript and gives crawlers real links to follow.
+ */
+interface Props {
+  pool: CollectionEntry<'stickers'>[];
+  /** How many cards the row shows. */
+  count?: number;
+  heading: string;
+  blurb?: string;
+  /** Distinguishes multiple rows on one page. */
+  id?: string;
+}
+
+const { pool, count = 6, heading, blurb, id = 'shuffle' } = Astro.props;
+
+const items = pool.map((s) => ({
+  slug: s.slug,
+  title: s.data.title,
+  category: s.data.category,
+  type: s.data.type,
+  t200: stickerThumb(s.data.image, 200),
+  t400: stickerThumb(s.data.image, 400),
+}));
+
+// Spread the server-rendered picks across the library rather than taking the
+// first few, so the no-JS version is varied too.
+const step = Math.max(1, Math.floor(items.length / Math.max(count, 1)));
+const initial = Array.from({ length: Math.min(count, items.length) }, (_, i) => items[i * step]);
+---
+
+<section class="shuffle-row" data-shuffle={id} data-count={count}>
+  <div class="section-head">
+    <h2>{heading}</h2>
+    <button type="button" class="btn-shuffle" data-shuffle-btn>↻ Shuffle</button>
+  </div>
+  {blurb && <p class="lede">{blurb}</p>}
+
+  <div class="grid" data-shuffle-grid>
+    {
+      initial.map((s) => (
+        <a class="card" href={`/stickers/${s.slug}/`}>
+          <div class="checker">
+            <img
+              src={s.t400}
+              srcset={`${s.t200} 200w, ${s.t400} 400w`}
+              sizes="(max-width: 480px) 45vw, 200px"
+              alt={`${s.title} — transparent PNG ${s.type} for Instagram Stories`}
+              width="400"
+              height="400"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <div class="card-meta">
+            <div class="card-title">{s.title}</div>
+            <div class="card-sub">{s.category}</div>
+          </div>
+        </a>
+      ))
+    }
+  </div>
+
+  <script type="application/json" data-shuffle-pool set:html={JSON.stringify(items)} />
+</section>
+
+<script>
+  import { track } from '../lib/track';
+
+  function escapeHtml(value) {
+    return String(value).replace(
+      /[&<>"']/g,
+      (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
+    );
+  }
+
+  function pick(pool, count, excludeSlug) {
+    const available = pool.filter((s) => s.slug !== excludeSlug);
+    // Partial Fisher-Yates: only the first `count` positions need shuffling.
+    const copy = available.slice();
+    const n = Math.min(count, copy.length);
+    for (let i = 0; i < n; i++) {
+      const j = i + Math.floor(Math.random() * (copy.length - i));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy.slice(0, n);
+  }
+
+  function cardHtml(s) {
+    return `
+      <a class="card" href="/stickers/${encodeURIComponent(s.slug)}/">
+        <div class="checker">
+          <img src="${escapeHtml(s.t400)}"
+               srcset="${escapeHtml(s.t200)} 200w, ${escapeHtml(s.t400)} 400w"
+               sizes="(max-width: 480px) 45vw, 200px"
+               alt="${escapeHtml(s.title)} — transparent PNG ${escapeHtml(s.type)} for Instagram Stories"
+               width="400" height="400" loading="lazy" decoding="async" />
+        </div>
+        <div class="card-meta">
+          <div class="card-title">${escapeHtml(s.title)}</div>
+          <div class="card-sub">${escapeHtml(s.category)}</div>
+        </div>
+      </a>`;
+  }
+
+  document.querySelectorAll('[data-shuffle]').forEach((row) => {
+    const grid = row.querySelector('[data-shuffle-grid]');
+    const btn = row.querySelector('[data-shuffle-btn]');
+    const raw = row.querySelector('[data-shuffle-pool]')?.textContent;
+    if (!grid || !raw) return;
+
+    let pool = [];
+    try {
+      pool = JSON.parse(raw);
+    } catch {
+      return;
+    }
+    if (!pool.length) return;
+
+    const count = Number(row.getAttribute('data-count')) || 6;
+    // On a sticker page, never suggest the sticker already on screen.
+    const here = location.pathname.match(/^\/stickers\/([^/]+)\//);
+    const exclude = here ? decodeURIComponent(here[1]) : null;
+
+    const draw = () => {
+      grid.innerHTML = pick(pool, count, exclude).map(cardHtml).join('');
+    };
+
+    // Re-draw on load so the row is different on every visit, not only when
+    // the button is pressed. The card count is unchanged, so nothing shifts.
+    draw();
+
+    btn?.addEventListener('click', () => {
+      draw();
+      row.setAttribute('data-spun', 'true');
+      track('sticker_shuffle', { row: row.getAttribute('data-shuffle') || 'shuffle' });
+    });
+  });
+</script>

@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Rose Satin Bow is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. The bow, ribbon, rose and satin shape sits with the rest of the coquette bows — soft colours, satin folds, nothing sharp-edged. It works well tucked into a corner over a selfie, a food photo, or a travel shot without covering the subject.
+A dusty rose satin bow, large and softly lit, with wide loops and long tails and a gentle sheen rather than a hard highlight. The muted colour makes it the most neutral of the satin bows here — it will sit on a warm or a cool photo without arguing. Big enough to work as the main element in a frame.

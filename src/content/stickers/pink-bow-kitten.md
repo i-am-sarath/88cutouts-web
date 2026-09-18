@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Pink Bow Kitten is drawn with a thick outline and a slightly uneven edge, the same hand-made look used across the sticker library here. It joins the cat and animal lineup, all drawn with the same rounded, friendly style so they stack together without clashing. A good one to combine with a couple of the other stickers from the same shelf for a fuller collage look.
+A pale grey kitten with a pink bow on its head, paws together, photographed front-on with a soft, slightly shy expression. Low contrast throughout — pale fur, pale bow, no dark accessory — which means it needs a darker photo underneath or it fades into the background. The gentlest cutout on the cute shelf.

@@ -4,83 +4,216 @@ import RansomNoteComposer from '../components/RansomNoteComposer.astro';
 
 const site = Astro.site?.href ?? 'https://88cutouts.com/';
 
+const faq = [
+  {
+    q: 'How do I make ransom note text on my phone?',
+    a: 'Tap one of the phrases above or type your own, then tap Copy. The letters are rendered as a transparent PNG, so you can paste it straight into an Instagram Story, a chat or a note. Nothing is installed and there is no account.',
+  },
+  {
+    q: 'Which letters and symbols are available?',
+    a: 'Plain A–Z in either case (it is not case-sensitive, since every cutout is its own shape anyway), 0–9, and the punctuation . , ! ? " \' - : ; ( ) @ # % + * & >. Emoji and accented characters have no matching paper scrap, so they are skipped.',
+  },
+  {
+    q: 'Why does the same word look different every time?',
+    a: 'Each letter is picked at random from a small pool of scrap variants and given a fresh tilt and vertical offset. That is deliberate — a real cut-out note never repeats exactly. Use Shuffle the cut if you want a different arrangement of the same message.',
+  },
+  {
+    q: 'What is the opacity slider for?',
+    a: 'It makes the lettering see-through. At around 20–45% the text sits over a photo like a watermark instead of covering it, which is the usual reason people want translucent text on a Story. The Copy and Download output matches whatever the preview shows.',
+  },
+  {
+    q: 'Is the image free to use?',
+    a: 'Yes — free for personal use on your own Stories, chats and notes, with no watermark and no attribution required. The same terms as the rest of the sticker library.',
+  },
+  {
+    q: 'Does anything I type get uploaded?',
+    a: 'No. The letters are drawn onto a canvas inside your own browser and the finished PNG never leaves your device. There is no server-side rendering step and nothing is logged.',
+  },
+];
+
 const jsonld = [
   {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
-    name: 'Ransom Note Generator',
+    name: 'Cutout Text Maker (Ransom Note Generator)',
     url: new URL('/ransom-note/', site).href,
     applicationCategory: 'DesignApplication',
     operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript',
     description:
-      'Type a message and get it back as a cut-out ransom-note collage you can copy straight into an Instagram Story.',
+      'Type a message and get it back as a cut-out ransom-note collage you can copy straight into an Instagram Story, at any opacity.',
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    featureList: [
+      'One-tap example phrases',
+      'Live transparent PNG preview',
+      'Adjustable opacity for translucent lettering',
+      'Three letter sizes',
+      'Copy to clipboard or download',
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to make cut-out ransom note text for an Instagram Story',
+    totalTime: 'PT1M',
+    step: [
+      {
+        '@type': 'HowToStep',
+        name: 'Choose a phrase',
+        text: 'Tap one of the example phrases, or type your own message of up to 140 characters.',
+      },
+      {
+        '@type': 'HowToStep',
+        name: 'Adjust the look',
+        text: 'Shuffle the cut for a different arrangement, pick a letter size, and lower the opacity if you want the text to be see-through.',
+      },
+      {
+        '@type': 'HowToStep',
+        name: 'Copy and paste',
+        text: 'Tap Copy, open Instagram, start a Story and long-press to paste the transparent PNG.',
+      },
+    ],
   },
 ];
 ---
 
 <BaseLayout
-  title="Ransom note generator — cutout letter collage | 88cutouts"
-  description="Type anything and watch it turn into a magazine-cutout ransom note. Copy or download the transparent PNG and paste it into your Instagram Story."
+  title="Cutout text maker — ransom note generator for Stories | 88cutouts"
+  description="Type anything and get it back as magazine-cutout ransom note letters. Tap a phrase, set the opacity, then copy the transparent PNG straight into your Instagram Story. Free, no account."
   jsonld={jsonld}
 >
   <div class="wrap">
+    <p class="crumbs">
+      <a href="/">Home</a><span>/</span>Cutout text
+    </p>
+
     <div class="section-head">
-      <h2>Ransom note typewriter</h2>
+      <h2>Cutout text maker</h2>
     </div>
     <p class="lede">
-      Type a message and each letter is swapped for a real cut-out scrap, tilted and
-      jittered like it was snipped out of a magazine. Copy the result or download it as a
-      transparent PNG.
+      Every letter is a real photo of a paper scrap, tilted and jittered like it was snipped
+      out of a magazine. Tap a phrase below to see it work, then make it your own — it takes
+      about ten seconds and hands you a transparent PNG.
     </p>
 
     <RansomNoteComposer />
 
     <article class="prose">
-      <h2>How it works</h2>
+      <h2>What to use it for</h2>
       <p>
-        Every letter, number and common punctuation mark in this tool is a real photo of a
-        cut-out paper scrap — snipped from magazine pages, tilted slightly, and photographed
-        so the edges keep their texture. When you type, each character is swapped for its
-        scrap and given a small random rotation and offset, the same way a real ransom-note
-        collage never lines up perfectly. The whole thing renders in your browser: nothing
-        you type is sent anywhere or stored.
+        Cut-out lettering does one job extremely well: it makes a short line of text look
+        like an object rather than a caption. Instagram's built-in fonts are clean and
+        uniform, which is exactly why they disappear — everyone has the same ones. A paper
+        letter has a shadow, a torn edge and a slight tilt, so it reads as something placed
+        on the photo instead of typed over it.
+      </p>
+      <p>The messages that work best are the short ones:</p>
+      <ul>
+        <li>
+          <strong>A date or a number.</strong> "2026", a birthday, a countdown. Numerals are
+          the strongest characters in the set because they are wide and unambiguous.
+        </li>
+        <li>
+          <strong>A name or a nickname.</strong> One word, large, in the corner of a photo
+          dump — it labels the Story without a caption bar covering the image.
+        </li>
+        <li>
+          <strong>A two-word reaction.</strong> "miss you", "my era", "no thoughts". The
+          register of cut-out type is slightly deadpan, which is why it suits these.
+        </li>
+        <li>
+          <strong>An announcement.</strong> "save the date", "we're moving", "he said yes".
+          The style carries a little urgency, inherited from where it came from.
+        </li>
+      </ul>
+      <p>
+        Long sentences are the one thing to avoid. The canvas wraps them, but every extra
+        character shrinks the letters once the image is scaled into a Story, and the paper
+        texture — the entire point — is the first thing lost at small sizes. If you need a
+        full sentence, split it across two Stories or set it in Instagram's own text and
+        keep the cut-out for the headline.
       </p>
 
-      <h2>Using it in a Story</h2>
+      <h2>Making it translucent</h2>
       <p>
-        Once the collage renders, <strong>Copy</strong> puts it on your clipboard as a
-        transparent PNG — open Instagram, start a Story, and long-press to paste. It drops in
-        without a white box around it. If your browser doesn't support copying images
-        directly (some older mobile browsers don't), <strong>Download</strong> saves the same
-        PNG so you can add it as a sticker manually.
+        The opacity slider is the difference between text that sits <em>on</em> a photo and
+        text that sits <em>over</em> it. At 100% the letters are solid and read as the main
+        subject. Around 70% they soften enough to let a busy photo through without losing
+        legibility. Below 45% the lettering behaves like a watermark — visible, but clearly
+        secondary to the image underneath.
       </p>
       <p>
-        It reads best short — a name, a date, a single line like "happy birthday" or
-        "save the date" — since longer sentences shrink to fit and lose the cut-out texture
-        at small sizes. Pairing it with one of the <a href="/category/hearts/">hearts</a> or
-        <a href="/category/coquette/">coquette</a> stickers as a border tends to look better
-        than the text alone.
+        The transparency is baked into the PNG itself, not applied by Instagram, so what you
+        see in the preview is exactly what you paste. If you plan to layer a translucent
+        line over a dark photo, go a little higher than you think — anything under about 20%
+        tends to vanish once Instagram compresses the Story.
+      </p>
+
+      <h2>How the letters are made</h2>
+      <p>
+        Every character in the set is a real photograph of a cut-out paper scrap, snipped by
+        hand, shot against a plain background and masked to a transparent PNG. There are
+        several variants of each letter, so a word with a repeated character does not show
+        the same scrap twice in a row. When you type, each character is swapped for one of
+        its variants and given a small random rotation and vertical offset — the same way a
+        real collage never lines up perfectly.
+      </p>
+      <p>
+        The constraint that makes it look assembled rather than random is that the rotation
+        and offset stay inside believable bands. Letters pasted by a human hand are crooked
+        by a few degrees, not spun to forty-five. There is more on where the style comes
+        from, and how to compose one by hand, in
+        <a href="/blog/ransom-note-aesthetic-guide/">the ransom note aesthetic guide</a>.
+      </p>
+
+      <h2>Pairing it with stickers</h2>
+      <p>
+        Text alone on a plain photo can look unfinished. One or two cutouts around it — a
+        bow at the corner, a strip of washi tape along the top edge, a heart between two
+        words — give the lettering something to belong to, because they share the same
+        paper logic. The <a href="/category/coquette/">coquette</a> and
+        <a href="/category/hearts/">hearts</a> sets are the usual pairing; the
+        <a href="/category/y2k/">y2k</a> set suits the punkier end of it.
+      </p>
+      <p>
+        Keep the palette narrow. Cut-out type is already visually busy, so two or three
+        colours across the whole Story is plenty — the same logic as
+        <a href="/blog/build-a-cohesive-instagram-aesthetic/">building a cohesive aesthetic</a>
+        across a grid.
+      </p>
+
+      <h2>Pasting it into a Story</h2>
+      <p>
+        <strong>Copy</strong> puts the PNG on your clipboard. Open Instagram, start a Story,
+        tap once on the screen and long-press to paste — it drops in as a sticker you can
+        pinch, rotate and place, with no white box around it. If your browser refuses to
+        copy images (some older mobile browsers do), <strong>Download</strong> saves the
+        same file so you can add it from your camera roll instead.
+      </p>
+      <p>
+        The full walkthrough, including WhatsApp and the cases where transparency gets
+        flattened, is in
+        <a href="/blog/how-to-add-stickers-to-instagram-stories/">how to add stickers to Instagram Stories</a>.
       </p>
 
       <h2>FAQ</h2>
-      <h3>Does it work with emoji or accented letters?</h3>
-      <p>
-        Only the letters, numbers and punctuation that have a matching cut-out scrap will
-        render — anything else is skipped. Coverage is plain A–Z (either case — it's not
-        case-sensitive), 0–9, and the punctuation marks . , ! ? " ' - : ; ( ) @ # % + * & &gt;.
-      </p>
-      <h3>Is the image free to use?</h3>
-      <p>
-        Yes — same terms as the rest of the site: free for personal use on your own Stories,
-        chats and notes. See the <a href="/about/">about page</a> for the details.
-      </p>
-      <h3>Why does it look different every time I type the same word?</h3>
-      <p>
-        Each letter is picked from a small pool of scrap variants and given a fresh random
-        tilt, so retyping the same word won't produce an identical collage twice. That's
-        intentional — it's meant to look hand-assembled, not templated.
-      </p>
+      {
+        faq.map((f) => (
+          <>
+            <h3>{f.q}</h3>
+            <p>{f.a}</p>
+          </>
+        ))
+      }
     </article>
-</div>
+  </div>
 </BaseLayout>

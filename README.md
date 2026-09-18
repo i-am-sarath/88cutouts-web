@@ -46,15 +46,17 @@ single form, and commits straight to `main`.
 | `stickers/_duplicates/` | exact and near-duplicate rejects |
 | `stickers/_on-hold/` | parked, not published — see below |
 
-## DP gallery and DP maker
+## DP gallery
 
-Two features, one subject — a square image that a platform will crop to a circle:
+A square image that a platform will crop to a circle:
 
 - **`/dp/`** — a gallery of profile pictures, grouped into ten collections (`girls`,
   `whatsapp-girls`, `attitude-girls`, `sad-girl`, …). Each collection has its own landing
   page at `/dp/<collection>/` and every DP a detail page at `/dp/<collection>/<slug>/`.
-- **`/dp-maker/`** — a browser tool that turns *your own photo* into a circular
-  transparent PNG, with our cutouts and your name on top.
+
+There was also a `/dp-maker/` browser tool that composed a DP from the visitor's own
+photo. It was removed — almost nobody used it, and it was the largest client-side
+component on the site. `public/_redirects` sends its URL to `/dp/` with a 301.
 
 Nothing in the gallery is generated and nothing is scraped: every DP is a file a person
 uploaded through `/admin`, which is what keeps the gallery safe to publish on an
@@ -68,7 +70,8 @@ the DP appears on that landing page on the next build.
 
 Until the first one is uploaded, `astro build` prints `The collection "dps" does not
 exist or is empty` — that warning is expected and harmless, and the gallery pages render
-an empty state pointing at the DP maker. Both disappear with the first entry.
+an empty state. A collection with no DPs in it is also served `noindex`, so an empty
+gallery never reaches the index; that lifts on the first upload.
 
 ```bash
 npm run dp-thumbs               # 200/400/512px WebP thumbnails for what is in uploads/
@@ -100,22 +103,42 @@ The `intro` and `faq` fields are not decoration — they are what these pages ra
 the FAQ is emitted as `FAQPage` JSON-LD. Write them per collection; don't template one
 block across all ten.
 
-### The DP maker
+## Opacity
 
-`src/components/DpMaker.astro` — one file, no dependencies, everything on canvas:
+`CopyDownloadButtons.astro` takes an `opacity` prop; sticker detail pages pass it. The
+control writes the alpha into the exported PNG rather than styling the preview — the
+image is re-drawn through a canvas with `ctx.globalAlpha` before Copy or Download hands
+it over, so a translucent sticker arrives translucent in a Story. At 100% a PNG source is
+passed straight through untouched, so the common case costs nothing. The hero image
+follows the slider via `[data-opacity-preview]`.
 
-- the photo is decoded with `createImageBitmap(file, { imageOrientation: 'from-image' })`
-  so EXIF-rotated phone photos land upright, downscaled to 2400px, then drawn under a
-  circular clip that the user drags, pinches and rotates;
-- sticker PNGs are alpha-trimmed on load, so the size slider means the same thing for
-  every cutout regardless of how much transparent padding it ships with;
-- the export re-paints into an offscreen canvas with the selection outline turned off and
-  encodes **PNG** — the transparent corners are the product, and JPEG would fill them.
+The cut-out text tool applies the same alpha when it draws each letter onto its canvas.
 
-Nothing is uploaded. The photo is read from disk, drawn, and saved back; there is no
-network call in the whole flow.
+## Discovery rows
 
-## Ransom-note letters
+`StickerShuffle.astro` renders a row of random stickers with a Shuffle button. The whole
+pool ships inline as JSON (slug, title, category, thumb paths — a few KB for the library)
+so shuffling needs no request. The server renders a spread of the pool first, which keeps
+the row useful without JavaScript and gives crawlers real links; the client re-draws on
+load so the row differs per visit. On a sticker page it excludes the sticker being
+viewed.
+
+## Page copy
+
+Sticker, category and DP pages used to be a heading, a grid and a sentence — thin, and
+near-identical across 120 URLs. Three modules now build the body text:
+
+| File | Covers |
+| --- | --- |
+| `src/lib/sticker-copy.ts` | per-sticker sections and FAQ, varied by category, by the file's real aspect ratio, and by a hash of the slug |
+| `src/lib/category-copy.ts` | hand-written sections and FAQ per category shelf |
+| `src/lib/dp-copy.ts` | one paragraph per DP collection plus guidance chosen by target platform |
+
+Real file facts — pixel dimensions and byte size — come from `virtual:image-meta`, a Vite
+plugin in `astro.config.mjs` that reads the PNG IHDR header at build time. Like
+`virtual:public-images`, it exists because the pages themselves cannot touch `node:fs`.
+
+## Cut-out letters
 
 ```bash
 npm run import-letters      # --dry to preview
@@ -230,7 +253,7 @@ has been replaced by the real sticker and letter sets.
 - **`@astrojs/sitemap` is pinned to `3.2.1`.** 3.7.x uses the `astro:routes:resolved`
   hook, which only exists in Astro 5, and crashes the build on Astro 4. Unpin it when
   the project moves to Astro 5.
-- **The ransom canvas is sized to its content**, not the fixed 900×320 in the original
+- **The cut-out text canvas is sized to its content**, not the fixed 900×320 in the original
   spec: 140 characters wraps to 8 lines (~555px), which the fixed height clipped. It also
   trims horizontally so a short message doesn't export with wide empty margins — empty
   transparent space makes the sticker smaller once it's pasted into a Story.
@@ -270,7 +293,7 @@ AdSense isn't approved yet.
 To reintroduce them after approval: restore `src/components/AdSlot.astro` and the
 `.ad-slot` rules in `global.css` (both are in git history — see the commit that removed
 them), then render `<AdSlot />` every ~12 cards on the gallery and category pages and once
-below the fold on sticker and ransom-note pages.
+below the fold on sticker and cut-out text pages.
 
 When that happens, keep to the original decisions: **manual ad units only, no Auto Ads**
 (Auto Ads inject unpredictably and wreck CLS), give every slot a fixed reserved height so

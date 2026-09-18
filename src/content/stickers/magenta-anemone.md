@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Magenta Anemone is drawn with a thick outline and a slightly uneven edge, the same hand-made look used across the sticker library here. Its anemone, flower, magenta and floral put it with the other floral cutouts — good for anything about gardens, dates, or a good hair day. It works well tucked into a corner over a selfie, a food photo, or a travel shot without covering the subject.
+A watercolour anemone in hot magenta with a dense black centre and a scatter of dark stamens. The black centre gives it something no other flower here has: a hard focal point that holds the shape together at small sizes. Highly saturated, so one is plenty — two of these in a frame will fight.

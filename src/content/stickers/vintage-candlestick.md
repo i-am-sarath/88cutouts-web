@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Vintage Candlestick keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. It sits with the retro shelf — vinyl, cassette and camera cutouts built around an old analogue feel. Drop it over a plain background if the photo underneath is already busy — it still stands out.
+A lit cream candle in a brass chamberstick with a ring handle, painted with the wax dripping down one side and a warm glow around the flame. Tall and narrow. The flame is the only bright point, so on a dark photo it becomes the focal point of the whole frame — which is either exactly what you want or something to place carefully.

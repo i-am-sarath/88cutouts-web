@@ -8,4 +8,4 @@ featured: true
 date: 2026-08-11
 ---
 
-Mauve Satin Bow keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. The bow, ribbon, satin and mauve shape sits with the rest of the coquette bows — soft colours, satin folds, nothing sharp-edged. Drop it over a plain background if the photo underneath is already busy — it still stands out.
+A wide satin bow in dusty mauve-pink with long tails, lit so a bright highlight runs along the top of each loop. The colour is softer and cooler than the other pink bows here, which makes it the easier one to place on a photo that is not already pink. Big and symmetrical, so it wants to be seen rather than tucked away.

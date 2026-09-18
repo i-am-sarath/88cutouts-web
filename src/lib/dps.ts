@@ -20,7 +20,7 @@ export interface DpFaq {
   a: string;
 }
 
-/** A background pair plus accent colours — used by the DP maker's swatches. */
+/** A background pair plus accent colours, kept per collection as its palette record. */
 export interface DpPalette {
   bg: [string, string];
   blobs: string[];

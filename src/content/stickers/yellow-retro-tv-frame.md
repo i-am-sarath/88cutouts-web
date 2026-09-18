@@ -8,4 +8,4 @@ featured: true
 date: 2026-08-11
 ---
 
-Yellow Retro TV Frame is one of the free frames in this set, exported as an alpha-transparent PNG so it pastes cleanly onto any background. It's a frame rather than a sticker — meant to sit under a photo, not on top of one, styled around tv, television, retro, frame and vintage. It reads clearly even shrunk down small, so it holds up in the corner of a vertical Story.
+A boxy yellow television with rabbit-ear antennae, chunky dials down one side, and a blank screen in the middle — a frame rather than a sticker, meant to have a photo placed behind the screen. Add it to your Story first, scale it, then put your picture behind so it fills the opening. The antennae extend well above the body, so leave room.

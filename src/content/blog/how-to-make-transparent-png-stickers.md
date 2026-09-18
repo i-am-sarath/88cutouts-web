@@ -129,6 +129,6 @@ Since you now have the technical parts, a few things about what makes a sticker 
 
 ## If you would rather not
 
-All of the above takes a while, and there is no shame in skipping it. The [sticker library here](/) is a few hundred cutouts already prepared this way — PNG-32, decontaminated edges, trimmed to content, normalised to a 900px maximum edge — and free for personal use. The [ransom-note typewriter](/ransom-note/) generates lettering the same way, and the [DP maker](/dp-maker/) composes a circular cutout from your own photo entirely in the browser.
+All of the above takes a while, and there is no shame in skipping it. The [sticker library here](/) is a few hundred cutouts already prepared this way — PNG-32, decontaminated edges, trimmed to content, normalised to a 900px maximum edge — and free for personal use. The [cutout text maker](/ransom-note/) generates lettering the same way, entirely in the browser.
 
 But knowing the workflow is worth having anyway, if only because it tells you immediately whether a sticker from anywhere else was made properly.

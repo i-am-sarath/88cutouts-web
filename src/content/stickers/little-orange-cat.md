@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Little Orange Cat keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. It joins the cat and animal lineup, all drawn with the same rounded, friendly style so they stack together without clashing. A good one to combine with a couple of the other stickers from the same shelf for a fuller collage look.
+A small ginger kitten sitting upright and front-on, photoreal, with no accessories or props at all. That makes it the plainest cat on the shelf and the most flexible — nothing in it ties it to a joke or a theme, so it sits in a corner of almost any Story. Warm-toned, so it is happiest on cool or neutral photos.

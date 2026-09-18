@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Pixel Heart Row is one of the free stickers in this set, exported as an alpha-transparent PNG so it pastes cleanly onto any background. It belongs with the other hearts on the site, each one built around heart, pixel, y2k, love and health bar. Pair it with a caption box or a washi-tape frame if you want to layer more than one sticker on the same Story.
+Three red pixel hearts in a row, each with a white highlight square and a heavy black outline, finished with a white die-cut border around the whole strip — a health bar, straight out of an early video game. Wide and short, so it belongs in a horizontal band. The row reads as a quantity rather than a symbol, which is a different job from a single heart.

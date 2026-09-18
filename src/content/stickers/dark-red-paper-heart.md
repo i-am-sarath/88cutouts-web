@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Dark Red Paper Heart is drawn with a thick outline and a slightly uneven edge, the same hand-made look used across the sticker library here. It belongs with the other hearts on the site, each one built around heart, paper, love and crimson. It works well tucked into a corner over a selfie, a food photo, or a travel shot without covering the subject.
+A heart cut from deep red paper with the creases and fibre texture left visible, and a slightly uneven hand-cut outline. Matte throughout, with no highlights at all, which is exactly why it layers well — it sits into a photo rather than on top of it. The most useful heart here for scrapbook-style Stories where everything is meant to look like paper.

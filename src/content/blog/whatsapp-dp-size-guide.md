@@ -45,7 +45,7 @@ Two corollaries worth knowing:
 - Text placed near a corner will be clipped mid-letter. Text in a DP is already risky at 48px; text in a corner is guaranteed to fail.
 - A subject centred but scaled to fill the square edge-to-edge will lose its extremities. Faces lose ears and chins, bows lose ribbon tails, flowers lose petals.
 
-Every profile picture in the [DP gallery](/dp/) is composed with this in mind, which is why none of them place anything in the corners. If you are making your own, the [DP maker](/dp-maker/) shows the circle live while you drag your photo, so you can see what will survive before you download.
+Every profile picture in the [DP gallery](/dp/) is composed with this in mind, which is why none of them place anything in the corners. If you are making your own, crop it square first and imagine a circle inside it — anything outside that circle is decoration you will lose.
 
 ## Why DPs go blurry: the four real causes
 
@@ -88,7 +88,7 @@ Since almost all viewing happens at chat-list size, it is worth designing for th
 
 **A colour direction rather than a palette.** Images that read as "warm", "cool" or "muted" survive downsampling because their identity is carried by overall hue rather than by detail. Images with four competing colours turn into a brownish smear.
 
-**No text.** Almost never works. If you need a name, one large initial in a heavy weight is the only version of this that survives — which is why the DP maker offers exactly that rather than a full text tool.
+**No text.** Almost never works. If you need a name, one large initial in a heavy weight is the only version of this that survives.
 
 ## Transparency and WhatsApp
 

@@ -2,6 +2,7 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import '../../../styles/dp.css';
 import DpCard from '../../../components/DpCard.astro';
+import { dpCollectionCopy } from '../../../lib/dp-copy';
 import {
   dpCollections,
   getDpCollection,
@@ -34,6 +35,8 @@ const { meta, dps, related } = Astro.props;
 
 const site = Astro.site?.href ?? 'https://88cutouts.com/';
 const pageUrl = new URL(`/dp/${meta.slug}/`, site).href;
+
+const copy = dpCollectionCopy(meta.slug);
 
 const siblings = meta.related
   .map((slug) => getDpCollection(slug))
@@ -84,6 +87,7 @@ const jsonld = [
   description={meta.blurb}
   image={dps[0]?.image}
   jsonld={jsonld}
+  noindex={dps.length === 0}
 >
   <div class="wrap">
     <p class="crumbs">
@@ -105,7 +109,6 @@ const jsonld = [
           </a>
         ))
       }
-      <a class="pill is-tool" href="/dp-maker/">✦ Make your own</a>
     </nav>
 
     {
@@ -127,24 +130,41 @@ const jsonld = [
           <h2>Nothing in this set yet</h2>
           <p>
             Every DP here is picked and added by hand, and this collection is still being
-            filled. Make one from your own photo in the meantime, or look through the sets
-            that are already stocked below.
+            filled. Look through the sets that are already stocked below.
           </p>
-          <a class="btn-copy" href="/dp-maker/">Open the DP maker</a>
+          <a class="btn-copy" href="/dp/">See all collections</a>
         </section>
       )
     }
 
-    <section class="maker-cta">
-      <div>
-        <h2>Want one nobody else has?</h2>
-        <p>
-          Upload your own photo to the free DP maker, fit it inside the circle, add a
-          cutout or your name, and download it as a transparent circular PNG.
-        </p>
-      </div>
-      <a class="btn-copy" href="/dp-maker/">Open the DP maker</a>
-    </section>
+    <article class="prose category-prose">
+      {copy.angle && <p class="dp-angle">{copy.angle}</p>}
+      {
+        copy.sections.map((section) => (
+          <>
+            <h2>{section.h}</h2>
+            {section.p.map((para) => (
+              <p set:html={para} />
+            ))}
+          </>
+        ))
+      }
+
+      <h2>Copying one</h2>
+      <p>
+        Open any picture in this set and tap <strong>Copy</strong> to put it straight on
+        your clipboard, or <strong>Download</strong> for the full-size file. Set it as your
+        profile picture the way you normally would — the crop is already square, so there is
+        nothing to adjust before you upload it.
+      </p>
+      <p>
+        One thing worth knowing: do not upload a transparent PNG as a profile picture and
+        hope for the best. Different apps fill the transparency with different colours, and
+        you will not get to choose which. Every image here is already flattened for that
+        reason, and the explanation is in
+        <a href="/blog/transparent-png-turns-grey-explained/">why a transparent PNG turns grey</a>.
+      </p>
+    </article>
 
     <section class="faq">
       <h2>Questions about {meta.name.toLowerCase()}</h2>

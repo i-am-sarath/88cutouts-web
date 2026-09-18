@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Crumpled Paper Heart keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. It belongs with the other hearts on the site, each one built around heart, paper, love and texture. Drop it over a plain background if the photo underneath is already busy — it still stands out.
+A heart made from crumpled red foil or tissue, with hard white highlights catching on every fold. It is the most textured heart in the set — where the glossy one is smooth and the paper one is matte, this one is all broken highlight. Busy enough that it needs a plain area of photo underneath, and it does not fade well, because the highlights are what make it read.

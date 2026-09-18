@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Red Music Note is drawn with a thick outline and a slightly uneven edge, the same hand-made look used across the sticker library here. It sits with the retro shelf — vinyl, cassette and camera cutouts built around music note, music, melody and red. Pair it with a caption box or a washi-tape frame if you want to layer more than one sticker on the same Story.
+A beamed pair of quaver notes in deep red with cream note heads, finished with a thick white die-cut border. Flat and graphic rather than photographic. The white keyline keeps it legible on busy photos, and the shape is compact and angular enough to read at small sizes — one of the easier music elements to tuck into a corner.

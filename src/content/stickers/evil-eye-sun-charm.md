@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Evil Eye Sun Charm is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. It sits in the aesthetic shelf, a small decorative charm rather than a full scene. It's small enough to sit near an edge without crowding whatever photo it's placed over.
+A blue-and-white evil eye set into a gold sunburst with fine radiating points. Two strong ideas in one small object — the eye supplies the focal point, the gold rays supply the outline. The radiating points mean it needs a little clear space around it or the rays collide with whatever is next to them. Small, symmetrical and readable at almost any size.

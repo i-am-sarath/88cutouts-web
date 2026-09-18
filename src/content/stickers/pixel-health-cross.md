@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Pixel Health Cross is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. It's part of the y2k set, built around pixel, cross, game, red and health. It works well tucked into a corner over a selfie, a food photo, or a travel shot without covering the subject.
+A red health cross broken into four separate rounded segments with a gap through the middle, rendered with soft three-dimensional shading rather than flat pixels. More game-UI than sticker. It is symmetrical and reads as a recognisable icon instantly, which makes it useful small — though the four-part split means it needs clear space or the gaps fill with whatever is behind it.

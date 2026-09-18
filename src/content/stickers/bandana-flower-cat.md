@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Bandana Flower Cat keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. It joins the cat and animal lineup, all drawn with the same rounded, friendly style so they stack together without clashing. A good one to combine with a couple of the other stickers from the same shelf for a fuller collage look.
+A photoreal kitten stood upright in a pink shirt and a floral head bandana, holding a paper-wrapped bouquet in one paw and a drink in the other. There is a lot going on in a small area, so this one needs size and a plain background behind it — over a busy photo the bouquet and the bandana merge into each other. It reads as a gift or a congratulations without any caption doing the work.

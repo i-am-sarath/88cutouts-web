@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Heart Paws Bow Cat is drawn with a thick outline and a slightly uneven edge, the same hand-made look used across the sticker library here. It joins the cat and animal lineup, all drawn with the same rounded, friendly style so they stack together without clashing. It works well tucked into a corner over a selfie, a food photo, or a travel shot without covering the subject.
+A pale kitten with a pink bow and visible cartoon tears, making a heart shape with its front paws. Photoreal base with the expression pushed into meme territory. The heart gesture is the readable part at small sizes; the tears and bow are fine detail that go first. Reads as affectionate rather than sad, despite the tears.

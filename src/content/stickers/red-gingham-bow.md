@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Red Gingham Bow is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. The bow, gingham, checked and red shape sits with the rest of the coquette bows — soft colours, satin folds, nothing sharp-edged. It's small enough to sit near an edge without crowding whatever photo it's placed over.
+A large red and white gingham bow with soft folds in the fabric and four tails. The check is bigger and higher-contrast than the pink and beige versions, which makes this the one gingham bow that survives being placed small. Strongly seasonal — it reads as picnic or Christmas depending on what it sits next to.

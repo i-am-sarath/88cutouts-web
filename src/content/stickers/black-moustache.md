@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Black Moustache is drawn with a thick outline and a slightly uneven edge, the same hand-made look used across the sticker library here. It doesn't fit neatly into one category, but the moustache, facial hair, disguise and funny make it an easy one to drop into most Stories. A good one to combine with a couple of the other stickers from the same shelf for a fuller collage look.
+A solid black handlebar moustache, pure silhouette with no internal detail at all. That makes it the most scalable thing here — it will read at any size on any background light enough to contrast with it, and it is one of the few cutouts you can place over a face without covering anything important. On dark photos it disappears entirely, so check the background first.

@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Red Lips Kiss keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. It doesn't fit neatly into one category, but the lips, kiss, red, lipstick and mouth make it an easy one to drop into most Stories. Pair it with a caption box or a washi-tape frame if you want to layer more than one sticker on the same Story.
+Full red lips seen straight on, painted with visible brushy texture through the colour rather than a smooth fill. Larger and brighter than the burgundy kiss print, and it reads as lips rather than as a mark left behind — a different job. Strong saturated red, so it will be the first thing the eye finds wherever you put it.

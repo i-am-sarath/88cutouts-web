@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Torn Lined Paper Scrap is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. It's built to look like a scrap torn from an actual sheet, with torn paper, lined paper, note and scrap — useful as a background layer under other stickers. A good one to combine with a couple of the other stickers from the same shelf for a fuller collage look.
+A scrap of aged, cream lined paper covered in faint handwritten script, torn along one edge. The writing is decorative rather than legible, which is what you want in a background layer. Pairs with the kraft scrap — two overlapping at slightly different angles give a depth that one flat piece never does.

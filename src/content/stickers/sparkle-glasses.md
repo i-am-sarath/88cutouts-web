@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Sparkle Glasses is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. It doesn't fit neatly into one category, but the glasses, spectacles, sparkle and nerd make it an easy one to drop into most Stories. A good one to combine with a couple of the other stickers from the same shelf for a fuller collage look.
+Heavy black rectangular glasses with a small yellow star sparkle at the outer corner of one lens. The frames are solid black and read instantly; the star is a fine accent that goes first when scaled down. Like the round glasses, the lenses are clear, so this sits over a face without hiding it.

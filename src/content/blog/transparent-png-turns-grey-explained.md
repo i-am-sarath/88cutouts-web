@@ -115,7 +115,7 @@ Everything above collapses into a short list:
 5. **Keep PNG as PNG.** Any conversion to JPG is one-way, and no later conversion undoes it.
 6. **If you need a finished square with a background** — a profile picture, for example — flatten it yourself onto a background you chose, rather than letting a platform choose grey for you.
 
-That last one is worth expanding. If you are making a [profile picture](/dp/), do not upload a transparent PNG and hope. Put a background behind it deliberately — a colour, a gradient, a photo — and upload the flattened result. You get to make the decision instead of discovering what WhatsApp's default was. The [DP maker](/dp-maker/) on this site does exactly this: it composes your photo, a background and any cutouts you add into one square image, then hands you the finished file.
+That last one is worth expanding. If you are making a [profile picture](/dp/), do not upload a transparent PNG and hope. Put a background behind it deliberately — a colour, a gradient, a photo — and upload the flattened result. You get to make the decision instead of discovering what WhatsApp's default was. Every DP in the [gallery](/dp/) is flattened this way already — background, subject and cutouts baked into one opaque square.
 
 ## The mental model, in one sentence
 

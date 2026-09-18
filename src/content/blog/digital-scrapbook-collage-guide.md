@@ -105,7 +105,7 @@ The important part: **place them where they would actually be needed** — at a 
 4. **Punctuation.** Scatter three to six small pieces — [hearts](/stickers/crumpled-paper-heart/), stars, flowers — with more density near the focal point and fewer toward the edges.
 5. **Fasteners.** Tape, pins or clips at two or three junctions.
 6. **Shadows.** Apply consistently, then vary slightly by stacking depth.
-7. **Type.** If you need words, add them last and keep them minimal. Cut-out lettering from the [ransom-note typewriter](/ransom-note/) fits the paper logic; a clean sans-serif usually does not.
+7. **Type.** If you need words, add them last and keep them minimal. Cut-out lettering from the [cutout text maker](/ransom-note/) fits the paper logic; a clean sans-serif usually does not.
 8. **Cut a third of it.** Every collage is improved by removing the two or three elements you added because you had them, not because the composition needed them.
 
 That last step is the difference between a collage and a pile.

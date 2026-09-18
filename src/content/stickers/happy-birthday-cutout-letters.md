@@ -8,4 +8,4 @@ featured: true
 date: 2026-08-11
 ---
 
-Happy Birthday Cutout Letters keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. It's one of the text and lettering cutouts, meant to be read at a glance — happy birthday, birthday, ransom note and letters. Pair it with a caption box or a washi-tape frame if you want to layer more than one sticker on the same Story.
+The words spelled out in magazine cutout letters, every character from a different source — different typefaces, different colours, alternating caps and lower case, each on its own scrap of paper with visible edges and a slight tilt. Wide and short, so it belongs across a horizontal band. If the phrase you want is not this one, the cutout text maker sets any short message in the same style.

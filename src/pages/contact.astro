@@ -1,0 +1,95 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const site = Astro.site?.href ?? 'https://88cutouts.com/';
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    name: 'Contact 88cutouts',
+    url: new URL('/contact/', site).href,
+    isPartOf: { '@type': 'WebSite', name: '88cutouts', url: site },
+    mainEntity: {
+      '@type': 'Organization',
+      name: '88cutouts',
+      url: site,
+      email: 'hello@88cutouts.com',
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'customer support',
+        email: 'hello@88cutouts.com',
+        availableLanguage: 'English',
+      },
+    },
+  },
+];
+---
+
+<BaseLayout
+  title="Contact — requests, licensing and takedowns | 88cutouts"
+  description="Get in touch with 88cutouts: request a sticker, ask about commercial use, report a problem or request a takedown. One person reads everything."
+  jsonld={jsonld}
+>
+  <div class="wrap">
+    <article class="prose">
+      <h1>Contact</h1>
+      <p class="lede">
+        One address, read by one person:
+        <a href="mailto:hello@88cutouts.com">hello@88cutouts.com</a>.
+      </p>
+
+      <p>
+        There is no contact form, no ticket system and no chat widget — 88cutouts is run by
+        one person, and email is the honest version of what that means. Replies usually come
+        within a few days.
+      </p>
+
+      <h2>Requesting a sticker</h2>
+      <p>
+        This is the most useful thing you can email about. If there is a cutout you keep
+        looking for and cannot find — a shape, an object, a phrase, a colour that the
+        library is missing — say so. Requests genuinely drive what gets drawn next, and a
+        specific description ("a green gingham bow", "a cassette in pink") is far easier to
+        act on than a general one.
+      </p>
+
+      <h2>Commercial use and licensing</h2>
+      <p>
+        Everything here is free for personal use, and reselling or repackaging the files is
+        not allowed. Anything in between — a small business using a cutout on a Story, a
+        print run, a client project — needs asking about, and the answer is often yes. Tell
+        me which file and what for. The full terms are on the
+        <a href="/about/">about page</a>.
+      </p>
+
+      <h2>Reporting a problem</h2>
+      <p>
+        Broken image, a sticker that pastes with a halo, a page that will not load, a link
+        that goes nowhere: worth reporting, and quick to fix. Including the page URL and
+        which browser you were using saves a round trip.
+      </p>
+      <p>
+        The same goes for the guides on the <a href="/blog/">blog</a>. If something in one
+        of them is wrong or out of date — app interfaces change constantly — it gets
+        corrected rather than argued about.
+      </p>
+
+      <h2>Takedown requests</h2>
+      <p>
+        Everything on this site is made for it. If you believe something here infringes your
+        work, email with a link to the page and to your original, and the file comes down
+        while I look into it rather than after. That is the whole process, and it does not
+        need a lawyer to start.
+      </p>
+
+      <h2>Privacy questions</h2>
+      <p>
+        There are no accounts here and nothing you do on the site is uploaded, so there is
+        rarely any personal data to ask about — but if you have a question about analytics,
+        cookies or advertising, the <a href="/privacy/">privacy policy</a> covers it and the
+        same address answers anything it does not.
+      </p>
+    </article>
+  </div>
+</BaseLayout>

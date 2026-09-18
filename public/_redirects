@@ -1,0 +1,3 @@
+# The DP maker was removed; its traffic belongs on the gallery it fed.
+/dp-maker      /dp/   301
+/dp-maker/*    /dp/   301

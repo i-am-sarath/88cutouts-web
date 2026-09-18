@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Small Red Satin Bow keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. The bow, ribbon, red and satin shape sits with the rest of the coquette bows — soft colours, satin folds, nothing sharp-edged. Drop it over a plain background if the photo underneath is already busy — it still stands out.
+A compact red satin bow with short, straight tails and deep folds in the fabric, more velvet than sheen. Simpler and denser than the larger bows here, with no fine detail to lose, which makes it the best red bow for small placements — a corner, the top of a caption box, or repeated twice at different sizes.

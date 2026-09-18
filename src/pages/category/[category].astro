@@ -4,6 +4,8 @@ import { getStickers } from '../../lib/stickers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CategoryPills from '../../components/CategoryPills.astro';
 import StickerCard from '../../components/StickerCard.astro';
+import StickerShuffle from '../../components/StickerShuffle.astro';
+import { categoryPage } from '../../lib/category-copy';
 
 export async function getStaticPaths() {
   const all = await getStickers();
@@ -19,6 +21,8 @@ export async function getStaticPaths() {
           if (a.data.featured !== b.data.featured) return a.data.featured ? -1 : 1;
           return b.data.date.valueOf() - a.data.date.valueOf();
         }),
+      elsewhere: all.filter((s) => s.data.category !== category),
+      siblings: categories.filter((c) => c !== category),
     },
   }));
 }
@@ -26,45 +30,27 @@ export async function getStaticPaths() {
 interface Props {
   category: string;
   items: CollectionEntry<'stickers'>[];
+  elsewhere: CollectionEntry<'stickers'>[];
+  siblings: string[];
 }
 
-const { category, items } = Astro.props;
+const { category, items, elsewhere, siblings } = Astro.props;
 const site = Astro.site?.href ?? 'https://88cutouts.com/';
 const label = category.charAt(0).toUpperCase() + category.slice(1);
 
-const categoryIntros: Record<string, string> = {
-  flowers:
-    'Watercolour blooms, pressed petals and bouquets — the kind of stickers that work over a garden photo, a bunch someone gave you, or just a good outfit.',
-  cute:
-    'Cats and other small animals, all drawn with the same rounded, hand-inked outline. Built for photo dumps, pet updates and anything that needs a bit of softness.',
-  coquette:
-    'Bows in satin, gingham and ribbon, in the soft pinks and reds that go with the coquette look. Small enough to sit in a corner without taking over the photo.',
-  hearts:
-    'Hearts in paper, pixel and glossy finishes — some plain, some textured, all sized to sit near a caption without crowding it.',
-  retro:
-    'Cassette tapes, vinyl records, film cameras and a guitar — cutouts built around an analogue, pre-digital feel rather than a specific decade.',
-  y2k:
-    'Pixel-edged graphics — sunglasses, a health bar, a boxy computer — pulled from the early-2000s look rather than smoothed into modern vector art.',
-  text:
-    'Lettering and speech-bubble stickers meant to be read at a glance: birthday letters, a love coupon, a comic burst, a "new" badge.',
-  general:
-    "Stickers that didn't fit neatly into one of the other shelves — a mix of small, useful cutouts for whatever a photo needs.",
-  seasonal:
-    'Stickers tied to a specific date on the calendar rather than a fixed theme — added and swapped out as the year moves along.',
-  aesthetic:
-    'Small decorative charms — a sun swirl, an evil eye, a glass flower — meant as an accent rather than the main subject of a Story.',
-  paper:
-    'Washi tape and torn-paper scraps, built to sit underneath other stickers as a background layer rather than stand alone.',
-  frames:
-    'Frames go under a photo rather than on top of one — a border to drop your own picture into, not a sticker in the usual sense.',
-};
-const intro = categoryIntros[category];
+const page = categoryPage(category);
+
+/** Newest three, named in the prose so the page links its own contents. */
+const newest = [...items]
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
 
 const jsonld = [
   {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: `${label} stickers for Instagram Stories`,
+    description: page.intro,
     url: new URL(`/category/${category}/`, site).href,
     isPartOf: { '@type': 'WebSite', name: '88cutouts', url: site },
     mainEntity: {
@@ -78,12 +64,34 @@ const jsonld = [
       })),
     },
   },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: site },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: label,
+        item: new URL(`/category/${category}/`, site).href,
+      },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: page.faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
 ];
 ---
 
 <BaseLayout
   title={`${label} stickers — free transparent PNGs for Instagram Stories | 88cutouts`}
-  description={`Free ${category} stickers and cutouts as transparent PNGs. Tap to copy and paste straight into your Instagram Story — no login needed.`}
+  description={`${items.length} free ${category} stickers as transparent PNGs. Copy at any opacity and paste straight into your Instagram Story — no login needed.`}
   image={items[0]?.data.image}
   jsonld={jsonld}
 >
@@ -94,16 +102,88 @@ const jsonld = [
       <h2>{label} stickers</h2>
       <span class="count">{items.length} items</span>
     </div>
-    {intro && <p class="category-intro">{intro}</p>}
+    <p class="category-intro">{page.intro}</p>
 
     <CategoryPills active={category} />
 
     <div class="grid">
+      {items.map((entry, i) => <StickerCard entry={entry} eager={i < 6} />)}
+    </div>
+
+    <article class="prose category-prose">
       {
-        items.map((entry, i) => (
-            <StickerCard entry={entry} eager={i < 6} />
+        page.sections.map((section) => (
+          <>
+            <h2>{section.h}</h2>
+            {section.p.map((para) => (
+              <p>{para}</p>
+            ))}
+          </>
         ))
       }
-    </div>
+
+      {
+        newest.length > 0 && (
+          <>
+            <h2>Most recent in this set</h2>
+            <p>
+              The newest additions are{' '}
+              {newest.map((s, i) => (
+                <>
+                  {i > 0 && (i === newest.length - 1 ? ' and ' : ', ')}
+                  <a href={`/stickers/${s.slug}/`}>{s.data.title}</a>
+                </>
+              ))}
+              . Every one of them is a transparent PNG with an opacity control on its page,
+              so the same cutout can be copied solid or faded down to sit under a photo.
+            </p>
+          </>
+        )
+      }
+
+      {
+        siblings.length > 0 && (
+          <>
+            <h2>Other sets</h2>
+            <p>
+              If this is not quite the mood, try{' '}
+              {siblings.slice(0, 5).map((c, i) => (
+                <>
+                  {i > 0 && (i === Math.min(siblings.length, 5) - 1 ? ' or ' : ', ')}
+                  <a href={`/category/${c}/`}>{c}</a>
+                </>
+              ))}
+              . There is also the <a href="/ransom-note/">cutout text maker</a> for a whole
+              phrase in paper letters, and the <a href="/dp/">DP gallery</a> for profile
+              pictures.
+            </p>
+          </>
+        )
+      }
+
+      <p class="page-aside">
+        Every cutout above copies at whatever opacity you set on its own page. The mechanics
+        are covered once in
+        <a href="/blog/how-to-add-stickers-to-instagram-stories/">adding stickers to Stories</a>.
+      </p>
+
+      <h2>Questions about {category} stickers</h2>
+      {
+        page.faq.map((f) => (
+          <>
+            <h3>{f.q}</h3>
+            <p>{f.a}</p>
+          </>
+        ))
+      }
+    </article>
+
+    <StickerShuffle
+      pool={elsewhere}
+      count={6}
+      id="category"
+      heading="From the rest of the library"
+      blurb="Six at random from the other shelves — shuffle until something fits the photo you have in mind."
+    />
   </div>
 </BaseLayout>

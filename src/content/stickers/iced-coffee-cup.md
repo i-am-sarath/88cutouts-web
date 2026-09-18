@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Iced Coffee Cup is one of the free stickers in this set, exported as an alpha-transparent PNG so it pastes cleanly onto any background. It doesn't fit neatly into one category, but it's an easy one to drop into most Stories. It's small enough to sit near an edge without crowding whatever photo it's placed over.
+A simple illustrated iced coffee — a pale cup, a straw and a soft band of cream through the middle, with none of the photographic detail of the other coffee cutouts. That simplicity is the point: it reads at any size and does not compete with the photo. The quieter of the two coffee cups, and the easier one to layer.

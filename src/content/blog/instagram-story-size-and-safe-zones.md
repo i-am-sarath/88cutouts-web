@@ -98,7 +98,7 @@ Sizing guidance, for the default fonts:
 - **Body:** rarely worth it. If your point needs more than about twelve words, it is a carousel or a Reel, not a Story.
 - **Caption or credit:** small is fine, but keep it inside the safe band anyway.
 
-If you want a decorative or hand-cut look that Instagram's fonts cannot produce, that is exactly what the [ransom-note typewriter](/ransom-note/) is for — type your message, get back a transparent PNG of cut-out letters, and paste it as a sticker. Because it is an image, keep it larger than you would keep live text, and keep it well inside the safe zone.
+If you want a decorative or hand-cut look that Instagram's fonts cannot produce, that is exactly what the [cutout text maker](/ransom-note/) is for — type your message, get back a transparent PNG of cut-out letters, and paste it as a sticker. Because it is an image, keep it larger than you would keep live text, and keep it well inside the safe zone.
 
 ## Export settings
 

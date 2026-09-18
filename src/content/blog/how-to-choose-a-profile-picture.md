@@ -79,7 +79,7 @@ Silhouette is why simple graphic profile pictures often outperform good photogra
 
 ## Things that essentially never work
 
-**Text.** At 48 pixels a word is a smear. The only version that survives is a single large letter in a heavy weight, filling most of the circle — which is why "initial" avatars exist and why the [DP maker](/dp-maker/) offers a single name element rather than a full text tool.
+**Text.** At 48 pixels a word is a smear. The only version that survives is a single large letter in a heavy weight, filling most of the circle — which is why "initial" avatars exist, and why none of the DPs in the [gallery](/dp/) carry more than a word.
 
 **Group photos.** Even at 192 pixels nobody can tell which person is you.
 
@@ -116,7 +116,7 @@ The same four properties apply, and they are easier to hit deliberately.
 
 Start with a background that has a clear value — a solid colour or a simple two-stop gradient, not a photograph. Place one large cutout in the middle, sized to about 60–70% of the frame. Give it enough contrast against the background to survive greyscale conversion. Stop there.
 
-This is exactly what the [DP maker](/dp-maker/) does: it composes your own photo or a plain background, one or more cutouts from the sticker library, and optionally a single name, into a square image sized correctly for the circular crop, with the circle drawn live so you can see what will survive. It runs entirely in your browser, so nothing you upload is sent anywhere.
+This is exactly how every DP in the [gallery](/dp/) is composed: a simple background, one clear subject and at most one cutout, laid out in a square sized correctly for the circular crop, with nothing important near the corners that the crop will eat.
 
 If you would rather pick something ready-made, the [DP gallery](/dp/) is grouped into collections by mood — [cute](/dp/cute/), [aesthetic](/dp/aesthetic/), [attitude](/dp/attitude-girls/), [sad](/dp/sad-girl/) — all composed square for the crop.
 

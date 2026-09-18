@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Golden Sun Charm is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. It sits in the aesthetic shelf, a small decorative charm rather than a full scene. It reads clearly even shrunk down small, so it holds up in the corner of a vertical Story.
+A gold sun with a smooth domed centre and short, even rays all the way round — more medallion than illustration. The regularity is the difference between this and the swirl version: it reads as jewellery rather than as a drawing. Symmetrical and compact, so it sits happily in a corner, and the radiating points give it an edge that holds up on busy photos.

@@ -4,7 +4,10 @@ import { getStickers } from '../../lib/stickers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CopyDownloadButtons from '../../components/CopyDownloadButtons.astro';
 import StickerCard from '../../components/StickerCard.astro';
+import StickerShuffle from '../../components/StickerShuffle.astro';
 import { stickerThumb } from '../../lib/thumbs.mjs';
+import { getImageMeta } from '../../lib/image-meta';
+import { shapeOf, specs, stickerCopy } from '../../lib/sticker-copy';
 
 export async function getStaticPaths() {
   const items = await getStickers();
@@ -15,6 +18,9 @@ export async function getStaticPaths() {
       related: items
         .filter((r) => r.slug !== s.slug && r.data.category === s.data.category)
         .slice(0, 6),
+      // Cross-category suggestions, so a page isn't a dead end when its own
+      // shelf is small.
+      elsewhere: items.filter((r) => r.data.category !== s.data.category),
     },
   }));
 }
@@ -22,9 +28,10 @@ export async function getStaticPaths() {
 interface Props {
   entry: CollectionEntry<'stickers'>;
   related: CollectionEntry<'stickers'>[];
+  elsewhere: CollectionEntry<'stickers'>[];
 }
 
-const { entry, related } = Astro.props;
+const { entry, related, elsewhere } = Astro.props;
 const { title, image, category, type } = entry.data;
 // The category already has its own chip — don't repeat it in the tag row.
 const tags = entry.data.tags.filter((t) => t.toLowerCase() !== category.toLowerCase());
@@ -32,6 +39,17 @@ const { Content } = await entry.render();
 
 // Hero shows the lightweight WebP; Copy/Download still fetch the full PNG.
 const heroThumb = stickerThumb(image, 512);
+
+const meta = getImageMeta(image);
+const shape = shapeOf(meta);
+const specRows = specs(meta, type);
+const { sections, faq, aside } = stickerCopy(entry, meta, related);
+
+// Three named siblings to send people to, and the other shelves worth a look.
+const pairWith = related.slice(0, 3);
+const otherCategories = [...new Set(elsewhere.map((s) => s.data.category))]
+  .filter((c) => c !== category)
+  .slice(0, 4);
 
 const site = Astro.site?.href ?? 'https://88cutouts.com/';
 const pageUrl = new URL(`/stickers/${entry.slug}/`, site).href;
@@ -46,6 +64,7 @@ const jsonld = [
     contentUrl: new URL(image, site).href,
     url: pageUrl,
     encodingFormat: 'image/png',
+    ...(meta ? { width: meta.w, height: meta.h, contentSize: `${meta.bytes}` } : {}),
     keywords: [category, ...tags].join(', '),
     creator: { '@type': 'Organization', name: '88cutouts', url: site },
     license: pageUrl,
@@ -66,12 +85,21 @@ const jsonld = [
       { '@type': 'ListItem', position: 3, name: title, item: pageUrl },
     ],
   },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
 ];
 ---
 
 <BaseLayout
   title={`${title} — free ${type} | 88cutouts`}
-  description={`Free transparent ${type} sticker: ${title}. Tap to copy and paste directly into your Instagram Story.`}
+  description={`Free transparent PNG ${type}: ${title}${meta ? `, ${meta.w} × ${meta.h}px` : ''}. Copy it at any opacity and paste straight into your Instagram Story.`}
   image={image}
   jsonld={jsonld}
 >
@@ -90,6 +118,7 @@ const jsonld = [
           height="512"
           loading="eager"
           fetchpriority="high"
+          data-opacity-preview
         />
       </div>
 
@@ -99,11 +128,75 @@ const jsonld = [
           <a class="tag is-category" href={`/category/${category}/`}>{category}</a>
           {tags.map((t) => <span class="tag">{t}</span>)}
         </div>
-        <CopyDownloadButtons imageSrc={image} filename={`${entry.slug}.png`} />
+        <CopyDownloadButtons imageSrc={image} filename={`${entry.slug}.png`} opacity={true} />
         <div class="sticker-desc">
           <Content />
         </div>
+
+        <dl class="spec-list">
+          {
+            specRows.map((row) => (
+              <div class="spec-row">
+                <dt>{row.k}</dt>
+                <dd>{row.v}</dd>
+              </div>
+            ))
+          }
+        </dl>
       </div>
+    </article>
+
+    <article class="prose sticker-prose">
+      {
+        sections.map((section) => (
+          <>
+            <h2>{section.h}</h2>
+            {section.p.map((para) => (
+              <p>{para}</p>
+            ))}
+          </>
+        ))
+      }
+
+      {
+        pairWith.length > 0 && (
+          <p>
+            Closest matches in the library:{' '}
+            {pairWith.map((s, i) => (
+              <>
+                {i > 0 && (i === pairWith.length - 1 ? ' and ' : ', ')}
+                <a href={`/stickers/${s.slug}/`}>{s.data.title}</a>
+              </>
+            ))}
+            . The rest of the shelf is in{' '}
+            <a href={`/category/${category}/`}>{label.toLowerCase()}</a>
+            {otherCategories.length > 0 && (
+              <>
+                , and for a different mood there is{' '}
+                {otherCategories.map((c, i) => (
+                  <>
+                    {i > 0 && (i === otherCategories.length - 1 ? ' or ' : ', ')}
+                    <a href={`/category/${c}/`}>{c}</a>
+                  </>
+                ))}
+              </>
+            )}
+            .
+          </p>
+        )
+      }
+
+      <p class="page-aside" set:html={aside} />
+
+      <h2>{`Questions about ${title}`}</h2>
+      {
+        faq.map((f) => (
+          <>
+            <h3>{f.q}</h3>
+            <p>{f.a}</p>
+          </>
+        ))
+      }
     </article>
 
     {
@@ -123,5 +216,7 @@ const jsonld = [
         </>
       )
     }
+
+    <StickerShuffle pool={elsewhere} count={6} id="sticker" heading="Try one of these next" />
   </div>
 </BaseLayout>

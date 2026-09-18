@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Heart Cassette Tape is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. It sits with the retro shelf — vinyl, cassette and camera cutouts built around an old analogue feel. Pair it with a caption box or a washi-tape frame if you want to layer more than one sticker on the same Story.
+A cassette with a red heart on its label, sitting on a torn paper strip against a pale square. Like the other tape-and-record pieces, the square backing is opaque rather than transparent, so it pastes with a visible light panel behind it — fine on a pale photo, obvious on a dark one. The cassette itself is wide and low, which suits a horizontal placement.

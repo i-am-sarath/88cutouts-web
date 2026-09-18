@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Pixel Graduation Cap is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. It's part of the y2k set, built around graduation, cap, pixel and school. It reads clearly even shrunk down small, so it holds up in the corner of a vertical Story.
+A black mortar board with a red tassel, drawn in chunky visible pixels with hard stepped edges and no anti-aliasing at all. The pixel steps are deliberate, so scale it in whole multiples where you can — smoothly enlarged it just looks like a low-resolution image. Obvious fit for a graduation Story, and it pairs with the other pixel pieces rather than with anything painted.

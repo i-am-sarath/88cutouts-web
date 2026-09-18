@@ -5,9 +5,6 @@ import { stickerThumb } from '../lib/thumbs.mjs';
 /**
  * Powers the header search. Stickers and DPs live at different URL shapes, so
  * each entry carries its own `url` rather than the consumer assuming one.
- *
- * The DP maker also reads this endpoint for its sticker picker, which is why
- * the sticker entries keep their original field names.
  */
 export async function GET() {
   const stickers = (await getStickers()).map((i) => ({

@@ -7,7 +7,8 @@
     "import": "node scripts/import-stickers.mjs",
     "import-letters": "node scripts/import-letters.mjs",
     "normalize": "node scripts/normalize-stickers.mjs",
-    "prebuild": "node scripts/optimize-images.mjs && node scripts/generate-thumbs.mjs && node scripts/generate-dp-thumbs.mjs",
+    "prebuild": "node scripts/optimize-images.mjs && node scripts/generate-thumbs.mjs && node scripts/generate-dp-thumbs.mjs && node scripts/sticker-geometry.mjs",
+    "geometry": "node scripts/sticker-geometry.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "dp-thumbs": "node scripts/generate-dp-thumbs.mjs"

@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Camera Cap Cat is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. It joins the cat and animal lineup, all drawn with the same rounded, friendly style so they stack together without clashing. A good one to combine with a couple of the other stickers from the same shelf for a fuller collage look.
+A small grey cat in a white baseball cap and dark glasses, holding a compact camera. It is one of the busier photoreal cats — cap, glasses, camera and face all competing in a small area — so it needs to be placed large enough to resolve. The camera makes it read as a comment on the photo itself, which is a different job from pure decoration.

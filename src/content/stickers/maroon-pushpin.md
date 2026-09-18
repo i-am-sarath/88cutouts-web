@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Maroon Pushpin keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. It doesn't fit neatly into one category, but it's an easy one to drop into most Stories. Pair it with a caption box or a washi-tape frame if you want to layer more than one sticker on the same Story.
+A dark red pushpin drawn at a three-quarter angle, so it reads as pressed into something rather than floating. Very small, with a simple glossy body and no fine detail. Use it the way you would use a real pin — overlapping the corner of a photo, a ticket or a paper scrap — and it does its job without asking for attention.

@@ -11,32 +11,87 @@ interface Props {
   downloadOriginal?: boolean;
   /** Replaces the Instagram-Stories transparency note. */
   hint?: string;
+  /**
+   * Show the opacity control. Only makes sense where the output is a
+   * transparent PNG — a translucent sticker is what people want when they are
+   * laying one over a photo in a Story.
+   */
+  opacity?: boolean;
 }
 
-const { imageSrc, filename, downloadOriginal = false, hint } = Astro.props;
+const {
+  imageSrc,
+  filename,
+  downloadOriginal = false,
+  hint,
+  opacity = false,
+} = Astro.props;
 ---
 
-<div
-  class="action-row"
-  data-src={imageSrc}
-  data-filename={filename}
-  data-download-original={downloadOriginal ? 'true' : undefined}
->
-  <button class="btn-copy" type="button">Copy</button>
-  <button class="btn-download" type="button">Download</button>
-</div>
-<p class="copy-hint">
+<div class="action-block">
   {
-    hint ? (
-      hint
-    ) : (
-      <>
-        Works best pasted into Instagram <strong>Stories</strong> — feed posts don't show
-        transparency.
-      </>
+    opacity && (
+      <div class="opacity-ctl">
+        <div class="opacity-head">
+          <span class="opacity-title">Opacity</span>
+          <span class="opacity-val">100%</span>
+        </div>
+
+        <div class="opacity-presets" role="group" aria-label="Opacity presets">
+          <button type="button" class="chip" data-op="100" aria-pressed="true">
+            Solid
+          </button>
+          <button type="button" class="chip" data-op="70" aria-pressed="false">
+            Soft
+          </button>
+          <button type="button" class="chip" data-op="45" aria-pressed="false">
+            Faded
+          </button>
+          <button type="button" class="chip" data-op="20" aria-pressed="false">
+            Ghost
+          </button>
+        </div>
+
+        <input
+          class="opacity-range"
+          type="range"
+          min="5"
+          max="100"
+          step="5"
+          value="100"
+          aria-label="Sticker opacity percentage"
+        />
+
+        <p class="opacity-note">
+          Drag it down for a see-through sticker that sits over a photo without hiding it.
+          <strong>Copy</strong> and <strong>Download</strong> both use whatever you set here.
+        </p>
+      </div>
     )
   }
-</p>
+
+  <div
+    class="action-row"
+    data-src={imageSrc}
+    data-filename={filename}
+    data-download-original={downloadOriginal ? 'true' : undefined}
+  >
+    <button class="btn-copy" type="button">Copy</button>
+    <button class="btn-download" type="button">Download</button>
+  </div>
+  <p class="copy-hint">
+    {
+      hint ? (
+        hint
+      ) : (
+        <>
+          Works best pasted into Instagram <strong>Stories</strong> — feed posts don't show
+          transparency.
+        </>
+      )
+    }
+  </p>
+</div>
 
 <script>
   import { track } from '../lib/track';
@@ -57,25 +112,28 @@ const { imageSrc, filename, downloadOriginal = false, hint } = Astro.props;
 
   /**
    * The clipboard only reliably accepts image/png, so anything else gets
-   * re-encoded through a canvas (alpha is preserved).
+   * re-encoded through a canvas (alpha is preserved). Anything below full
+   * opacity always takes the canvas path — that is where the alpha is applied.
    */
-  async function toPngBlob(src) {
+  async function toPngBlob(src, alpha = 1) {
     const res = await fetch(src);
     if (!res.ok) throw new Error(`Failed to fetch ${src}`);
     const blob = await res.blob();
-    if (blob.type === 'image/png') return blob;
+    if (blob.type === 'image/png' && alpha >= 1) return blob;
 
     const bitmap = await createImageBitmap(blob);
     const canvas = document.createElement('canvas');
     canvas.width = bitmap.width;
     canvas.height = bitmap.height;
-    canvas.getContext('2d').drawImage(bitmap, 0, 0);
+    const ctx = canvas.getContext('2d');
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(bitmap, 0, 0);
     return await new Promise((resolve, reject) =>
       canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('encode failed'))), 'image/png')
     );
   }
 
-  async function copyImage(src, slug) {
+  async function copyImage(src, slug, alpha) {
     if (!navigator.clipboard || typeof ClipboardItem === 'undefined') {
       showToast("Copy isn't supported here — tap Download instead.");
       // How often the core interaction is unavailable is worth knowing.
@@ -85,13 +143,15 @@ const { imageSrc, filename, downloadOriginal = false, hint } = Astro.props;
 
     // Kick the fetch off inside the click handler so Safari keeps the user
     // gesture alive; the promise is handed straight to ClipboardItem.
-    const pending = toPngBlob(src);
+    const pending = toPngBlob(src, alpha);
     pending.catch(() => {});
+
+    const opacity = Math.round(alpha * 100);
 
     try {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': pending })]);
       showToast('Copied! Paste into your Instagram Story.');
-      track('sticker_copy', { sticker: slug, method: 'promise' });
+      track('sticker_copy', { sticker: slug, method: 'promise', opacity });
       return;
     } catch {
       /* Browser rejects promise-valued ClipboardItem — retry with the blob. */
@@ -101,21 +161,26 @@ const { imageSrc, filename, downloadOriginal = false, hint } = Astro.props;
       const blob = await pending;
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       showToast('Copied! Paste into your Instagram Story.');
-      track('sticker_copy', { sticker: slug, method: 'blob' });
+      track('sticker_copy', { sticker: slug, method: 'blob', opacity });
     } catch {
       showToast("Copy isn't supported here — tap Download instead.");
       track('sticker_copy_unsupported', { sticker: slug, reason: 'write_rejected' });
     }
   }
 
-  async function downloadImage(src, filename, original) {
+  async function downloadImage(src, filename, original, alpha) {
     try {
-      const blob = original ? await (await fetch(src)).blob() : await toPngBlob(src);
-      track('sticker_download', { sticker: filename.replace(/\.\w+$/, '') });
+      // Serving the original bytes only works at full opacity; a translucent
+      // version has to be re-encoded through the canvas.
+      const blob =
+        original && alpha >= 1 ? await (await fetch(src)).blob() : await toPngBlob(src, alpha);
+      const opacity = Math.round(alpha * 100);
+      const name = alpha >= 1 ? filename : `${filename.replace(/\.\w+$/, '')}-${opacity}.png`;
+      track('sticker_download', { sticker: filename.replace(/\.\w+$/, ''), opacity });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = filename;
+      a.download = name;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -125,16 +190,58 @@ const { imageSrc, filename, downloadOriginal = false, hint } = Astro.props;
     }
   }
 
+  /**
+   * Wires the opacity control to its live preview and hands back a getter, so
+   * the copy/download handlers always read the current value rather than one
+   * captured at setup.
+   */
+  function wireOpacity(block) {
+    const ctl = block?.querySelector('.opacity-ctl');
+    if (!ctl) return () => 1;
+
+    const range = ctl.querySelector('.opacity-range');
+    const readout = ctl.querySelector('.opacity-val');
+    const chips = [...ctl.querySelectorAll('.chip[data-op]')];
+    // Any image on the page that should follow the slider — the hero preview.
+    const previews = [...document.querySelectorAll('[data-opacity-preview]')];
+    let value = 100;
+
+    function apply(next, fromRange) {
+      value = Math.min(100, Math.max(5, Math.round(next)));
+      if (range && !fromRange) range.value = String(value);
+      if (readout) readout.textContent = `${value}%`;
+      for (const el of previews) el.style.opacity = String(value / 100);
+      for (const chip of chips) {
+        chip.setAttribute(
+          'aria-pressed',
+          Number(chip.getAttribute('data-op')) === value ? 'true' : 'false'
+        );
+      }
+    }
+
+    range?.addEventListener('input', () => apply(Number(range.value), true));
+    for (const chip of chips) {
+      chip.addEventListener('click', () =>
+        apply(Number(chip.getAttribute('data-op')), false)
+      );
+    }
+
+    return () => value / 100;
+  }
+
   document.querySelectorAll('.action-row[data-src]').forEach((row) => {
     const src = row.getAttribute('data-src');
     const filename = row.getAttribute('data-filename') || 'sticker.png';
     if (!src) return;
     const slug = filename.replace(/\.\w+$/, '');
     const original = row.getAttribute('data-download-original') === 'true';
+    const alpha = wireOpacity(row.closest('.action-block'));
 
-    row.querySelector('.btn-copy')?.addEventListener('click', () => copyImage(src, slug));
+    row
+      .querySelector('.btn-copy')
+      ?.addEventListener('click', () => copyImage(src, slug, alpha()));
     row
       .querySelector('.btn-download')
-      ?.addEventListener('click', () => downloadImage(src, filename, original));
+      ?.addEventListener('click', () => downloadImage(src, filename, original, alpha()));
   });
 </script>

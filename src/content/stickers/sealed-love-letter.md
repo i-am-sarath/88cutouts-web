@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-11
 ---
 
-Sealed Love Letter is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. It doesn't fit neatly into one category, but the envelope, letter, love, mail and heart make it an easy one to drop into most Stories. A good one to combine with a couple of the other stickers from the same shelf for a fuller collage look.
+A cream envelope, sealed and shown face-on, with a red wax heart in the centre and a white die-cut border around the edge. Wide and low. An envelope implies something unopened, which makes it better suited to a Story that is teasing an announcement than one that has already made it. Pairs obviously with the wax seal and the paper scraps.

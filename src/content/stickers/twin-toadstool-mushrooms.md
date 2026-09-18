@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Twin Toadstool Mushrooms is a transparent PNG sticker with a hand-cut, paper-collage edge, so it drops onto a Story without a white box around it. It sits in the aesthetic shelf, a small decorative charm rather than a full scene. It works well tucked into a corner over a selfie, a food photo, or a travel shot without covering the subject.
+Two red-capped toadstools with white spots and pale stems, painted in soft watercolour and finished with a white die-cut border. The pair is the point — one tall, one short, which gives the cutout an internal rhythm a single mushroom would not have. Storybook rather than botanical in feel, and it sits well with the bunny and the bear.

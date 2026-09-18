@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Starry Night Washi Tape keeps the same cut-paper texture as the rest of the set — a sticker built to look snipped out by hand, not vector-perfect. It's built to look like a scrap torn from an actual sheet, edges rough on purpose — useful as a background layer under other stickers. Drop it over a plain background if the photo underneath is already busy — it still stands out.
+A torn strip of washi tape printed with Van Gogh's Starry Night, so the blue swirls and yellow moon run the length of the piece. Narrow, horizontal and torn at both ends. Dark enough to hold its own on a pale photo, and the only tape here with a recognisable image on it — which makes it a subject as much as a fastening.

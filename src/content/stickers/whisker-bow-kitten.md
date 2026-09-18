@@ -8,4 +8,4 @@ featured: false
 date: 2026-08-14
 ---
 
-Whisker Bow Kitten is one of the free stickers in this set, exported as an alpha-transparent PNG so it pastes cleanly onto any background. It joins the cat and animal lineup, all drawn with the same rounded, friendly style so they stack together without clashing. It reads clearly even shrunk down small, so it holds up in the corner of a vertical Story.
+A cat's face with drawn pink whiskers and a small bow, cut out with a white sticker border — the companion piece to the pink whisker cat, with a wider, more open expression. The drawn whiskers push the shape well past the face on both sides, so allow for the extra width and keep it clear of the frame edge.
