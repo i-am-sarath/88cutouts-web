@@ -1,0 +1,100 @@
+---
+/**
+ * A sticker pack as one image: every sticker in the pack arranged into a loose
+ * cluster, so the whole pack goes into a Story with a single copy and paste
+ * instead of one sticker at a time. Shuffle re-deals the arrangement, and any
+ * sticker can be dragged somewhere else first.
+ */
+import type { Pack } from '../lib/packs';
+import { stickerThumb } from '../lib/thumbs.mjs';
+
+interface Props {
+  pack: Pack;
+}
+
+const { pack } = Astro.props;
+const data = JSON.stringify({
+  slug: pack.slug,
+  srcs: pack.entries.map((s) => stickerThumb(s.data.image, 512)),
+});
+---
+
+<div class="collage-tool pack-tool" data-pack={pack.slug}>
+  <div class="ct-stage">
+    <div class="ct-frame" data-bg="none">
+      <canvas
+        class="pk-canvas"
+        role="img"
+        aria-label={`All ${pack.entries.length} stickers from the ${pack.name} pack, arranged together`}
+      ></canvas>
+    </div>
+    <p class="ct-hint">Drag any sticker to move it</p>
+  </div>
+
+  <div class="ct-controls">
+    <div class="tt-step">
+      <span class="tt-step-n">1</span>
+      <h3>Shuffle the arrangement</h3>
+    </div>
+    <button type="button" class="btn-copy ct-shuffle-all pk-shuffle">✦ Shuffle</button>
+
+    <div class="tt-step">
+      <span class="tt-step-n">2</span>
+      <h3>Copy the whole pack</h3>
+    </div>
+    <div class="action-row">
+      <button class="btn-copy pk-copy" type="button">Copy all {pack.entries.length}</button>
+      <button class="btn-download pk-download" type="button">Download</button>
+    </div>
+    <p class="copy-hint">
+      Pastes into a Story as <strong>one sticker</strong>. Pinch it to size, and paste it
+      again if you want the stickers in two places.
+    </p>
+
+    <div class="tt-step">
+      <span class="tt-step-n">3</span>
+      <h3>Or add your own words</h3>
+    </div>
+    <a class="btn-download pk-collage" href={`/collage-maker/?pack=${pack.slug}&t=${encodeURIComponent(pack.phrase)}`}>
+      Make a collage with this pack →
+    </a>
+  </div>
+
+  <script type="application/json" class="pk-data" set:html={data} />
+</div>
+
+<script>
+  import { Stage, preload, toast, copyCanvas, downloadCanvas } from '../lib/collage/engine';
+  import { clusterStickers } from '../lib/collage/layout';
+  import { track } from '../lib/track';
+
+  document.querySelectorAll<HTMLElement>('.pack-tool').forEach(async (root) => {
+    const data: { slug: string; srcs: string[] } = JSON.parse(
+      root.querySelector('.pk-data')?.textContent || '{"srcs":[]}'
+    );
+    const stage = new Stage({
+      canvas: root.querySelector('.pk-canvas') as HTMLCanvasElement,
+      onDragEnd: () => track('pack_drag', { pack: data.slug }),
+    });
+
+    const srcs = await preload(data.srcs);
+    const deal = () => stage.set(clusterStickers(srcs));
+    deal();
+
+    root.querySelector('.pk-shuffle')?.addEventListener('click', () => {
+      deal();
+      track('pack_shuffle', { pack: data.slug });
+    });
+
+    root.querySelector('.pk-copy')?.addEventListener('click', async () => {
+      const ok = await copyCanvas(stage.export());
+      toast(ok ? 'Copied! Long-press in your Story to paste.' : "Copy isn't supported here — tap Download instead.");
+      track(ok ? 'pack_copy' : 'pack_copy_unsupported', { pack: data.slug });
+    });
+
+    root.querySelector('.pk-download')?.addEventListener('click', () => {
+      downloadCanvas(stage.export(), `${data.slug}-sticker-pack-88cutouts.png`);
+      track('pack_download', { pack: data.slug });
+    });
+  });
+</script>

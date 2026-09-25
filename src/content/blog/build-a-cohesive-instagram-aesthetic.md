@@ -101,7 +101,7 @@ The grid gets all the attention, but Stories are where most engagement actually 
 
 **Highlight covers** are the strongest cohesion lever per unit of effort, because there are only five to eight of them and they sit permanently at the top of your profile. A matched set — same background tone, same icon treatment, same scale — does more for a first impression than any three grid posts. There is a full method for this in [the highlight cover guide](/blog/instagram-highlight-covers-guide/).
 
-**Your profile picture** completes it. It is small and always visible, so it should carry the palette rather than the detail. The [DP gallery](/dp/) is one place to find one in the same palette as your Stories, so the whole profile reads as one system.
+**Your profile picture** completes it. It is small and always visible, so it should carry the palette rather than the detail. Pick one in the same palette as your Stories, so the whole profile reads as one system. What actually survives at that size is covered in [how to choose a profile picture](/blog/how-to-choose-a-profile-picture/).
 
 ## Auditing a feed you already have
 

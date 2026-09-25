@@ -1,0 +1,211 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CollageMaker from '../components/CollageMaker.astro';
+import { getPacks } from '../lib/packs';
+import { stickerThumb } from '../lib/thumbs.mjs';
+
+const site = Astro.site?.href ?? 'https://88cutouts.com/';
+const packs = await getPacks();
+
+const faq = [
+  {
+    q: 'How do I put the collage on my Instagram Story?',
+    a: 'Leave the background on None and tap Copy. Open Instagram, start a Story over any photo, then tap and hold on the screen and choose Paste. The collage lands as one sticker you can pinch, move and rotate. If your browser won\'t copy images, tap Download and add it from your camera roll with the sticker button instead.',
+  },
+  {
+    q: 'Can I change just one sticker?',
+    a: 'Yes. Tap a sticker in the preview and it is swapped for another one from the same mood, in the same spot and at the same size. Drag it to move it. Letters stay in their line so the words always read.',
+  },
+  {
+    q: 'What does the background option do?',
+    a: 'With None, the download is a transparent PNG trimmed to the collage, so it pastes on top of a photo. With a colour, it becomes a full 1080×1920 Story image, ready to post as it is or to use as the base of a Story.',
+  },
+  {
+    q: 'Which characters can I use?',
+    a: 'Letters A to Z, numbers 0 to 9 and common punctuation (. , ! ? \' " - : ; ( ) @ # % + * & >) have real paper cut-outs. Anything else is drawn on a plain paper tile so it still fits the look. There is a 40-character limit, because a collage stops reading once the letters get small.',
+  },
+  {
+    q: 'Can I pick which stickers it uses?',
+    a: 'Choose a mood to narrow the stickers to one set: cute, coquette, flowers, beachy, retro or hearts. Or open any sticker pack and tap "Make a collage with this pack" to build it from that pack alone.',
+  },
+  {
+    q: 'Is it free, and does anything get uploaded?',
+    a: 'It is free for personal use, with no account and no watermark. The collage is drawn in your own browser, and nothing you type is sent anywhere.',
+  },
+];
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Scrap Collage Maker',
+    url: new URL('/collage-maker/', site).href,
+    applicationCategory: 'DesignApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript',
+    description:
+      'Type a few words and get them back in cut-out paper letters with stickers scattered around them. Shuffle, then copy it into an Instagram Story as one sticker.',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    featureList: [
+      'Cut-out paper letters for your own words',
+      'Stickers scattered around the text, shuffled on demand',
+      'Drag or tap to swap any sticker',
+      'Sticker moods and packs',
+      'Transparent PNG or full 1080×1920 Story output',
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<BaseLayout
+  title="Scrap collage maker — cut-out letters and stickers for Instagram Stories | 88cutouts"
+  description="Type a few words and get them back in magazine cut-out letters with stickers around them. Shuffle until you like it, then copy it straight into your Instagram Story. Free, no account."
+  jsonld={jsonld}
+>
+  <div class="wrap">
+    <p class="crumbs"><a href="/">Home</a><span>/</span>Collage maker</p>
+
+    <div class="section-head">
+      <h1 class="tool-title">Scrap collage maker</h1>
+    </div>
+    <p class="lede">
+      Type a few words. They come back in cut-out paper letters with stickers scattered
+      around them. Shuffle until it looks right, then paste the whole thing into your
+      Story as one sticker.
+    </p>
+
+    <CollageMaker />
+
+    <article class="prose">
+      <h2>What it makes</h2>
+      <p>
+        A collage like the ones you see on Pinterest mood boards and on the first slide of a
+        good photo dump: a short line in mismatched magazine letters, with a few objects
+        stuck around it. A record in one corner, a bow on another, a plaster stuck across a
+        letter. Done by hand, that takes an app, a sticker search and twenty minutes of
+        nudging things into place. Here it takes one line of typing and a few taps of
+        Shuffle.
+      </p>
+      <p>
+        Every letter is a photograph of a real paper scrap, and every sticker comes from the
+        same hand-cut library as the rest of the site, so it all shares one paper look. The
+        arrangement is random, but within limits. Letters tilt a few degrees, not forty.
+        Stickers sit on the edge of the words and overlap them slightly, and a few slip
+        behind the letters. That layering is what makes it look pasted rather than typed.
+      </p>
+
+      <h2>Getting a good one</h2>
+      <ul>
+        <li>
+          <strong>Keep it short.</strong> Two or three words is the sweet spot. The letters
+          size themselves to fit, so a single word gets big, bold scraps and a longer line
+          gets smaller ones.
+        </li>
+        <li>
+          <strong>Shuffle the stickers and the letters separately.</strong> Once the letters
+          look right, keep them and use <em>New stickers</em> until the decoration fits.
+          It is quicker than shuffling everything again.
+        </li>
+        <li>
+          <strong>Fix the one that's wrong.</strong> If one sticker doesn't fit, tap it to swap
+          just that one, or drag it somewhere else.
+        </li>
+        <li>
+          <strong>Pick a mood for a theme.</strong> <em>Mix</em> pulls from the whole library.
+          A mood like Coquette or Retro keeps the colours together, which usually looks
+          more deliberate.
+        </li>
+        <li>
+          <strong>"A few" is often better than "Lots".</strong> Four stickers frame the words.
+          Nine turns the collage into the subject, which suits a title slide but not a
+          caption.
+        </li>
+      </ul>
+
+      <h2>Sticker or full Story?</h2>
+      <p>
+        Leave the background on <strong>None</strong> when you want the collage on top of a
+        photo. The copy is a transparent PNG cut close to the edges, so it pastes in large and
+        you can scale it down, rather than arriving small inside an empty margin. Pick a
+        <strong>colour</strong> when the collage <em>is</em> the Story: an announcement, a
+        birthday message, a title slide before a dump. That gives you a full 1080×1920 image
+        with the collage placed in the middle, clear of the areas Instagram covers with
+        its own buttons.
+      </p>
+      <p>
+        If the transparent version turns grey or white somewhere you paste it, the app you
+        are pasting into doesn't support transparency. There is a full explanation in
+        <a href="/blog/transparent-png-turns-grey-explained/">why a transparent PNG turns grey</a>,
+        and the Instagram steps are in
+        <a href="/blog/how-to-add-stickers-to-instagram-stories/">how to add stickers to Instagram Stories</a>.
+      </p>
+
+      <h2>Ideas to type</h2>
+      <p>
+        The words that work best are the ones a Story would otherwise carry as a caption:
+        a name, a date, a place, a two-word reaction. <em>special people</em> over a group
+        photo. <em>core memory</em> on the first slide of a trip. <em>happy birthday</em>
+        with their photo behind it. <em>2026</em> for a year-in-review. A place name on a
+        travel dump. For a whole sentence, set it in Instagram's own text and keep the
+        collage for the headline, as the
+        <a href="/blog/ransom-note-aesthetic-guide/">ransom note aesthetic guide</a> explains.
+      </p>
+      <p>
+        Just want the letters, with no stickers? The
+        <a href="/ransom-note/">cutout text maker</a> does that, with an opacity control for
+        see-through lettering.
+      </p>
+    </article>
+
+    {
+      packs.length > 0 && (
+        <section class="pack-strip">
+          <div class="section-head">
+            <h2>Build it from a pack</h2>
+            <a class="count" href="/packs/">All packs →</a>
+          </div>
+          <p class="lede">
+            Each pack is a themed set picked to go together. Open one to copy the whole pack
+            at once, or start a collage made only from its stickers.
+          </p>
+          <div class="pack-grid">
+            {packs.slice(0, 6).map((p) => (
+              <a class="pack-card" href={`/packs/${p.slug}/`}>
+                <div class="pack-thumbs">
+                  {p.entries.slice(0, 4).map((s) => (
+                    <img src={stickerThumb(s.data.image, 200)} alt="" width="200" height="200" loading="lazy" decoding="async" />
+                  ))}
+                </div>
+                <div class="card-meta">
+                  <div class="card-title">{p.name}</div>
+                  <div class="card-sub">{p.entries.length} stickers</div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <article class="prose">
+      <h2>FAQ</h2>
+      {
+        faq.map((f) => (
+          <>
+            <h3>{f.q}</h3>
+            <p>{f.a}</p>
+          </>
+        ))
+      }
+    </article>
+  </div>
+</BaseLayout>

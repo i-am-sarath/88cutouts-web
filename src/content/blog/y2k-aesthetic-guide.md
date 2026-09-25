@@ -101,7 +101,7 @@ The [y2k](/category/y2k/) and [retro](/category/retro/) categories here have the
 
 Y2K works unusually well small, which is not obvious but follows from its origins: it was designed for low-resolution screens. High saturation, hard contrast and simple bold shapes are exactly the properties that [survive at 48 pixels](/blog/how-to-choose-a-profile-picture/).
 
-One chrome or pixel element on a saturated gradient is a genuinely strong profile picture. The [attitude](/dp/attitude-girls/) and [stylish](/dp/stylish-girls/) DP sets lean on this.
+One chrome or pixel element on a saturated gradient is a genuinely strong profile picture. The [Y2K pixel pack](/packs/y2k-pixel/) has several that work on their own at that size.
 
 ### What to avoid
 

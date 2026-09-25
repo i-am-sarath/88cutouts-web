@@ -45,7 +45,7 @@ Two corollaries worth knowing:
 - Text placed near a corner will be clipped mid-letter. Text in a DP is already risky at 48px; text in a corner is guaranteed to fail.
 - A subject centred but scaled to fill the square edge-to-edge will lose its extremities. Faces lose ears and chins, bows lose ribbon tails, flowers lose petals.
 
-Every profile picture in the [DP gallery](/dp/) is composed with this in mind, which is why none of them place anything in the corners. If you are making your own, crop it square first and imagine a circle inside it — anything outside that circle is decoration you will lose.
+A good DP is composed with this in mind, with nothing important in the corners. If you are making your own, crop it square first and imagine a circle inside it — anything outside that circle is decoration you will lose.
 
 ## Why DPs go blurry: the four real causes
 
@@ -82,7 +82,7 @@ The counterintuitive fix is to use a simpler image. One large shape on a plain b
 
 Since almost all viewing happens at chat-list size, it is worth designing for that specifically.
 
-**High contrast between subject and background.** WhatsApp shows your DP against both the light and dark chat themes. A very pale image effectively disappears into the light theme, and a very dark one disappears into dark mode. Something mid-toned with a bright or dark focal point stays visible in both — one reason the [stylish and attitude DP sets](/dp/attitude-girls/) hold up better than pale pastel ones for a lot of people.
+**High contrast between subject and background.** WhatsApp shows your DP against both the light and dark chat themes. A very pale image effectively disappears into the light theme, and a very dark one disappears into dark mode. Something mid-toned with a bright or dark focal point stays visible in both, which is why bold, saturated DPs tend to hold up better than pale pastel ones.
 
 **One subject, large.** A face filling most of the circle. A single bow. One flower. Two elements is workable, three is the ceiling, four is mush.
 
@@ -109,7 +109,7 @@ Two things people get wrong here:
 - Changing this is not retroactive in the sense you might hope. Someone who has already screenshotted or saved your DP still has it. Privacy settings control future access, not past copies.
 - It applies to your profile photo specifically, and is separate from the settings for last seen, About and status.
 
-If you use WhatsApp for work or run a business number, this pairs with a practical point: a recognisable, non-personal DP is often the better call. A logo, an illustration, or one of the ready-made [WhatsApp DPs](/dp/whatsapp/) does the identification job without publishing a photo of you to every group you have ever been added to.
+If you use WhatsApp for work or run a business number, this pairs with a practical point: a recognisable, non-personal DP is often the better call. A logo, an illustration, or a single [sticker](/) on a plain background does the identification job without publishing a photo of you to every group you have ever been added to.
 
 ## Common questions, answered briefly
 

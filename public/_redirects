@@ -1,3 +1,7 @@
 # The DP maker was removed; its traffic belongs on the gallery it fed.
-/dp-maker      /dp/   301
-/dp-maker/*    /dp/   301
+# The DP gallery was removed too (it never had any DPs in it), so both go to
+# the collage maker, which is what the site is built around now.
+/dp-maker      /collage-maker/   301
+/dp-maker/*    /collage-maker/   301
+/dp            /collage-maker/   301
+/dp/*          /collage-maker/   301

@@ -1,0 +1,132 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PackComposer from '../../components/PackComposer.astro';
+import StickerCard from '../../components/StickerCard.astro';
+import { getPacks, type Pack } from '../../lib/packs';
+import { stickerThumb } from '../../lib/thumbs.mjs';
+
+export async function getStaticPaths() {
+  const packs = await getPacks();
+  return packs.map((pack, i) => ({
+    params: { slug: pack.slug },
+    props: {
+      pack,
+      // Three other packs, starting after this one, so every pack gets linked
+      // from somewhere rather than all of them pointing at the first three.
+      others: [1, 2, 3].map((k) => packs[(i + k) % packs.length]).filter((p) => p.slug !== pack.slug),
+    },
+  }));
+}
+
+interface Props {
+  pack: Pack;
+  others: Pack[];
+}
+
+const { pack, others } = Astro.props;
+const site = Astro.site?.href ?? 'https://88cutouts.com/';
+const url = new URL(`/packs/${pack.slug}/`, site).href;
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${pack.name} sticker pack`,
+    description: pack.blurb,
+    url,
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: pack.entries.length,
+      itemListElement: pack.entries.map((s, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: new URL(`/stickers/${s.slug}/`, site).href,
+        name: s.data.title,
+      })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: site },
+      { '@type': 'ListItem', position: 2, name: 'Sticker packs', item: new URL('/packs/', site).href },
+      { '@type': 'ListItem', position: 3, name: pack.name, item: url },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title={`${pack.title} | 88cutouts`}
+  description={pack.blurb}
+  image={pack.entries[0]?.data.image}
+  jsonld={jsonld}
+>
+  <div class="wrap">
+    <p class="crumbs">
+      <a href="/">Home</a><span>/</span><a href="/packs/">Sticker packs</a><span>/</span>{pack.name}
+    </p>
+
+    <div class="section-head">
+      <h1 class="tool-title">{pack.name} sticker pack</h1>
+      <span class="count">{pack.entries.length} stickers</span>
+    </div>
+    <p class="lede">{pack.blurb}</p>
+
+    <PackComposer pack={pack} />
+
+    <article class="prose">
+      {pack.intro.map((p) => <p>{p}</p>)}
+
+      <h2>Story ideas</h2>
+      <ul>
+        {pack.ideas.map((idea) => <li>{idea}</li>)}
+      </ul>
+
+      <h2>Placing it</h2>
+      <p>{pack.tip}</p>
+      <p>
+        Wherever you put it, keep the top 250 and bottom 320 pixels of the Story clear.
+        Instagram covers them with the profile bar and the reply field. The exact numbers
+        are in <a href="/blog/instagram-story-size-and-safe-zones/">Story size and safe zones</a>.
+      </p>
+    </article>
+
+    <div class="section-head">
+      <h2>One at a time</h2>
+    </div>
+    <p class="lede">
+      Every sticker in the pack on its own, each with its own copy button and opacity control.
+    </p>
+    <div class="grid">
+      {pack.entries.map((entry, i) => <StickerCard entry={entry} eager={i < 4} />)}
+    </div>
+
+    {
+      others.length > 0 && (
+        <section class="pack-strip">
+          <div class="section-head">
+            <h2>More packs</h2>
+            <a class="count" href="/packs/">All packs →</a>
+          </div>
+          <div class="pack-grid">
+            {others.map((p) => (
+              <a class="pack-card" href={`/packs/${p.slug}/`}>
+                <div class="pack-thumbs">
+                  {p.entries.slice(0, 4).map((s) => (
+                    <img src={stickerThumb(s.data.image, 200)} alt="" width="200" height="200" loading="lazy" decoding="async" />
+                  ))}
+                </div>
+                <div class="card-meta">
+                  <div class="card-title">{p.name}</div>
+                  <div class="card-sub">{p.entries.length} stickers</div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>

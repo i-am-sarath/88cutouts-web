@@ -1,10 +1,9 @@
-import { getAllDps, getDpCollection } from '../lib/dps';
 import { getStickers } from '../lib/stickers';
 import { stickerThumb } from '../lib/thumbs.mjs';
 
 /**
- * Powers the header search. Stickers and DPs live at different URL shapes, so
- * each entry carries its own `url` rather than the consumer assuming one.
+ * Powers the header search. Each entry carries its own `url` rather than the
+ * consumer assuming one, so other kinds of result can be added later.
  */
 export async function GET() {
   const stickers = (await getStickers()).map((i) => ({
@@ -18,17 +17,7 @@ export async function GET() {
     kind: 'sticker' as const,
   }));
 
-  const dps = (await getAllDps()).map((d) => ({
-    slug: d.slug,
-    title: d.title,
-    category: getDpCollection(d.collection)?.name ?? d.collection,
-    tags: d.tags,
-    image: `${d.thumbBase}-200.webp`,
-    url: `/dp/${d.collection}/${d.slug}/`,
-    kind: 'dp' as const,
-  }));
-
-  return new Response(JSON.stringify([...stickers, ...dps]), {
+  return new Response(JSON.stringify(stickers), {
     headers: { 'Content-Type': 'application/json' },
   });
 }

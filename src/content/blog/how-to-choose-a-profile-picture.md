@@ -79,7 +79,7 @@ Silhouette is why simple graphic profile pictures often outperform good photogra
 
 ## Things that essentially never work
 
-**Text.** At 48 pixels a word is a smear. The only version that survives is a single large letter in a heavy weight, filling most of the circle — which is why "initial" avatars exist, and why none of the DPs in the [gallery](/dp/) carry more than a word.
+**Text.** At 48 pixels a word is a smear. The only version that survives is a single large letter in a heavy weight, filling most of the circle — which is why "initial" avatars exist, and why a good DP carries a single word at most.
 
 **Group photos.** Even at 192 pixels nobody can tell which person is you.
 
@@ -89,7 +89,7 @@ Silhouette is why simple graphic profile pictures often outperform good photogra
 
 **Anything in the corners.** The circular crop removes about 21% of your square, entirely from the corners. Text, hands and hair placed near an edge get clipped.
 
-**Very low-contrast aesthetic images.** This is the painful one, because these are often the nicest-looking candidates. A soft blush-on-cream composition looks lovely at full size and vanishes at chat-list size. The fix is not to abandon the palette but to add a genuinely dark anchor somewhere in the frame — the compromise built into the [aesthetic DP](/dp/aesthetic/) and [girls DP](/dp/girls/) sets here.
+**Very low-contrast aesthetic images.** This is the painful one, because these are often the nicest-looking candidates. A soft blush-on-cream composition looks lovely at full size and vanishes at chat-list size. The fix is not to abandon the palette but to add a genuinely dark anchor somewhere in the frame: one deep-coloured cutout, a dark outline, or a darker background behind the pale subject.
 
 ## Choosing between a photo and a graphic
 
@@ -116,9 +116,9 @@ The same four properties apply, and they are easier to hit deliberately.
 
 Start with a background that has a clear value — a solid colour or a simple two-stop gradient, not a photograph. Place one large cutout in the middle, sized to about 60–70% of the frame. Give it enough contrast against the background to survive greyscale conversion. Stop there.
 
-This is exactly how every DP in the [gallery](/dp/) is composed: a simple background, one clear subject and at most one cutout, laid out in a square sized correctly for the circular crop, with nothing important near the corners that the crop will eat.
+That is the whole recipe: a simple background, one clear subject and at most one cutout, laid out in a square sized correctly for the circular crop, with nothing important near the corners that the crop will eat.
 
-If you would rather pick something ready-made, the [DP gallery](/dp/) is grouped into collections by mood — [cute](/dp/cute/), [aesthetic](/dp/aesthetic/), [attitude](/dp/attitude-girls/), [sad](/dp/sad-girl/) — all composed square for the crop.
+For the cutout, any sticker in the [library](/) will do. Download it rather than copying it, so you have the full-resolution PNG to place on your background. The [cute](/category/cute/) and [flowers](/category/flowers/) sets have the most single-subject shapes, which are the ones that survive being shrunk to a circle.
 
 ## Technical checklist
 

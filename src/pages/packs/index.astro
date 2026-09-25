@@ -1,0 +1,89 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPacks } from '../../lib/packs';
+import { stickerThumb } from '../../lib/thumbs.mjs';
+
+const site = Astro.site?.href ?? 'https://88cutouts.com/';
+const packs = await getPacks();
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Sticker packs for Instagram Stories',
+    url: new URL('/packs/', site).href,
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: packs.length,
+      itemListElement: packs.map((p, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: new URL(`/packs/${p.slug}/`, site).href,
+        name: p.name,
+      })),
+    },
+  },
+];
+---
+
+<BaseLayout
+  title="Sticker packs for Instagram Stories — copy a whole set at once | 88cutouts"
+  description={`${packs.length} themed sticker packs, from beach days and coquette bows to retro music and birthdays. Copy a whole pack into your Story in one tap, free.`}
+  image={packs[0]?.entries[0]?.data.image}
+  jsonld={jsonld}
+>
+  <div class="wrap">
+    <p class="crumbs"><a href="/">Home</a><span>/</span>Sticker packs</p>
+
+    <div class="section-head">
+      <h1 class="tool-title">Sticker packs</h1>
+      <span class="count">{packs.length} packs</span>
+    </div>
+    <p class="lede">
+      Small themed sets, each picked to dress one Story. Open a pack to copy all of it at
+      once as a single sticker, or turn it into a collage with your own words.
+    </p>
+
+    <div class="pack-grid">
+      {
+        packs.map((p) => (
+          <a class="pack-card" href={`/packs/${p.slug}/`}>
+            <div class="pack-thumbs">
+              {p.entries.slice(0, 4).map((s) => (
+                <img src={stickerThumb(s.data.image, 200)} alt="" width="200" height="200" loading="lazy" decoding="async" />
+              ))}
+            </div>
+            <div class="card-meta">
+              <div class="card-title">{p.name}</div>
+              <div class="card-sub">{p.entries.length} stickers</div>
+            </div>
+            <p class="pack-blurb">{p.blurb}</p>
+          </a>
+        ))
+      }
+    </div>
+
+    <article class="prose">
+      <h2>Why packs</h2>
+      <p>
+        The hard part of decorating a Story isn't finding one nice sticker. It's finding three
+        or four that belong together. Stickers picked one at a time tend to clash: a
+        photographic flower next to a flat cartoon heart, a pastel bow beside a saturated
+        tropical bloom. Each pack here is chosen as a set, with a shared palette and a
+        shared way of being drawn or photographed, so anything you take from it goes with
+        anything else in it.
+      </p>
+      <p>
+        Copying a pack gives you the whole set arranged as one image. Paste it, scale it
+        down and put it in a corner. Or paste it twice, once in each corner, for a framed
+        look. If you only want one sticker, every pack page lists them individually as well,
+        each with its own copy button and opacity control.
+      </p>
+      <p>
+        Want a pack with words on it? Every pack opens in the
+        <a href="/collage-maker/">collage maker</a> limited to that pack's stickers: type a
+        name, a date or a two-word caption, and the pack is scattered around it.
+      </p>
+    </article>
+  </div>
+</BaseLayout>

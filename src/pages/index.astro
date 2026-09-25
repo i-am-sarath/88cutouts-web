@@ -4,6 +4,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import CategoryPills from '../components/CategoryPills.astro';
 import StickerCard from '../components/StickerCard.astro';
 import StickerShuffle from '../components/StickerShuffle.astro';
+import { getPacks } from '../lib/packs';
+import { stickerThumb } from '../lib/thumbs.mjs';
 
 const all = await getStickers();
 
@@ -17,6 +19,8 @@ const fresh = [...all].sort((a, b) => b.data.date.valueOf() - a.data.date.valueO
 
 /** Hand-picked in the CMS — the ones that get used most. */
 const popular = all.filter((s) => s.data.featured).slice(0, 8);
+
+const packs = await getPacks();
 
 const categories = [...new Set(all.map((s) => s.data.category))].sort();
 
@@ -99,6 +103,21 @@ const jsonld = [
   <div class="wrap">
     <CategoryPills active="all" />
 
+    <section class="home-maker">
+      <div>
+        <h2>Make a scrap collage</h2>
+        <p>
+          Type a few words and get them back in cut-out paper letters with stickers scattered
+          around them. Shuffle until it looks right, then paste it into your Story as one
+          sticker.
+        </p>
+      </div>
+      <div class="action-row">
+        <a class="btn-copy" href="/collage-maker/">Open the collage maker</a>
+        <a class="btn-download" href="/packs/">Sticker packs</a>
+      </div>
+    </section>
+
     {
       fresh.length > 0 && (
         <>
@@ -139,6 +158,35 @@ const jsonld = [
       )
     }
 
+    {
+      packs.length > 0 && (
+        <section class="pack-strip">
+          <div class="section-head">
+            <h2>Sticker packs</h2>
+            <a class="count" href="/packs/">All {packs.length} packs →</a>
+          </div>
+          <p class="lede">
+            Themed sets picked to go together. Copy a whole pack into your Story in one tap.
+          </p>
+          <div class="pack-grid">
+            {packs.slice(0, 4).map((p) => (
+              <a class="pack-card" href={`/packs/${p.slug}/`}>
+                <div class="pack-thumbs">
+                  {p.entries.slice(0, 4).map((e) => (
+                    <img src={stickerThumb(e.data.image, 200)} alt="" width="200" height="200" loading="lazy" decoding="async" />
+                  ))}
+                </div>
+                <div class="card-meta">
+                  <div class="card-title">{p.name}</div>
+                  <div class="card-sub">{p.entries.length} stickers</div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
     <StickerShuffle
       pool={all}
       count={6}
@@ -162,7 +210,8 @@ const jsonld = [
           </a>
         ))}
         <a class="pill" href="/ransom-note/">✦ cutout text</a>
-        <a class="pill" href="/dp/">✦ profile pictures</a>
+        <a class="pill" href="/collage-maker/">✦ collage maker</a>
+        <a class="pill" href="/packs/">✦ sticker packs</a>
       </nav>
     </section>
 
@@ -239,8 +288,12 @@ const jsonld = [
           letters, at whatever opacity you want. Best for two or three words.
         </li>
         <li>
-          <a href="/dp/">Profile pictures</a> — ready-made square DPs composed for the
-          circular crop WhatsApp and Instagram apply.
+          <a href="/collage-maker/">Collage maker</a> — your words in cut-out letters with
+          stickers scattered around them, shuffled until it looks right.
+        </li>
+        <li>
+          <a href="/packs/">Sticker packs</a> — themed sets you can copy into a Story all at
+          once.
         </li>
         <li>
           <a href="/blog/">The blog</a> — sizing, safe zones, file formats, and the

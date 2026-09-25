@@ -88,7 +88,7 @@ Then: one large bow overlapping the subject, one or two small punctuation elemen
 
 Coquette is challenging as a profile picture because a DP is displayed as a small circle, and low-contrast pastel work loses definition at that size. The way through is to break your own palette rule slightly: use the deep accent more heavily than you would in a full-size image, so there is something with real tonal weight to hold the shape.
 
-The [girls DP](/dp/girls/) and [WhatsApp DP for girls](/dp/whatsapp-girls/) sets are built around this compromise — soft palettes with an anchor dark enough to survive a 48-pixel chat list.
+In practice that means a soft palette with one anchor dark enough to survive a 48-pixel chat list: a black bow on blush, or a cherry-red one on cream. The [coquette bows pack](/packs/coquette-bows/) includes a black polka-dot bow for exactly this reason.
 
 ### To a feed or grid
 

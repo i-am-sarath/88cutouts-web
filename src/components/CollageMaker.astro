@@ -1,0 +1,402 @@
+---
+/**
+ * The scrap collage maker: type a message, get it back in cut-out letters with
+ * stickers scattered around it, shuffle until it looks right, then copy the
+ * whole thing into a Story as one sticker.
+ *
+ * The sticker pool (and the packs, so ?pack=<slug> can narrow it) ships as a
+ * JSON blob in the page. Stickers are drawn from their 512px WebP thumbnails:
+ * about 10 KB each, so a shuffle swaps nine stickers in well under a second.
+ */
+import { getStickers } from '../lib/stickers';
+import { getPacks } from '../lib/packs';
+import { stickerThumb } from '../lib/thumbs.mjs';
+
+/** Categories a mood chip can filter to. Everything else is only in "Mix". */
+const moods = [
+  { id: 'mix', label: 'Mix' },
+  { id: 'cute', label: 'Cute' },
+  { id: 'coquette', label: 'Coquette' },
+  { id: 'flowers', label: 'Flowers' },
+  { id: 'aesthetic', label: 'Beachy' },
+  { id: 'retro', label: 'Retro' },
+  { id: 'hearts', label: 'Hearts' },
+];
+
+const presets = [
+  'special people',
+  'happy birthday',
+  'my girls',
+  'photo dump',
+  'miss you',
+  'core memory',
+  'bestie',
+  'weekend',
+  'love you',
+  '2026',
+];
+
+// Frames and ready-made word stickers would fight the message for attention.
+const stickers = (await getStickers()).filter(
+  (s) => s.data.type !== 'frame' && s.data.category !== 'text'
+);
+const pool = stickers.map((s) => ({ src: stickerThumb(s.data.image, 512), cat: s.data.category }));
+
+const packs = Object.fromEntries(
+  (await getPacks()).map((p) => [
+    p.slug,
+    { name: p.name, srcs: p.entries.map((s) => stickerThumb(s.data.image, 512)) },
+  ])
+);
+
+const data = JSON.stringify({ pool, packs, presets });
+---
+
+<div class="collage-tool">
+  <div class="ct-input">
+    <div class="tt-step">
+      <span class="tt-step-n">1</span>
+      <h3>Type your words</h3>
+    </div>
+    <label class="sr-only" for="ct-text">Your message</label>
+    <input
+      id="ct-text"
+      class="ct-text"
+      type="text"
+      maxlength="40"
+      autocomplete="off"
+      autocapitalize="none"
+      spellcheck="false"
+      placeholder="special people"
+    />
+    <div class="tt-presets" role="group" aria-label="Example phrases">
+      {presets.map((p) => <button type="button" class="chip" data-preset={p}>{p}</button>)}
+    </div>
+  </div>
+
+  <div class="ct-stage">
+    <div class="ct-frame" data-bg="none">
+      <canvas
+        id="ct-canvas"
+        role="img"
+        aria-label="Preview of your collage: your words in cut-out letters with stickers around them"
+      ></canvas>
+    </div>
+    <p class="ct-hint">Drag a sticker to move it · tap one to swap it</p>
+  </div>
+
+  <div class="ct-controls">
+    <div class="tt-step">
+      <span class="tt-step-n">2</span>
+      <h3>Shuffle until it's right</h3>
+    </div>
+    <button type="button" class="btn-copy ct-shuffle-all" id="ct-shuffle">✦ Shuffle everything</button>
+    <div class="ct-row">
+      <button type="button" class="chip tt-shuffle" id="ct-shuffle-stickers">↻ New stickers</button>
+      <button type="button" class="chip tt-shuffle" id="ct-shuffle-letters">↻ New letters</button>
+    </div>
+
+    <p class="ct-label" id="ct-mood-label">Sticker mood</p>
+    <div class="ct-row" role="group" aria-labelledby="ct-mood-label" id="ct-moods">
+      <button type="button" class="chip" data-mood="pack" aria-pressed="false" hidden></button>
+      {
+        moods.map((m, i) => (
+          <button type="button" class="chip" data-mood={m.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+            {m.label}
+          </button>
+        ))
+      }
+    </div>
+
+    <p class="ct-label" id="ct-count-label">How many stickers</p>
+    <div class="ct-row" role="group" aria-labelledby="ct-count-label">
+      <button type="button" class="chip" data-count="4" aria-pressed="false">A few</button>
+      <button type="button" class="chip" data-count="6" aria-pressed="true">Some</button>
+      <button type="button" class="chip" data-count="9" aria-pressed="false">Lots</button>
+    </div>
+
+    <p class="ct-label" id="ct-bg-label">Background</p>
+    <div class="ct-row" role="group" aria-labelledby="ct-bg-label">
+      <button type="button" class="chip" data-bg="" aria-pressed="true">None</button>
+      <button type="button" class="chip ct-swatch" data-bg="#FFFFFF" aria-pressed="false"><i style="background:#FFFFFF"></i>White</button>
+      <button type="button" class="chip ct-swatch" data-bg="#F6EFE4" aria-pressed="false"><i style="background:#F6EFE4"></i>Cream</button>
+      <button type="button" class="chip ct-swatch" data-bg="#FFE1E8" aria-pressed="false"><i style="background:#FFE1E8"></i>Blush</button>
+      <button type="button" class="chip ct-swatch" data-bg="#1E1E1E" aria-pressed="false"><i style="background:#1E1E1E"></i>Black</button>
+    </div>
+
+    <div class="tt-step">
+      <span class="tt-step-n">3</span>
+      <h3>Copy it into your Story</h3>
+    </div>
+    <div class="action-row">
+      <button id="ct-copy" class="btn-copy" type="button">Copy</button>
+      <button id="ct-download" class="btn-download" type="button">Download</button>
+    </div>
+    <p class="copy-hint" id="ct-copy-hint">
+      With no background it pastes into a Story as <strong>one sticker</strong> you can pinch,
+      move and rotate. Pick a background for a full 1080×1920 Story instead.
+    </p>
+  </div>
+
+  <script type="application/json" id="ct-data" set:html={data} />
+</div>
+
+<script>
+  import {
+    Stage,
+    preload,
+    toast,
+    copyCanvas,
+    downloadCanvas,
+    pick,
+    rand,
+    shuffled,
+    boundsOf,
+    type Item,
+  } from '../lib/collage/engine';
+  import {
+    syncSlots,
+    layoutLetters,
+    scatterStickers,
+    swapSticker,
+    clusterStickers,
+    type Slot,
+    type Manifest,
+  } from '../lib/collage/layout';
+  import { track } from '../lib/track';
+
+  interface Data {
+    pool: { src: string; cat: string }[];
+    packs: Record<string, { name: string; srcs: string[] }>;
+    presets: string[];
+  }
+
+  const data: Data = JSON.parse(document.getElementById('ct-data')!.textContent || '{}');
+  const input = document.getElementById('ct-text') as HTMLInputElement;
+  const canvas = document.getElementById('ct-canvas') as HTMLCanvasElement;
+  const frame = canvas.parentElement as HTMLElement;
+
+  let manifest: Manifest = {};
+  let slots: Slot[] = [];
+  let lineShift: number[] = [];
+  let letters: Item[] = [];
+  let stickers: Item[] = [];
+  let H = 150;
+  let mood = 'mix';
+  let count = 6;
+  let token = 0;
+
+  const params = new URLSearchParams(location.search);
+  const packSlug = params.get('pack');
+  const pack = packSlug ? data.packs[packSlug] : undefined;
+
+  function freshShift() {
+    lineShift = Array.from({ length: 4 }, () => rand(-0.35, 0.35));
+  }
+  freshShift();
+
+  function moodPool(): string[] {
+    if (mood === 'pack' && pack) return pack.srcs;
+    const all = data.pool.filter((p) => mood === 'mix' || p.cat === mood).map((p) => p.src);
+    return all.length ? all : data.pool.map((p) => p.src);
+  }
+
+  const stage = new Stage({
+    canvas,
+    onTap: async (i) => {
+      const it = stage.items[i];
+      const inUse = new Set(stage.items.map((s) => s.src));
+      const options = moodPool().filter((s) => !inUse.has(s));
+      if (!options.length) return;
+      const [src] = await preload([pick(options)]);
+      if (!src) return;
+      const next = swapSticker(it, src);
+      stage.items[i] = next;
+      stickers = stage.items.filter((s) => s.kind === 'sticker');
+      stage.draw();
+      track('collage_swap', {});
+    },
+    onDragEnd: () => {
+      stickers = stage.items.filter((s) => s.kind === 'sticker');
+      track('collage_drag', {});
+    },
+  });
+
+  /**
+   * Keeps the stickers where they were relative to the words while you type,
+   * instead of re-scattering them on every keystroke: each one is moved and
+   * scaled with the text block, from the old block to the new one.
+   */
+  function follow(prev: Item[], next: Item[], prevH: number, nextH: number) {
+    if (!prev.length || !next.length || !stickers.length) return;
+    const a = boundsOf(prev);
+    const b = boundsOf(next);
+    const k = nextH / prevH;
+    const acx = (a.x0 + a.x1) / 2, acy = (a.y0 + a.y1) / 2;
+    const bcx = (b.x0 + b.x1) / 2, bcy = (b.y0 + b.y1) / 2;
+    const ahw = (a.x1 - a.x0) / 2, ahh = (a.y1 - a.y0) / 2;
+    const bhw = (b.x1 - b.x0) / 2, bhh = (b.y1 - b.y0) / 2;
+    const along = (d: number, ah: number, bh: number) => {
+      // Inside the block: scale with it. Outside: keep the distance past the edge.
+      const edge = Math.min(Math.abs(d), ah);
+      const past = Math.abs(d) - edge;
+      return Math.sign(d) * ((ah ? (edge / ah) * bh : 0) + past * k);
+    };
+    stickers = stickers.map((s) => ({
+      ...s,
+      x: bcx + along(s.x - acx, ahw, bhw),
+      y: bcy + along(s.y - acy, ahh, bhh),
+      w: s.w * k,
+      h: s.h * k,
+    }));
+  }
+
+  async function rebuild(opts: { letters?: boolean; stickers?: boolean } = {}) {
+    const my = ++token;
+    const text = input.value.replace(/\s+/g, ' ').trimStart().slice(0, 40);
+
+    if (opts.letters) {
+      slots = [];
+      freshShift();
+    }
+    slots = syncSlots(slots, text, manifest);
+    const loaded = new Set(await preload(slots.map((s) => s.src).filter((s): s is string => !!s)));
+    if (my !== token) return;
+    // A scrap that failed to load falls back to a drawn paper tile, not a gap.
+    for (const s of slots) if (s.src && !loaded.has(s.src)) s.src = null;
+
+    const prevLetters = letters;
+    const prevH = H;
+    const laid = layoutLetters(slots, lineShift);
+    letters = laid.items;
+    H = laid.H;
+
+    if (opts.stickers || !stickers.length) {
+      // A few spares, since an anchor that would pile onto a neighbour is skipped.
+      const srcs = await preload(shuffled(moodPool()).slice(0, count + 4));
+      if (my !== token) return;
+      stickers = letters.length ? scatterStickers(letters, H, srcs, count) : clusterStickers(srcs.slice(0, count));
+    } else {
+      follow(prevLetters, letters, prevH, H);
+    }
+
+    stage.set([...letters, ...stickers]);
+  }
+
+  let urlTimer = 0;
+  function remember() {
+    clearTimeout(urlTimer);
+    urlTimer = window.setTimeout(() => {
+      const p = new URLSearchParams(location.search);
+      if (input.value.trim()) p.set('t', input.value.trim());
+      else p.delete('t');
+      const q = p.toString();
+      history.replaceState(null, '', location.pathname + (q ? `?${q}` : ''));
+    }, 600);
+  }
+
+  input.addEventListener('input', () => {
+    rebuild();
+    remember();
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('.collage-tool [data-preset]').forEach((b) =>
+    b.addEventListener('click', () => {
+      input.value = b.dataset.preset || '';
+      rebuild({ letters: true, stickers: true });
+      remember();
+      track('collage_preset', { phrase: input.value });
+    })
+  );
+
+  document.getElementById('ct-shuffle')?.addEventListener('click', () => {
+    rebuild({ letters: true, stickers: true });
+    track('collage_shuffle', { what: 'all' });
+  });
+  document.getElementById('ct-shuffle-stickers')?.addEventListener('click', () => {
+    rebuild({ stickers: true });
+    track('collage_shuffle', { what: 'stickers' });
+  });
+  document.getElementById('ct-shuffle-letters')?.addEventListener('click', () => {
+    rebuild({ letters: true });
+    track('collage_shuffle', { what: 'letters' });
+  });
+
+  /** Makes a group of chips behave like radio buttons. */
+  function radio(selector: string, onPick: (b: HTMLButtonElement) => void) {
+    const chips = [...document.querySelectorAll<HTMLButtonElement>(selector)];
+    chips.forEach((b) =>
+      b.addEventListener('click', () => {
+        chips.forEach((c) => c.setAttribute('aria-pressed', c === b ? 'true' : 'false'));
+        onPick(b);
+      })
+    );
+    return chips;
+  }
+
+  const moodChips = radio('#ct-moods [data-mood]', (b) => {
+    mood = b.dataset.mood || 'mix';
+    rebuild({ stickers: true });
+    track('collage_mood', { mood });
+  });
+
+  radio('.collage-tool [data-count]', (b) => {
+    count = Number(b.dataset.count) || 6;
+    rebuild({ stickers: true });
+  });
+
+  const hint = document.getElementById('ct-copy-hint');
+  radio('.ct-controls [data-bg]', (b) => {
+    const bg = b.dataset.bg || null;
+    stage.background = bg;
+    frame.dataset.bg = bg ? 'solid' : 'none';
+    frame.style.backgroundColor = bg ?? '';
+    stage.draw();
+    if (hint) {
+      hint.innerHTML = bg
+        ? 'A full <strong>1080×1920 Story</strong> — post it as it is, or download it and add a photo behind it.'
+        : 'With no background it pastes into a Story as <strong>one sticker</strong> you can pinch, move and rotate. Pick a background for a full 1080×1920 Story instead.';
+    }
+  });
+
+  function ready(): boolean {
+    if (stage.items.length) return true;
+    toast('Type a word or tap a phrase first.');
+    input.focus();
+    return false;
+  }
+
+  document.getElementById('ct-copy')?.addEventListener('click', async () => {
+    if (!ready()) return;
+    const ok = await copyCanvas(stage.export());
+    toast(ok ? 'Copied! Long-press in your Story to paste.' : "Copy isn't supported here — tap Download instead.");
+    track(ok ? 'collage_copy' : 'collage_copy_unsupported', { bg: stage.background ?? 'none', stickers: stickers.length });
+  });
+
+  document.getElementById('ct-download')?.addEventListener('click', () => {
+    if (!ready()) return;
+    const slug = input.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'collage';
+    downloadCanvas(stage.export(), `${slug}${stage.background ? '-story' : ''}-88cutouts.png`);
+    track('collage_download', { bg: stage.background ?? 'none', stickers: stickers.length });
+  });
+
+  // ---- start ------------------------------------------------------------------
+
+  if (pack) {
+    const chip = moodChips.find((c) => c.dataset.mood === 'pack')!;
+    chip.hidden = false;
+    chip.textContent = pack.name;
+    moodChips.forEach((c) => c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'));
+    mood = 'pack';
+  }
+
+  input.value = params.get('t')?.slice(0, 40) || data.presets[0] || '';
+
+  fetch('/ransom-letters-manifest.json')
+    .then((r) => r.json())
+    .catch(() => ({}))
+    .then((m: Manifest) => {
+      manifest = m;
+      rebuild({ letters: true, stickers: true });
+    });
+</script>

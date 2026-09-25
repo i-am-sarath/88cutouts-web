@@ -117,7 +117,7 @@ Instagram gives you a few free modifications once the sticker is on the canvas:
 - **Long-press then drag** to reorder above or below text layers in newer app versions.
 - **Draw behind it.** Use the pen tool *before* placing the sticker if you want a hand-drawn halo or underline behind a cutout — the drawing sits on its own layer underneath.
 
-For anything more involved — a specific message in cut-out letters — the [cutout text maker](/ransom-note/) turns typed text into a transparent letter collage, and for a profile picture the [DP gallery](/dp/) has ready-made ones. Both hand you a PNG you can paste using exactly the methods above.
+For anything more involved — a specific message in cut-out letters — the [cutout text maker](/ransom-note/) turns typed text into a transparent letter collage, and the [collage maker](/collage-maker/) adds stickers around it. If you want several stickers at once, a [sticker pack](/packs/) copies a whole themed set as one image. All of them hand you a PNG you can paste using exactly the methods above.
 
 ## Quick troubleshooting
 

@@ -170,6 +170,17 @@ main { flex: 1 0 auto; padding-bottom: 3.5rem; }
   .site-header .wrap { flex-wrap: wrap; min-height: 0; }
   .search-wrap { order: 3; flex-basis: 100%; }
   .logo { font-size: 1.5rem; }
+  /* Five links don't fit beside the logo on a phone. Give them their own row,
+     and let it scroll sideways rather than push the page wider. */
+  .header-nav {
+    flex-basis: 100%;
+    margin-left: 0;
+    gap: 1rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+  }
+  .header-nav::-webkit-scrollbar { display: none; }
 }
 
 /* ---------- search ---------- */
@@ -1128,7 +1139,7 @@ main { flex: 1 0 auto; padding-bottom: 3.5rem; }
 }
 
 .site-footer .logo { font-size: 1.35rem; color: var(--ink); }
-.site-footer nav { display: flex; gap: 1.1rem; font-weight: 600; }
+.site-footer nav { display: flex; flex-wrap: wrap; gap: 0.5rem 1.1rem; font-weight: 600; }
 .site-footer nav a:hover { color: var(--ink); }
 .site-footer .copy { margin-left: auto; }
 
@@ -1164,6 +1175,186 @@ main { flex: 1 0 auto; padding-bottom: 3.5rem; }
   #global-toast { left: auto; right: 1.4rem; transform: translateY(10px); }
   #global-toast.show { transform: translateY(0); }
 }
+
+/* ---------- collage maker & sticker packs ---------- */
+
+.tool-title { font-size: clamp(1.8rem, 5vw, 2.3rem); }
+
+/* Phone: words, then the preview, then the controls, so what you type is
+   visible right under the box. Wide: the Story preview on the left, everything
+   you can change on the right. */
+.collage-tool {
+  display: grid;
+  grid-template-areas: 'input' 'stage' 'controls';
+  gap: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 1.2rem;
+}
+
+.pack-tool { grid-template-areas: 'stage' 'controls'; }
+
+@media (min-width: 860px) {
+  .collage-tool {
+    grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+    grid-template-areas: 'stage input' 'stage controls';
+    grid-template-rows: auto 1fr;
+    column-gap: 2rem;
+    padding: 1.6rem;
+  }
+  .pack-tool { grid-template-areas: 'stage controls'; grid-template-rows: auto; }
+}
+
+.ct-input { grid-area: input; display: grid; gap: 0.7rem; align-content: start; }
+.ct-stage { grid-area: stage; }
+.ct-controls { grid-area: controls; display: grid; gap: 0.7rem; align-content: start; }
+
+.ct-text {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.ct-text:focus { border-color: var(--accent); background: var(--surface); outline: none; }
+
+/* A 9:16 Story frame. Capped by viewport height on a phone so there is always
+   page left above or below it to scroll on: the canvas itself captures touch
+   for dragging stickers. */
+.ct-frame {
+  aspect-ratio: 9 / 16;
+  width: min(100%, 380px, calc(62vh * 9 / 16));
+  margin-inline: auto;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background-color: var(--checker-a);
+  background-image:
+    linear-gradient(45deg, var(--checker-b) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--checker-b) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--checker-b) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--checker-b) 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+}
+
+.ct-frame[data-bg='solid'] { background-image: none; }
+
+.ct-frame canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.ct-hint {
+  margin-top: 0.55rem;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.ct-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.ct-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 0.3rem;
+}
+
+.ct-shuffle-all {
+  justify-self: start;
+  font-size: 1.05rem;
+  padding: 0.8rem 1.8rem;
+}
+
+.ct-swatch { display: inline-flex; align-items: center; gap: 0.35rem; }
+
+.ct-swatch i {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  border: 1px solid rgba(43, 43, 43, 0.25);
+}
+
+.pk-collage { justify-self: start; text-align: center; }
+
+.pack-strip { margin-top: 1rem; }
+
+.pack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1.4rem;
+}
+
+@media (max-width: 480px) {
+  .pack-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+}
+
+.pack-card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.pack-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(43, 43, 43, 0.09);
+}
+
+.pack-card:active { transform: scale(0.97); }
+
+/* Four stickers from the pack as a 2x2 sheet. */
+.pack-thumbs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.2rem;
+  padding: 0.7rem;
+  background: var(--surface-alt);
+}
+
+.pack-thumbs img { width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; }
+
+.pack-blurb {
+  padding: 0 0.9rem 0.9rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Home page call-out for the collage maker. */
+.home-maker {
+  display: grid;
+  gap: 1.2rem;
+  align-items: center;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.4rem;
+  margin-top: 1.4rem;
+}
+
+@media (min-width: 720px) {
+  .home-maker { grid-template-columns: 1fr auto; padding: 1.8rem 2rem; }
+}
+
+.home-maker h2 { font-size: 1.6rem; margin-bottom: 0.35rem; }
+.home-maker p { color: var(--muted); font-weight: 600; max-width: 52ch; }
+.home-maker .action-row { justify-content: flex-start; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

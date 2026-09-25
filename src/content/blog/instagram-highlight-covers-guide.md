@@ -137,6 +137,6 @@ Poor candidates: a chronological dump of everything, anything time-sensitive tha
 
 ## Tying it to the rest of the profile
 
-The strongest profiles treat the [profile picture](/dp/), the Highlight covers and the grid as one system — same palette, same rendering style, same level of contrast. That is not extra work if you decide the palette once; it is the same work applied consistently, which is the whole argument in [building a cohesive aesthetic](/blog/build-a-cohesive-instagram-aesthetic/).
+The strongest profiles treat the [profile picture](/blog/how-to-choose-a-profile-picture/), the Highlight covers and the grid as one system — same palette, same rendering style, same level of contrast. That is not extra work if you decide the palette once; it is the same work applied consistently, which is the whole argument in [building a cohesive aesthetic](/blog/build-a-cohesive-instagram-aesthetic/).
 
 Practically, the easiest version: pick five cutouts from a single [category](/), put them on one background colour, and use a sixth from the same category in your profile picture. The set will read as designed, and it takes about fifteen minutes.

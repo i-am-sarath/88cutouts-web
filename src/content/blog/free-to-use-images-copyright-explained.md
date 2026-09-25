@@ -132,7 +132,7 @@ The practical exposure is low for a personal Story and meaningfully higher the m
 
 ## The terms on this site, plainly
 
-Everything in the [sticker library](/), the [DP gallery](/dp/) and the [cutout text maker](/ransom-note/) is original work made for this site, and it is **free for personal use** with no account, no attribution requirement and no watermark.
+Everything in the [sticker library](/), the [sticker packs](/packs/), the [collage maker](/collage-maker/) and the [cutout text maker](/ransom-note/) is original work made for this site, and it is **free for personal use** with no account, no attribution requirement and no watermark.
 
 What that covers: Instagram Stories, WhatsApp, group chats, profile pictures, printed cards, invitations, school and college projects, your own personal blog.
 
