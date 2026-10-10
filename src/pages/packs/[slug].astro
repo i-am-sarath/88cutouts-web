@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
 import PackComposer from '../../components/PackComposer.astro';
 import StickerCard from '../../components/StickerCard.astro';
 import { getPacks, type Pack } from '../../lib/packs';
@@ -92,6 +93,8 @@ const jsonld = [
         are in <a href="/blog/instagram-story-size-and-safe-zones/">Story size and safe zones</a>.
       </p>
     </article>
+
+    <AdSlot />
 
     <div class="section-head">
       <h2>One at a time</h2>

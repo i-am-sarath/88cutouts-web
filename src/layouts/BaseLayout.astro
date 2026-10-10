@@ -2,6 +2,7 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Toast from '../components/Toast.astro';
+import PrivacyChoices from '../components/PrivacyChoices.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -86,48 +87,7 @@ const ADSENSE_ACCOUNT = import.meta.env.PUBLIC_ADSENSE_ACCOUNT ?? 'ca-pub-638426
       ))
     }
 
-    {
-      GA_ID && (
-        <>
-          <script is:inline define:vars={{ GA_ID }}>
-            // Never count local development or `astro preview` traffic.
-            var h = location.hostname;
-            if (
-              h !== 'localhost' &&
-              h !== '127.0.0.1' &&
-              h !== '[::1]' &&
-              !h.endsWith('.local')
-            ) {
-              // The queue is set up immediately, so a page_view — or a Copy
-              // tapped before the library arrives — is buffered in dataLayer
-              // and flushed once gtag.js loads. Nothing is lost.
-              window.dataLayer = window.dataLayer || [];
-              window.gtag = function () {
-                dataLayer.push(arguments);
-              };
-              gtag('js', new Date());
-              gtag('config', GA_ID);
 
-              // gtag.js is ~170 KB. Loading it eagerly competes with the
-              // thumbnails for bandwidth and pushed mobile LCP to 5.7s on the
-              // gallery, so it waits until the page has finished loading.
-              var load = function () {
-                var s = document.createElement('script');
-                s.async = true;
-                s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
-                document.head.appendChild(s);
-              };
-              var idle = function () {
-                if (window.requestIdleCallback) requestIdleCallback(load, { timeout: 3000 });
-                else setTimeout(load, 1200);
-              };
-              if (document.readyState === 'complete') idle();
-              else addEventListener('load', idle, { once: true });
-            }
-          </script>
-        </>
-      )
-    }
   </head>
   <body>
     <a class="sr-only" href="#main">Skip to content</a>
@@ -137,5 +97,29 @@ const ADSENSE_ACCOUNT = import.meta.env.PUBLIC_ADSENSE_ACCOUNT ?? 'ca-pub-638426
     </main>
     <Footer />
     <Toast />
+    <PrivacyChoices analyticsId={GA_ID} />
+    {
+      ADSENSE_ACCOUNT && (
+        <script is:inline define:vars={{ adClient: ADSENSE_ACCOUNT }}>
+          // Every ad slot sits below the fold, so the ~150 KB AdSense loader waits
+          // for the page to finish loading instead of competing with the thumbnails.
+          // Never loads on localhost, so local testing can't record invalid impressions.
+          (() => {
+            if (['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)) return;
+            if (!document.querySelector('ins.adsbygoogle')) return;
+            const load = () => {
+              const s = document.createElement('script');
+              s.async = true;
+              s.crossOrigin = 'anonymous';
+              s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + adClient;
+              document.head.appendChild(s);
+            };
+            const idle = () => ('requestIdleCallback' in window ? requestIdleCallback(load, { timeout: 2000 }) : setTimeout(load, 200));
+            if (document.readyState === 'complete') idle();
+            else addEventListener('load', idle, { once: true });
+          })();
+        </script>
+      )
+    }
   </body>
 </html>

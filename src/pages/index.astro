@@ -1,6 +1,7 @@
 ---
 import { getStickers } from '../lib/stickers';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import AdSlot from '../components/AdSlot.astro';
 import CategoryPills from '../components/CategoryPills.astro';
 import StickerCard from '../components/StickerCard.astro';
 import StickerShuffle from '../components/StickerShuffle.astro';
@@ -45,7 +46,7 @@ const faq = [
   },
   {
     q: 'What format are the files?',
-    a: 'Transparent PNG-32, trimmed to the artwork and normalised to a 900 pixel maximum edge. That is large enough to fill a good part of a Story without softening, and small enough to paste instantly.',
+    a: 'PNG images with transparency. Dimensions and transparent margins vary; check the file details on each sticker page before enlarging it.',
   },
 ];
 
@@ -115,6 +116,7 @@ const jsonld = [
       <div class="action-row">
         <a class="btn-copy" href="/collage-maker/">Open the collage maker</a>
         <a class="btn-download" href="/packs/">Sticker packs</a>
+        <a class="btn-download" href="/symbols/">Symbols &amp; dot art</a>
       </div>
     </section>
 
@@ -232,6 +234,8 @@ const jsonld = [
       )
     }
 
+    <AdSlot />
+
     <article class="prose home-prose">
       <h2>What these are, and how to use them</h2>
       <p>
@@ -269,13 +273,13 @@ const jsonld = [
       <h2>Why the library is small</h2>
       <p>
         {stickers.length} cutouts is not a lot next to a stock site, and that is deliberate.
-        Every one is drawn or photographed for this site, cut out by hand, cleaned at the
-        edges so no grey halo survives on a dark background, trimmed to the artwork and
-        normalised to a 900 pixel maximum edge. A pack of ten thousand auto-traced PNGs is
-        worse than fifty that actually paste cleanly.
+        Browse by subject, compare the PNG against light and dark backgrounds, and check
+        the file and artwork dimensions on each detail page. Start with a themed pack if
+        you want a coordinated set, or use the collage maker to arrange a message.
+
       </p>
       <p>
-        If you want to make your own to the same standard, the
+        To make your own cutouts, the
         <a href="/blog/how-to-make-transparent-png-stickers/">guide to cutting transparent PNGs</a>
         walks through the edge decontamination step most tutorials skip — it is the reason
         stickers from elsewhere often show a faint outline once they are on a photo.

@@ -1,0 +1,147 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { symbols, symbolCategories } from '../data/symbols';
+---
+
+<BaseLayout title="Aesthetic symbols & dot art to copy and paste | 88cutouts" description="Copy free aesthetic dots, stars, hearts, dividers, cute faces and original Braille dot art for your Instagram bio, captions and messages.">
+  <div class="wrap symbols-page">
+    <p class="crumbs"><a href="/">Home</a><span>/</span>Symbols &amp; dot art</p>
+    <header class="symbols-hero">
+      <div>
+        <p class="eyebrow">Little details for your words</p>
+        <h1>Symbols &amp; dot art</h1>
+        <p class="lede">A few dots, a little heart, a whole tiny universe. Copy a favourite and paste it into your bio, caption or message.</p>
+      </div>
+      <div class="sampler" aria-hidden="true"><span>✧ · ♡ · ✧</span><span>· ˚ ○ ˚ ·</span><span>── ☾ · ⋆ ──</span></div>
+    </header>
+
+    <section aria-label="Symbol library" id="symbol-library">
+      <div class="symbol-controls" hidden>
+        <label class="symbol-search">Search symbols
+          <input type="search" id="symbol-search" placeholder="Try hearts, moon or flower…" autocomplete="off" aria-controls="symbol-grid" />
+        </label>
+        <div class="symbol-filters" role="group" aria-label="Filter by category">
+          {['All', ...symbolCategories].map(category => <button type="button" data-category={category} aria-pressed={category === 'All'}>{category}</button>)}
+        </div>
+      </div>
+      <div class="section-head"><h2>Find your little detail</h2><p class="count" id="symbol-count" role="status">{symbols.length} designs</p></div>
+      <p class="symbol-hint">Copy the text, then paste wherever you write. Dot art keeps its shape best when line breaks and spacing stay intact.</p>
+      <div class="symbol-grid" id="symbol-grid">
+        {symbols.map(entry => <article class:list={['symbol-card', { 'is-dot-art': entry.category === 'Dot art' }]} id={entry.id} data-category={entry.category} data-search={[entry.title, entry.category, entry.text, ...entry.tags].join(' ').toLowerCase()}>
+          <pre class="symbol-preview" aria-label={entry.title}>{entry.text}</pre>
+          <div class="symbol-meta"><div><h3>{entry.title}</h3><p>{entry.category === 'Dot art' ? 'Dot art · detailed drawing' : entry.category}</p></div><button type="button" class="symbol-copy" data-copy aria-label={`Copy ${entry.title}`} hidden>Copy</button></div>
+        </article>)}
+      </div>
+      <div class="symbol-empty" hidden><h3>No symbols found</h3><p>Try a shorter search or browse all designs.</p><button type="button" class="btn-download" id="symbol-reset">Show all designs</button></div>
+      <p class="symbol-status" role="status" aria-live="polite" aria-atomic="true"></p>
+      <div class="manual-copy" hidden>
+        <label for="manual-symbol">Select this text and copy it with your device’s copy command.</label>
+        <textarea id="manual-symbol" readonly spellcheck="false"></textarea>
+        <button type="button" class="btn-download" id="manual-close">Close</button>
+      </div>
+      <noscript><p class="symbol-hint">Select a design above and use your device’s Copy command.</p></noscript>
+    </section>
+    <article class="prose">
+      <h2>Small text, lots of possibilities</h2>
+      <p>Put a heart beside your name, separate a caption with a star divider, or send a little dot drawing in a message. The designs with “your words” are frames: paste one, then replace those words with your own.</p>
+      <h2>How do I use dot art?</h2>
+      <p>Dot art is a picture made from text characters. Copy the whole drawing, including its line breaks. It works best in messages and text fields that leave room for several lines. Short bios may have character limits, so choose a smaller symbol combination there.</p>
+      <h2>Why does a symbol look different on my phone?</h2>
+      <p>Apps and devices use different fonts. Some symbols can change shape or appear as an empty square, and some apps squeeze the spacing in a dot drawing. Check the result after pasting; if it doesn’t fit, try a simpler design.</p>
+      <h2>Want something for a photo?</h2>
+      <p>These designs copy as text. For decorations you can layer over a photo, explore the <a href="/">transparent sticker library</a> or make a message with the <a href="/ransom-note/">cutout text maker</a>.</p>
+    </article>
+  </div>
+</BaseLayout>
+
+<script>
+  const library = document.querySelector<HTMLElement>('#symbol-library');
+  if (library) {
+    const search = library.querySelector<HTMLInputElement>('#symbol-search')!;
+    const cards = Array.from(library.querySelectorAll<HTMLElement>('.symbol-card'));
+    const filters = Array.from(library.querySelectorAll<HTMLButtonElement>('[data-category]:is(button)'));
+    const count = library.querySelector<HTMLElement>('#symbol-count')!;
+    const empty = library.querySelector<HTMLElement>('.symbol-empty')!;
+    const status = library.querySelector<HTMLElement>('.symbol-status')!;
+    const manual = library.querySelector<HTMLElement>('.manual-copy')!;
+    const manualText = library.querySelector<HTMLTextAreaElement>('#manual-symbol')!;
+    let category = 'All';
+    let statusTimer: ReturnType<typeof setTimeout>;
+    library.querySelector<HTMLElement>('.symbol-controls')!.hidden = false;
+    library.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach(button => button.hidden = false);
+    function announce(message: string) {
+      clearTimeout(statusTimer);
+      status.textContent = message;
+      statusTimer = setTimeout(() => { status.textContent = ''; }, 5000);
+    }
+    function filter() {
+      const words = search.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+      let visible = 0;
+      cards.forEach(card => {
+        card.hidden = !(category === 'All' || category === card.dataset.category) || !words.every(word => card.dataset.search!.includes(word));
+        if (!card.hidden) visible++;
+      });
+      filters.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.category === category)));
+      count.textContent = `${visible} ${visible === 1 ? 'design' : 'designs'}`;
+      empty.hidden = visible > 0;
+    }
+    search.addEventListener('input', filter);
+    filters.forEach(button => button.addEventListener('click', () => { category = button.dataset.category!; filter(); }));
+    library.querySelector('#symbol-reset')!.addEventListener('click', () => { search.value = ''; category = 'All'; filter(); search.focus(); });
+    let lastCopy: HTMLButtonElement | null = null;
+    library.querySelector('#manual-close')!.addEventListener('click', () => { manual.hidden = true; lastCopy?.focus(); });
+    library.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach(button => {
+      button.addEventListener('click', async () => {
+        const card = button.closest<HTMLElement>('.symbol-card')!;
+        const text = card.querySelector('pre')!.textContent!;
+        lastCopy = button;
+        try {
+          await navigator.clipboard.writeText(text);
+          manual.hidden = true;
+          announce(`${card.querySelector('h3')!.textContent} copied. Ready to paste.`);
+        } catch {
+          manualText.value = text;
+          manual.hidden = false;
+          manualText.focus();
+          manualText.select();
+          announce('Automatic copy is unavailable. Your text is selected below for manual copying.');
+        }
+      });
+    });
+  }
+</script>
+
+<style>
+  .symbols-page { padding-top: 1.5rem; }
+  .symbols-hero { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center; padding: 1.5rem 0 2rem; }
+  .eyebrow { font-size: .8rem; font-weight: 700; color: var(--accent-ink); margin-bottom: .5rem; }
+  h1 { font-size: clamp(2.4rem, 5vw, 3.8rem); }
+  .symbols-hero .lede { max-width: 620px; margin-top: .8rem; margin-bottom: 0; }
+  .sampler { display: grid; gap: .8rem; text-align: center; font-family: 'Segoe UI Symbol', sans-serif; font-size: 1.7rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 48% 52% 42% 58%; padding: 1.8rem 2rem; color: var(--accent-ink); transform: rotate(-4deg); }
+  .symbol-controls { margin-bottom: 1.8rem; }
+  .symbol-search { display: grid; gap: .4rem; font-weight: 700; font-size: .9rem; max-width: 560px; }
+  .symbol-search input { width: 100%; min-height: 48px; padding: .7rem 1rem; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+  .symbol-filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+  .symbol-filters button { padding: .55rem .9rem; min-height: 44px; border: 1px solid var(--border); border-radius: var(--radius-pill); background: var(--surface); cursor: pointer; font-size: .9rem; }
+  .symbol-filters button[aria-pressed='true'] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+  .symbol-hint { color: var(--muted); font-size: .9rem; margin-bottom: 1.2rem; max-width: 760px; }
+  .symbol-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+  .symbol-card { min-width: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .symbol-preview { font-family: 'Segoe UI Symbol', 'Apple Symbols', 'DejaVu Sans', sans-serif; font-size: 1.5rem; font-weight: 400; margin: 0; min-height: 130px; padding: 1.6rem .8rem; display: flex; justify-content: center; align-items: center; overflow-x: auto; white-space: pre; user-select: text; background: linear-gradient(180deg, var(--surface-alt), var(--surface)); }
+  .is-dot-art .symbol-preview { font-family: 'Segoe UI Symbol', 'Apple Symbols', 'DejaVu Sans Mono', monospace; font-size: clamp(.5rem, 2.3vw, .7rem); line-height: 1.4; min-height: clamp(290px, 30vw, 350px); padding: 1rem .4rem; justify-content: safe center; }
+  .symbol-meta { display: flex; gap: .5rem; align-items: center; justify-content: space-between; padding: .9rem 1rem; }
+  .symbol-meta h3 { font-size: .94rem; }
+  .symbol-meta p { font-size: .78rem; color: var(--muted); margin-top: .15rem; }
+  .symbol-copy { border: 1px solid var(--border); background: var(--surface-alt); color: var(--accent-ink); min-height: 44px; padding: .5rem .9rem; border-radius: var(--radius-pill); font-weight: 700; cursor: pointer; }
+  .symbol-copy:hover { background: var(--accent); }
+  .symbol-empty { padding: 2rem; text-align: center; border: 1px dashed var(--border); border-radius: var(--radius-lg); }
+  .symbol-empty p { margin: .5rem 0 1rem; }
+  .symbol-status { position: fixed; bottom: 1.3rem; left: 50%; transform: translateX(-50%); z-index: 60; width: max-content; max-width: calc(100% - 2rem); padding: .8rem 1.2rem; background: var(--ink); color: var(--surface); border-radius: 14px; box-shadow: var(--shadow); font-size: .9rem; }
+  .symbol-status:empty { display: none; }
+  .manual-copy { margin-top: 1.2rem; padding: 1rem; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-alt); }
+  .manual-copy label { display: block; margin-bottom: .5rem; }
+  .manual-copy textarea { display: block; width: 100%; min-height: 160px; font-family: 'DejaVu Sans Mono', Consolas, monospace; white-space: pre; overflow: auto; margin-bottom: .7rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 960px) { .symbol-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 600px) { .symbols-hero { grid-template-columns: 1fr; gap: 1rem; } .sampler { display: none; } .symbol-grid { grid-template-columns: 1fr; } .symbol-preview { min-height: 110px; } }
+</style>

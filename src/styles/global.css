@@ -848,6 +848,37 @@ main { flex: 1 0 auto; padding-bottom: 3.5rem; }
   border-top: 1px solid var(--border);
 }
 
+/* ---------- ad slot ---------- */
+
+/* Height is reserved up front so a filled ad never pushes the page (CLS). */
+.ad-slot {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  min-height: 300px;
+  padding: 0.6rem 0.8rem 0.8rem;
+  margin-block: 2rem;
+  overflow: hidden;
+}
+
+@media (min-width: 721px) {
+  .ad-slot { min-height: 140px; }
+}
+
+.ad-slot__label {
+  display: block;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.4rem;
+}
+
+/* No ad to show: drop the box rather than leave an empty frame on the page. */
+.ad-slot:has(ins[data-ad-status="unfilled"]) { display: none; }
+
 /* ---------- prose ---------- */
 
 .prose { max-width: 62ch; padding-top: 1.8rem; }
@@ -1362,3 +1393,19 @@ main { flex: 1 0 auto; padding-bottom: 3.5rem; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Evidence previews and readable technical diagrams. */
+.asset-proof { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+.asset-proof figure { margin: 0; padding: 1rem; border-radius: 16px; border: 1px solid var(--border); }
+.asset-proof img { width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; }
+.asset-proof figcaption { font-size: .85rem; text-align: center; }
+.proof-light { background: #fff9ed; color: #29252c; }
+.proof-dark { background: #252831; color: #fff9ed; }
+.post-body img { display: block; width: 100%; height: auto; margin: 1.5rem 0; border-radius: 12px; }
+.privacy-settings { font: inherit; color: inherit; border: 0; background: transparent; text-decoration: underline; cursor: pointer; padding: 0; }
+.privacy-choices { position: fixed; z-index: 100; bottom: 1rem; left: 1rem; width: min(420px, calc(100% - 2rem)); background: var(--surface); border: 1px solid var(--border); padding: 1.2rem; box-shadow: 0 5px 35px #0002; border-radius: 16px; }
+.privacy-choices[hidden] { display: none; }
+.privacy-choices h2 { font-size: 1.15rem; }
+.privacy-choices p { margin: .5rem 0 1rem; }
+.blog-topics { display: flex; flex-wrap: wrap; gap: .7rem; margin: 1rem 0 2rem; }
+.blog-topic { scroll-margin-top: 6rem; }

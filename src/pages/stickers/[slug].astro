@@ -2,12 +2,13 @@
 import type { CollectionEntry } from 'astro:content';
 import { getStickers } from '../../lib/stickers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
 import CopyDownloadButtons from '../../components/CopyDownloadButtons.astro';
 import StickerCard from '../../components/StickerCard.astro';
 import StickerShuffle from '../../components/StickerShuffle.astro';
 import { stickerThumb } from '../../lib/thumbs.mjs';
 import { getImageMeta } from '../../lib/image-meta';
-import { shapeOf, specs, stickerCopy } from '../../lib/sticker-copy';
+import { specs } from '../../lib/sticker-copy';
 
 export async function getStaticPaths() {
   const items = await getStickers();
@@ -41,9 +42,7 @@ const { Content } = await entry.render();
 const heroThumb = stickerThumb(image, 512);
 
 const meta = getImageMeta(image);
-const shape = shapeOf(meta);
 const specRows = specs(meta, type);
-const { sections, faq, aside } = stickerCopy(entry, meta, related);
 
 // Three named siblings to send people to, and the other shelves worth a look.
 const pairWith = related.slice(0, 3);
@@ -66,9 +65,8 @@ const jsonld = [
     encodingFormat: 'image/png',
     ...(meta ? { width: meta.w, height: meta.h, contentSize: `${meta.bytes}` } : {}),
     keywords: [category, ...tags].join(', '),
-    creator: { '@type': 'Organization', name: '88cutouts', url: site },
-    license: pageUrl,
-    acquireLicensePage: new URL('/about/', site).href,
+    license: new URL('/license/', site).href,
+    acquireLicensePage: new URL('/license/', site).href,
     isAccessibleForFree: true,
   },
   {
@@ -85,15 +83,7 @@ const jsonld = [
       { '@type': 'ListItem', position: 3, name: title, item: pageUrl },
     ],
   },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faq.map((f) => ({
-      '@type': 'Question',
-      name: f.q,
-      acceptedAnswer: { '@type': 'Answer', text: f.a },
-    })),
-  },
+
 ];
 ---
 
@@ -147,16 +137,14 @@ const jsonld = [
     </article>
 
     <article class="prose sticker-prose">
-      {
-        sections.map((section) => (
-          <>
-            <h2>{section.h}</h2>
-            {section.p.map((para) => (
-              <p>{para}</p>
-            ))}
-          </>
-        ))
-      }
+      <h2>Check the edges before you use it</h2>
+      <p>Compare {title} on light and dark backgrounds. These previews use the same PNG as the download, so you can check pale details and transparent margins before adding it to your design.</p>
+      <div class="asset-proof">
+        <figure class="proof-light"><img src={image} alt={`${title} on a light background`} width="320" height="320" loading="lazy" /><figcaption>Light background</figcaption></figure>
+        <figure class="proof-dark"><img src={image} alt={`${title} on a dark background`} width="320" height="320" loading="lazy" /><figcaption>Dark background</figcaption></figure>
+      </div>
+      <p>Use the opacity slider above to change the exported file. Start at 100% to inspect the edges; lower it only if you want a translucent result. See <a href="/blog/sticker-opacity-over-photos/">the opacity comparison</a> for an example.</p>
+      <p><a href="/license/">Read the personal-use licence</a>. If a file looks wrong, <a href="/contact/">report it with this page's address</a>.</p>
 
       {
         pairWith.length > 0 && (
@@ -186,18 +174,10 @@ const jsonld = [
         )
       }
 
-      <p class="page-aside" set:html={aside} />
-
-      <h2>{`Questions about ${title}`}</h2>
-      {
-        faq.map((f) => (
-          <>
-            <h3>{f.q}</h3>
-            <p>{f.a}</p>
-          </>
-        ))
-      }
+      <p>Need help saving or pasting? <a href="/help/">Download and clipboard help</a> covers the available alternatives.</p>
     </article>
+
+    <AdSlot />
 
     {
       related.length > 0 && (

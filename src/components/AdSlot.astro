@@ -1,0 +1,25 @@
+---
+/**
+ * One manual AdSense display unit. Manual units only — no Auto Ads, which
+ * inject unpredictably next to the Copy/Download buttons and inside the tools.
+ *
+ * Keep slots out of the sticker grids and away from Copy/Download, so an ad
+ * is never mistaken for a sticker card or tapped by accident. The loader
+ * script lives in BaseLayout; this only queues the unit.
+ */
+
+const AD_CLIENT = 'ca-pub-6384260983473792';
+const AD_SLOT = '4694554288'; // "88Cutouts" responsive display unit
+---
+
+<aside class="ad-slot" aria-label="Advertisement">
+  <span class="ad-slot__label">Advertisement</span>
+  <ins
+    class="adsbygoogle"
+    style="display:block"
+    data-ad-client={AD_CLIENT}
+    data-ad-slot={AD_SLOT}
+    data-ad-format="auto"
+    data-full-width-responsive="true"></ins>
+  <script is:inline>(window.adsbygoogle = window.adsbygoogle || []).push({});</script>
+</aside>

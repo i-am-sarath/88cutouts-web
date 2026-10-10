@@ -21,6 +21,7 @@ const isActive = (href: string) =>
         Collage
       </a>
       <a href="/packs/" aria-current={isActive('/packs') ? 'page' : undefined}>Packs</a>
+      <a href="/symbols/" aria-current={isActive('/symbols') ? 'page' : undefined}>Symbols</a>
       <a href="/ransom-note/" aria-current={isActive('/ransom-note') ? 'page' : undefined}>
         Cutout Text
       </a>
@@ -29,3 +30,10 @@ const isActive = (href: string) =>
     </nav>
   </div>
 </header>
+
+<style>
+  @media (min-width: 721px) and (max-width: 1100px) {
+    .site-header .wrap { flex-wrap: wrap; }
+    .header-nav { flex-basis: 100%; margin-left: 0; padding-bottom: .2rem; }
+  }
+</style>

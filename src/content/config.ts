@@ -25,13 +25,7 @@ const ransomLetters = defineCollection({
   }),
 });
 
-/**
- * Long-form guides. These are written by hand, not generated — each one is a
- * real answer to a question people arrive with (how do I paste a sticker into
- * a Story, why did my PNG go grey, what size should a DP be) rather than a
- * thin wrapper around the gallery. Body is Markdown; `faq` is rendered both as
- * visible Q&A at the foot of the post and as FAQPage JSON-LD.
- */
+/** Practical guides and visual design exercises. */
 const blog = defineCollection({
   type: 'content',
   schema: z.object({

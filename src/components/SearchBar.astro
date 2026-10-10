@@ -114,7 +114,7 @@
       if (term.length < 2) return;
       settleTimer = setTimeout(() => {
         track(hits.length ? 'search' : 'search_no_results', {
-          search_term: term,
+          query_length: term.length,
           results: hits.length,
         });
       }, 900);
@@ -125,7 +125,7 @@
       const hit = e.target instanceof Element ? e.target.closest('.search-hit') : null;
       if (!hit) return;
       track('search_select', {
-        search_term: input.value.trim().toLowerCase(),
+        query_length: input.value.trim().length,
         slug: (hit.getAttribute('href') || '').replace(/\/$/, '').split('/').pop(),
       });
     });

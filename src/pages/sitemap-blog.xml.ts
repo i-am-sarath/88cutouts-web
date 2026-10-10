@@ -7,7 +7,7 @@ import { getCollection } from 'astro:content';
 export async function GET({ site }: { site: URL | undefined }) {
   const base = site ?? new URL('https://88cutouts.com');
   const posts = (await getCollection('blog')).sort(
-    (a, b) => b.data.date.getTime() - a.data.date.getTime()
+    (a, b) => (b.data.updated ?? b.data.date).getTime() - (a.data.updated ?? a.data.date).getTime()
   );
   const day = (d: Date) => d.toISOString().slice(0, 10);
   const urls = [

@@ -1,0 +1,71 @@
+---
+interface Props { analyticsId: string; }
+const { analyticsId } = Astro.props;
+---
+<section id="privacy-choices" class="privacy-choices" aria-label="Optional analytics cookies" hidden>
+  <h2>Optional analytics</h2>
+  <p>Allow Google Analytics to measure visits and feature use? The tools work without it. <a href="/privacy/">Privacy details</a>.</p>
+  <div class="action-row">
+    <button type="button" class="btn" data-privacy-choice="denied">Decline</button>
+    <button type="button" class="btn" data-privacy-choice="granted">Allow analytics</button>
+  </div>
+</section>
+<script is:inline define:vars={{ analyticsId }}>
+  (() => {
+    const key = '88cutouts-analytics-v1';
+    const panel = document.getElementById('privacy-choices');
+    let loaded = false;
+    let returnFocus = null;
+    const read = () => { try { return localStorage.getItem(key); } catch { return null; } };
+    const enable = () => {
+      if (loaded || !analyticsId || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)) return;
+      loaded = true;
+      window['ga-disable-' + analyticsId] = false;
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag('js', new Date());
+      window.gtag('config', analyticsId);
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(analyticsId);
+      document.head.appendChild(script);
+    };
+    const disable = () => {
+      window['ga-disable-' + analyticsId] = true;
+      window.gtag = undefined;
+      window.dataLayer = [];
+      const labels = location.hostname.split('.');
+      const domains = ['', location.hostname, '.' + location.hostname];
+      if (labels.length > 2) domains.push('.' + labels.slice(-2).join('.'));
+      document.cookie.split(';').forEach(cookie => {
+        const name = cookie.split('=')[0].trim();
+        if (!/^_ga(?:_|$)/.test(name)) return;
+        domains.forEach(domain => {
+          document.cookie = name + '=; Max-Age=0; Path=/' + (domain ? '; Domain=' + domain : '') + '; SameSite=Lax';
+        });
+      });
+    };
+    const choice = read();
+    if (choice === 'granted') enable();
+    else if (choice !== 'denied') panel.hidden = false;
+    document.querySelectorAll('[data-privacy-choice]').forEach(button => {
+      button.addEventListener('click', () => {
+        const value = button.getAttribute('data-privacy-choice');
+        try { localStorage.setItem(key, value); } catch { /* Choice still applies for this page. */ }
+        panel.hidden = true;
+        if (value === 'granted') {
+          if (loaded) { window['ga-disable-' + analyticsId] = false; location.reload(); }
+          else enable();
+        } else disable();
+        if (returnFocus) returnFocus.focus();
+      });
+    });
+    document.querySelectorAll('.privacy-settings').forEach(button => {
+      button.addEventListener('click', () => {
+        returnFocus = button;
+        panel.hidden = false;
+        panel.querySelector('button').focus();
+      });
+    });
+  })();
+</script>

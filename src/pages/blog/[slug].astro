@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogCard from '../../components/BlogCard.astro';
+import AdSlot from '../../components/AdSlot.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -58,7 +59,7 @@ const jsonld = [
     wordCount: words,
     keywords: [category, ...tags].join(', '),
     inLanguage: 'en',
-    author: { '@type': 'Person', name: 'Sarath', url: new URL('/about/', site).href },
+    author: { '@type': 'Organization', name: '88cutouts', url: new URL('/editorial-policy/', site).href },
     publisher: {
       '@type': 'Organization',
       name: '88cutouts',
@@ -103,6 +104,7 @@ const jsonld = [
         <h1>{title}</h1>
         <p class="post-standfirst">{description}</p>
         <p class="post-byline">
+          By <a href="/editorial-policy/">88cutouts</a> ? 
           <time datetime={date.toISOString().slice(0, 10)}>{fmt(date)}</time>
           {updated && <> · updated {fmt(updated)}</>}
           · {minutes} min read
@@ -124,9 +126,13 @@ const jsonld = [
         )
       }
 
+      <AdSlot />
+
       <div class="post-body">
         <Content />
       </div>
+
+      <AdSlot />
 
       {
         tags.length > 0 && (
@@ -155,7 +161,7 @@ const jsonld = [
       <aside class="post-cta">
         <h2>Try it with the real thing</h2>
         <p>
-          Everything described here works with the free library on this site — transparent
+          Practice the relevant techniques with the free library on this site — transparent
           PNG <a href="/">stickers and frames</a>, themed
           <a href="/packs/">sticker packs</a>, and the
           <a href="/collage-maker/">collage maker</a> that turns a typed message into paper

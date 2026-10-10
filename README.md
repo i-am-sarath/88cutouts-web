@@ -4,6 +4,16 @@ Static gallery of transparent-PNG stickers, frames and letter cutouts for Instag
 Stories. No accounts, no backend, no database. Astro → Cloudflare Pages, edited through
 Sveltia CMS at `/admin`.
 
+## Symbols & dot art
+
+`/symbols/` has 224 copyable designs in eleven categories, including 24 original
+detailed Braille drawings. Edit `src/data/symbols.ts` and `src/data/symbol-extras.ts`
+to add names, text and search tags. Original dot-art masters are the line drawings
+in `scripts/generate-dot-art.mjs`; run `node scripts/generate-dot-art.mjs` to
+regenerate `src/data/dot-art.json`. Keep line breaks and U+2800 blank cells intact in
+dot art. The page filters locally and offers manual selection when clipboard
+access is unavailable; without JavaScript the full library remains selectable.
+
 ## Local development
 
 ```bash
