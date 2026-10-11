@@ -27,7 +27,7 @@ Try one larger object near the lower left, a smaller one near the upper right, a
 
 Let the supporting object overlap a small part of the main accent, while keeping the connector separate. This creates one group and one echo. If every object overlaps, the silhouettes can merge into an unreadable cluster.
 
-Use the [collage maker](/collage-maker/) for a quick arrangement, or any layered editor when you need exact measurements. The numbers describe the visible objects, so account for [transparent padding](/blog/transparent-padding-sticker-size/) in the files.
+Use the [scrapbook maker](/scrapbook/) for a quick arrangement, or any layered editor when you need exact measurements. The numbers describe the visible objects, so account for [transparent padding](/blog/transparent-padding-sticker-size/) in the files.
 
 ## Run the removal test
 

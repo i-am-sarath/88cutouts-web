@@ -35,4 +35,4 @@ Try a mostly level baseline with one tilted tile. Compare it with a version in w
 
 Export the stronger version and test at its actual use size. Check ambiguous forms such as `I`, `l`, `1`, `O` and `0`, particularly in names or dates.
 
-The [ransom-note aesthetic guide](/blog/ransom-note-aesthetic-guide/) provides context for the style. Use the [cutout text maker](/ransom-note/) to explore variants, and preserve readability with [optical spacing](/blog/cutout-letter-spacing/).
+The [ransom-note aesthetic guide](/blog/ransom-note-aesthetic-guide/) provides context for the style. Use the cut-out letters in the [scrapbook maker](/scrapbook/?tool=text) to explore variants, and preserve readability with [optical spacing](/blog/cutout-letter-spacing/).

@@ -21,7 +21,7 @@ Choose a photo with space around the face. If a tight crop leaves no room for de
 
 Create a short `HAPPY BIRTHDAY` heading and put the name on its own line. The name can be larger or a contrasting colour. Avoid using elaborate cutout lettering for a long paragraph; the greeting should be understood at a glance.
 
-Use the [text maker](/ransom-note/) for the heading, then combine it with the photograph in your editor. Keep the text as a separate layer until spelling and spacing are final.
+Make the heading with the cut-out letters in the [scrapbook maker](/scrapbook/?tool=text) and add the photograph on the same page, or start from the ready-made [birthday template](/scrapbook/birthday/). Keep the text as a separate layer until spelling and spacing are final.
 
 ## Decorate one region
 

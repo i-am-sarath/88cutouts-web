@@ -8,7 +8,7 @@ const packs = await getPacks();
 <BaseLayout title="Site map: tools, guides and policies | 88cutouts" description="Find every 88cutouts guide, sticker pack, creative tool and policy page in one place.">
   <div class="wrap"><article class="prose">
     <h1>Site map</h1>
-    <h2>Tools and library</h2><ul><li><a href="/">Sticker library</a></li><li><a href="/collage-maker/">Collage maker</a></li><li><a href="/ransom-note/">Cutout text maker</a></li><li><a href="/packs/">All sticker packs</a></li></ul>
+    <h2>Tools and library</h2><ul><li><a href="/">Sticker library</a></li><li><a href="/scrapbook/">Scrapbook maker</a></li><li><a href="/packs/">All sticker packs</a></li></ul>
     <h2>Symbols and text</h2><ul><li><a href="/symbols/">Aesthetic symbols &amp; dot art</a></li></ul>
     <h2>Sticker packs</h2><ul>{packs.map(p => <li><a href={`/packs/${p.slug}/`}>{p.name}</a></li>)}</ul>
     <h2>Guides</h2><ul>{posts.map(p => <li><a href={`/blog/${p.slug}/`}>{p.data.title}</a></li>)}</ul>

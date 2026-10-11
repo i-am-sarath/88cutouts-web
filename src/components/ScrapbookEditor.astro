@@ -1,0 +1,1093 @@
+---
+/**
+ * The scrapbook editor. One page at a time, made in the browser and exported
+ * as an image: nothing is saved and nothing is uploaded. Photos are read from
+ * the device and stay there.
+ *
+ * Desktop: tool tabs and their panel on the left, the page on the right.
+ * Phone: the page on top, the panel as a sheet underneath, tabs along the
+ * bottom like an app.
+ */
+import { getStickers } from '../lib/stickers';
+import { getPacks } from '../lib/packs';
+import { stickerThumb } from '../lib/thumbs.mjs';
+import { templates } from '../data/scrapbook-templates';
+import { resolveTemplates } from '../lib/scrapbook-templates';
+import { PAPERS, TAPES } from '../lib/scrapbook/scene';
+
+const stickers = await getStickers();
+const categories = [...new Set(stickers.map((s) => s.data.category))].sort();
+
+const library = stickers
+  .slice()
+  .sort((a, b) => Number(b.data.featured) - Number(a.data.featured) || b.data.date.valueOf() - a.data.date.valueOf())
+  .map((s) => ({
+    s: s.slug,
+    t: s.data.title,
+    c: s.data.category,
+    k: `${s.data.title} ${s.data.category} ${s.data.tags.join(' ')}`.toLowerCase(),
+    th: stickerThumb(s.data.image, 200),
+    src: stickerThumb(s.data.image, 512),
+  }));
+
+const packs = Object.fromEntries(
+  (await getPacks()).map((p) => [p.slug, { name: p.name, slugs: p.entries.map((e) => e.slug) }])
+);
+
+const tpls = await resolveTemplates();
+
+const paperSwatch = (id: string) => PAPERS.find((p) => p.id === id)?.color || '#F6EFE3';
+
+const textPresets = ['happy birthday', 'core memory', 'my girls', 'photo dump', 'miss you', 'best day ever', 'summer 2026', 'love you'];
+const inks = [
+  { id: '#2A2522', label: 'Ink' },
+  { id: '#FFFFFF', label: 'White' },
+  { id: '#C8423B', label: 'Red' },
+  { id: '#E07A9B', label: 'Pink' },
+  { id: '#3E64A8', label: 'Blue' },
+  { id: '#4E7A55', label: 'Green' },
+];
+
+const data = JSON.stringify({ library, packs, templates: tpls });
+---
+
+<section class="sb" id="sb" aria-label="Scrapbook editor">
+  <div class="sb-top">
+    <div class="sb-group">
+      <button type="button" class="sb-icon" id="sb-undo" aria-label="Undo" title="Undo (Ctrl+Z)" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5" /><path d="M4 9h10a6 6 0 0 1 0 12h-3" /></svg>
+      </button>
+      <button type="button" class="sb-icon" id="sb-redo" aria-label="Redo" title="Redo (Ctrl+Shift+Z)" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5" /><path d="M20 9H10a6 6 0 0 0 0 12h3" /></svg>
+      </button>
+    </div>
+    <div class="sb-formats" role="group" aria-label="Page size">
+      <button type="button" data-format="story" aria-pressed="true">Story <small>9:16</small></button>
+      <button type="button" data-format="post" aria-pressed="false">Post <small>4:5</small></button>
+      <button type="button" data-format="square" aria-pressed="false">Square <small>1:1</small></button>
+    </div>
+    <div class="sb-group">
+      <button type="button" class="sb-ghost" id="sb-clear">Start over</button>
+      <button type="button" class="sb-save" id="sb-export">Save image</button>
+    </div>
+  </div>
+
+  <div class="sb-body" data-sheet="open">
+    <nav class="sb-tabs" role="tablist" aria-label="Scrapbook tools">
+      <button type="button" role="tab" data-tab="templates" aria-selected="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="10" rx="1" /><rect x="13" y="3" width="8" height="6" rx="1" /><rect x="13" y="11" width="8" height="10" rx="1" /><rect x="3" y="15" width="8" height="6" rx="1" /></svg>
+        <span>Templates</span>
+      </button>
+      <button type="button" role="tab" data-tab="photos" aria-selected="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="9" cy="10" r="2" /><path d="m21 17-5-5-9 8" /></svg>
+        <span>Photos</span>
+      </button>
+      <button type="button" role="tab" data-tab="stickers" aria-selected="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-8-8h3l5 5z" /><path d="M15 4v5h5" /><path d="M8.5 14.5a4 4 0 0 0 6 0" /></svg>
+        <span>Stickers</span>
+      </button>
+      <button type="button" role="tab" data-tab="text" aria-selected="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18 9 5l5 13" /><path d="M6 13.5h6" /><path d="M20 18v-6a2.5 2.5 0 0 0-5 0" /><path d="M20 15.5a2.5 2.5 0 1 1-2.5-2.5H20" /></svg>
+        <span>Text</span>
+      </button>
+      <button type="button" role="tab" data-tab="symbols" aria-selected="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.7 4.6 2.4 6.3 7 7-4.6.7-6.3 2.4-7 7-.7-4.6-2.4-6.3-7-7 4.6-.7 6.3-2.4 7-7z" /><path d="M19 16c.3 1.8.9 2.4 2.7 2.7-1.8.3-2.4.9-2.7 2.7-.3-1.8-.9-2.4-2.7-2.7 1.8-.3 2.4-.9 2.7-2.7z" /></svg>
+        <span>Symbols</span>
+      </button>
+      <button type="button" role="tab" data-tab="tape" aria-selected="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 15 11-11 5 5L9 20z" /><path d="m7 12 5 5M10 9l5 5" /></svg>
+        <span>Tape</span>
+      </button>
+      <button type="button" role="tab" data-tab="paper" aria-selected="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z" /><path d="M15 3v4h4" /><path d="M9 12h7M9 16h5" /></svg>
+        <span>Paper</span>
+      </button>
+    </nav>
+
+    <div class="sb-panel">
+      <div class="sb-pane" data-pane="templates">
+        <p class="sb-pane-title">Start from a template</p>
+        <div class="sb-tpls">
+          <button type="button" class="sb-tpl" data-template="">
+            <span class="sb-tpl-sw" style="background:#FFFFFF"></span>
+            <b>Blank page</b>
+          </button>
+          {
+            templates.map((t) => (
+              <button type="button" class="sb-tpl" data-template={t.slug}>
+                <span class="sb-tpl-sw" style={`background:${paperSwatch(t.paper)}`}>
+                  <i />
+                  <i />
+                </span>
+                <b>{t.name}</b>
+                <small>{t.blurb}</small>
+              </button>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="sb-pane" data-pane="photos" hidden>
+        <p class="sb-pane-title">Your photos</p>
+        <label class="sb-upload">
+          <input type="file" id="sb-file" accept="image/*" multiple />
+          <span>+ Add photos</span>
+        </label>
+        <p class="sb-note">Photos stay on your device. Nothing is uploaded, and empty template spots fill up first.</p>
+        <p class="sb-label" id="sb-frame-label">Frame for new photos</p>
+        <div class="sb-chips" role="group" aria-labelledby="sb-frame-label">
+          <button type="button" class="chip" data-newframe="polaroid" aria-pressed="true">Polaroid</button>
+          <button type="button" class="chip" data-newframe="border" aria-pressed="false">White border</button>
+          <button type="button" class="chip" data-newframe="none" aria-pressed="false">No frame</button>
+        </div>
+      </div>
+
+      <div class="sb-pane" data-pane="stickers" hidden>
+        <label class="sr-only" for="sb-search">Search stickers</label>
+        <input id="sb-search" class="sb-input" type="search" placeholder="Search stickers: bow, cat, shell…" autocomplete="off" />
+        <div class="sb-chips sb-scroll" id="sb-cats">
+          <button type="button" class="chip" data-cat="pack" aria-pressed="false" hidden></button>
+          <button type="button" class="chip" data-cat="" aria-pressed="true">All</button>
+          {categories.map((c) => <button type="button" class="chip" data-cat={c} aria-pressed="false">{c}</button>)}
+        </div>
+        <div class="sb-grid" id="sb-stickers" aria-live="polite"></div>
+      </div>
+
+      <div class="sb-pane" data-pane="text" hidden>
+        <label class="sb-label" for="sb-text">Your words</label>
+        <textarea id="sb-text" class="sb-input" rows="2" maxlength="60" placeholder="type something…"></textarea>
+        <div class="sb-chips sb-scroll">
+          {textPresets.map((p) => <button type="button" class="chip" data-phrase={p}>{p}</button>)}
+        </div>
+        <p class="sb-label" id="sb-style-label">Style</p>
+        <div class="sb-chips" role="group" aria-labelledby="sb-style-label">
+          <button type="button" class="chip" data-style="letters" aria-pressed="true">Cut-out letters</button>
+          <button type="button" class="chip" data-style="hand" aria-pressed="false">Handwritten</button>
+          <button type="button" class="chip" data-style="label" aria-pressed="false">Label tape</button>
+          <button type="button" class="chip" data-style="type" aria-pressed="false">Serif</button>
+        </div>
+        <div id="sb-ink-wrap" hidden>
+          <p class="sb-label" id="sb-ink-label">Colour</p>
+          <div class="sb-chips" role="group" aria-labelledby="sb-ink-label">
+            {inks.map((c, i) => (
+              <button type="button" class="sb-ink" data-ink={c.id} aria-pressed={i === 0 ? 'true' : 'false'} aria-label={c.label} title={c.label}>
+                <i style={`background:${c.id}`} />
+              </button>
+            ))}
+          </div>
+        </div>
+        <button type="button" class="sb-save sb-wide" id="sb-addtext">Add to page</button>
+      </div>
+
+      <div class="sb-pane" data-pane="symbols" hidden>
+        <div class="sb-chips sb-scroll" id="sb-symcats"></div>
+        <div class="sb-symbols" id="sb-symbols"><p class="sb-note">Loading symbols…</p></div>
+      </div>
+
+      <div class="sb-pane" data-pane="tape" hidden>
+        <p class="sb-pane-title">Washi tape</p>
+        <div class="sb-tapes" id="sb-tapes">
+          {TAPES.map((t) => (
+            <button type="button" class="sb-tape" data-tape={t.id} aria-label={`${t.label} tape`}>
+              <span style={`background:${t.base}`} />
+              <small>{t.label}</small>
+            </button>
+          ))}
+        </div>
+        <p class="sb-note">Drag tape over the corner of a photo so it looks stuck down.</p>
+      </div>
+
+      <div class="sb-pane" data-pane="paper" hidden>
+        <p class="sb-pane-title">Paper</p>
+        <div class="sb-papers">
+          {PAPERS.map((p) => (
+            <button type="button" class="sb-paper" data-paper={p.id} data-pattern={p.pattern ?? ''} aria-pressed={p.id === 'cream' ? 'true' : 'false'}>
+              <span style={p.color ? `background-color:${p.color}` : ''} />
+              <small>{p.label}</small>
+            </button>
+          ))}
+        </div>
+        <p class="sb-note">"Clear" saves a transparent PNG you can paste over a photo in your Story.</p>
+      </div>
+    </div>
+
+    <div class="sb-stage">
+      <div class="sb-canvas-wrap" id="sb-wrap">
+        <canvas id="sb-canvas" role="img" aria-label="Your scrapbook page"></canvas>
+        <p class="sb-empty" id="sb-empty">Pick a template, or add photos and stickers from the tools.</p>
+      </div>
+      <div class="sb-seltools" id="sb-seltools" hidden>
+        <button type="button" data-act="forward" title="Bring to front">Front</button>
+        <button type="button" data-act="backward" title="Send to back">Back</button>
+        <button type="button" data-act="duplicate" title="Duplicate (Ctrl+D)">Copy</button>
+        <button type="button" data-act="flip" title="Flip">Flip</button>
+        <button type="button" data-act="frame" title="Change frame" hidden>Frame</button>
+        <button type="button" data-act="remove" class="sb-danger" title="Delete">Delete</button>
+      </div>
+      <p class="sb-hint" id="sb-hint">Drag to move · corner handle or two fingers to resize and rotate</p>
+    </div>
+  </div>
+
+  <input type="file" id="sb-slotfile" accept="image/*" hidden />
+
+  <dialog class="sb-dialog" id="sb-dialog" aria-labelledby="sb-dialog-title">
+    <h2 id="sb-dialog-title">Your page is ready</h2>
+    <img id="sb-preview" alt="Preview of your finished scrapbook page" />
+    <div class="sb-dialog-actions">
+      <button type="button" class="sb-save" id="sb-share" hidden>Share</button>
+      <button type="button" class="sb-save" id="sb-download">Download PNG</button>
+      <button type="button" class="sb-ghost" id="sb-copy">Copy image</button>
+    </div>
+    <p class="sb-note">Nothing is saved on 88cutouts, so download it before you leave. In Instagram, add it from your gallery as a Story or post.</p>
+    <button type="button" class="sb-close" id="sb-close" aria-label="Close">×</button>
+  </dialog>
+
+  <script type="application/json" id="sb-data" set:html={data} />
+</section>
+
+<style>
+  .sb {
+    /* One screen: viewport minus the site header and the title line above. */
+    --sb-h: calc(100dvh - var(--header-h, 64px) - 5.4rem);
+    display: flex;
+    flex-direction: column;
+    height: var(--sb-h);
+    min-height: 520px;
+    max-height: 980px;
+    background: var(--surface);
+    border: 1.5px solid var(--ink);
+    border-radius: 18px;
+    box-shadow: 5px 6px 0 var(--ink);
+    overflow: hidden;
+  }
+
+  .sb button { cursor: pointer; }
+  /* Several of these set display; `hidden` must still win. */
+  .sb [hidden] { display: none !important; }
+  .sb svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ---- top bar ---- */
+  .sb-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0.7rem;
+    border-bottom: 1.5px solid var(--ink);
+    background: var(--paper-2);
+  }
+  .sb-group { display: flex; gap: 0.35rem; align-items: center; }
+  .sb-icon {
+    display: grid; place-items: center;
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+  }
+  .sb-icon:disabled { opacity: 0.35; cursor: default; }
+  .sb-formats {
+    display: flex;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    padding: 3px;
+  }
+  .sb-formats button {
+    border: 0; background: none;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-weight: 700; font-size: 0.85rem;
+  }
+  .sb-formats small { font-weight: 600; opacity: 0.6; margin-left: 0.15rem; }
+  .sb-formats [aria-pressed='true'] { background: var(--ink); color: var(--surface); }
+
+  .sb-save, .sb-ghost {
+    border-radius: 999px;
+    padding: 0.55rem 1.05rem;
+    font-weight: 700;
+    font-size: 0.92rem;
+    border: 1.5px solid var(--ink);
+    white-space: nowrap;
+  }
+  .sb-save { background: var(--accent); color: var(--accent-ink); box-shadow: 2px 2px 0 var(--ink); }
+  .sb-save:active { transform: translate(2px, 2px); box-shadow: none; }
+  .sb-ghost { background: var(--surface); }
+  .sb-wide { width: 100%; margin-top: 0.9rem; padding-block: 0.75rem; }
+
+  /* ---- body: tabs | panel | stage ---- */
+  .sb-body {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 78px 320px 1fr;
+  }
+  .sb-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.5rem 0.35rem;
+    border-right: 1.5px solid var(--border);
+    background: var(--paper-2);
+    overflow-y: auto;
+  }
+  .sb-tabs button {
+    display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+    border: 0; background: none;
+    padding: 0.5rem 0.2rem;
+    border-radius: 12px;
+    font-size: 0.7rem; font-weight: 700;
+    color: var(--muted);
+  }
+  .sb-tabs [aria-selected='true'] { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+
+  .sb-panel {
+    overflow-y: auto;
+    padding: 0.9rem;
+    border-right: 1.5px solid var(--border);
+    overscroll-behavior: contain;
+  }
+  .sb-pane-title, .sb-label {
+    font-weight: 700;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 0.55rem;
+  }
+  .sb-label { margin-top: 0.9rem; display: block; }
+  .sb-note { font-size: 0.82rem; color: var(--muted); margin-top: 0.7rem; }
+
+  .sb-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .sb-scroll { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.35rem; margin-top: 0.6rem; scrollbar-width: thin; }
+  .sb-scroll .chip { flex: none; }
+
+  .sb-input {
+    width: 100%;
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 0.6rem 0.75rem;
+    background: var(--surface);
+    font-size: 1rem;
+    resize: none;
+  }
+
+  /* templates */
+  .sb-tpls { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+  .sb-tpl {
+    text-align: left;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 0.5rem;
+    display: flex; flex-direction: column; gap: 0.2rem;
+  }
+  .sb-tpl:hover { border-color: var(--ink); }
+  .sb-tpl b { font-size: 0.9rem; }
+  .sb-tpl small { font-size: 0.72rem; color: var(--muted); line-height: 1.3; }
+  .sb-tpl-sw {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 3;
+    border-radius: 9px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+  .sb-tpl-sw i {
+    position: absolute;
+    width: 42%; aspect-ratio: 1;
+    background: #FFFEFA;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    border: 4px solid #FFFEFA; border-bottom-width: 12px;
+    background-clip: content-box;
+    background-color: rgba(42, 37, 34, 0.12);
+  }
+  .sb-tpl-sw i:first-child { left: 12%; top: 14%; transform: rotate(-6deg); }
+  .sb-tpl-sw i:last-child { right: 12%; top: 30%; transform: rotate(5deg); }
+
+  /* photos */
+  .sb-upload {
+    display: grid; place-items: center;
+    min-height: 120px;
+    border: 2px dashed var(--ink);
+    border-radius: 16px;
+    background: var(--paper-2);
+    font-weight: 700; font-size: 1.05rem;
+    cursor: pointer;
+  }
+  .sb-upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .sb-upload:focus-within { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+
+  /* stickers */
+  .sb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+  .sb-grid button {
+    aspect-ratio: 1;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 6px;
+    background: var(--checker);
+  }
+  .sb-grid button:hover { border-color: var(--ink); }
+  .sb-grid img { width: 100%; height: 100%; object-fit: contain; }
+
+  /* text */
+  .sb-ink { width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--border); padding: 3px; background: var(--surface); }
+  .sb-ink i { display: block; width: 100%; height: 100%; border-radius: 50%; border: 1px solid rgba(0, 0, 0, 0.15); }
+  .sb-ink[aria-pressed='true'] { border-color: var(--ink); box-shadow: 0 0 0 2px var(--ink); }
+
+  /* symbols */
+  .sb-symbols { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; margin-top: 0.5rem; }
+  .sb-symbols button {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    padding: 0.55rem 0.4rem;
+    font-family: 'Segoe UI Symbol', 'Apple Symbols', system-ui, sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.15;
+    white-space: pre;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 5.2rem;
+  }
+  .sb-symbols button.is-art { font-size: 0.32rem; line-height: 1; grid-column: span 1; }
+  .sb-symbols button:hover { border-color: var(--ink); }
+
+  /* tape and paper */
+  .sb-tapes, .sb-papers { display: grid; grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 0.5rem; }
+  .sb-tape, .sb-paper {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    padding: 0.45rem;
+    display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+    font-size: 0.75rem; font-weight: 700;
+  }
+  .sb-tape img { width: 100%; height: 28px; object-fit: cover; transform: rotate(-4deg); }
+  .sb-tape span { display: block; width: 100%; height: 28px; transform: rotate(-4deg); opacity: 0.85; }
+  .sb-tape small, .sb-paper small { font-size: 0.75rem; }
+  .sb-paper span {
+    display: block; width: 100%; aspect-ratio: 3 / 4;
+    border-radius: 6px; border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  .sb-paper[data-pattern='grid'] span { background-image: linear-gradient(rgba(120,150,190,.3) 1px, transparent 1px), linear-gradient(90deg, rgba(120,150,190,.3) 1px, transparent 1px); background-size: 8px 8px; }
+  .sb-paper[data-pattern='lines'] span { background-image: repeating-linear-gradient(transparent 0 9px, rgba(110,150,200,.4) 9px 10px); }
+  .sb-paper[data-pattern='dots'] span { background-image: radial-gradient(rgba(150,90,90,.35) 1px, transparent 1.5px); background-size: 8px 8px; }
+  .sb-paper[data-pattern='kraft'] span { background-image: radial-gradient(rgba(80,50,20,.18) 0.6px, transparent 1px); background-size: 4px 4px; }
+  .sb-paper[data-paper='none'] span { background-image: var(--checker-img); background-size: 12px 12px; }
+  .sb-paper[aria-pressed='true'] { border-color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+
+  /* stage */
+  .sb-stage {
+    position: relative;
+    min-width: 0; min-height: 0;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 1rem;
+    gap: 0.6rem;
+    background:
+      radial-gradient(rgba(42, 37, 34, 0.09) 1px, transparent 1.5px) 0 0 / 18px 18px,
+      var(--paper-3);
+  }
+  .sb-canvas-wrap {
+    position: relative;
+    flex: 1 1 0;
+    min-height: 0;
+    width: 100%;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  /* Its on-screen size is set by the editor to fit this box (see Editor.fit). */
+  .sb-canvas-wrap canvas {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    border-radius: 4px;
+    box-shadow: 0 8px 28px rgba(42, 37, 34, 0.18), 0 0 0 1px rgba(42, 37, 34, 0.1);
+    background-image: var(--checker-img);
+    background-size: 24px 24px;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .sb-empty {
+    position: absolute;
+    max-width: 15rem;
+    text-align: center;
+    font-weight: 700;
+    color: var(--muted);
+    pointer-events: none;
+  }
+  .sb-seltools {
+    display: flex; gap: 0.3rem; flex-wrap: wrap; justify-content: center;
+    background: var(--surface);
+    border: 1.5px solid var(--ink);
+    border-radius: 999px;
+    padding: 0.25rem;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .sb-seltools button {
+    border: 0; background: none;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    font-weight: 700; font-size: 0.85rem;
+  }
+  .sb-seltools button:hover { background: var(--paper-2); }
+  .sb-seltools .sb-danger { color: #B3362F; }
+  .sb-hint { font-size: 0.78rem; color: var(--muted); text-align: center; }
+
+  /* export dialog */
+  .sb-dialog {
+    border: 1.5px solid var(--ink);
+    border-radius: 18px;
+    box-shadow: 6px 6px 0 var(--ink);
+    padding: 1.2rem;
+    width: min(440px, calc(100vw - 2rem));
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .sb-dialog::backdrop { background: rgba(42, 37, 34, 0.45); }
+  .sb-dialog h2 { font-size: 1.7rem; margin-bottom: 0.7rem; }
+  .sb-dialog img {
+    max-height: 46vh; margin: 0 auto;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    background-image: var(--checker-img);
+    background-size: 16px 16px;
+  }
+  .sb-dialog-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+  .sb-dialog-actions > * { flex: 1; }
+  .sb-close {
+    position: absolute; top: 0.6rem; right: 0.7rem;
+    border: 0; background: none;
+    font-size: 1.6rem; line-height: 1;
+  }
+
+  /* ---- phone: page on top, sheet below, tabs at the bottom ---- */
+  @media (max-width: 860px) {
+    .sb {
+      --sb-h: calc(100dvh - var(--header-h, 58px));
+      border-radius: 0;
+      border-inline: 0;
+      box-shadow: none;
+      max-height: none;
+      margin-inline: -1.1rem;
+    }
+    .sb-top { padding: 0.4rem 0.5rem; }
+    .sb-formats button { padding: 0.3rem 0.5rem; font-size: 0.78rem; }
+    .sb-formats small, #sb-clear { display: none; }
+    .sb-save { padding: 0.5rem 0.85rem; }
+    .sb-body {
+      display: flex;
+      flex-direction: column;
+    }
+    .sb-stage { order: 1; flex: 1; padding: 0.6rem 0.6rem 0.4rem; gap: 0.4rem; }
+    .sb-panel {
+      order: 2;
+      flex: none;
+      height: 38%;
+      max-height: 320px;
+      border-right: 0;
+      border-top: 1.5px solid var(--ink);
+      padding: 0.75rem;
+    }
+    .sb-body[data-sheet='closed'] .sb-panel { display: none; }
+    .sb-tabs {
+      order: 3;
+      flex: none;
+      flex-direction: row;
+      justify-content: space-between;
+      border-right: 0;
+      border-top: 1.5px solid var(--border);
+      padding: 0.2rem 0.25rem calc(0.2rem + env(safe-area-inset-bottom));
+      overflow-x: auto;
+    }
+    .sb-tabs button { flex: 1; min-width: 50px; padding: 0.35rem 0.1rem; font-size: 0.64rem; }
+    .sb-tabs svg { width: 20px; height: 20px; }
+    .sb-hint { display: none; }
+    .sb-seltools button { padding: 0.35rem 0.55rem; font-size: 0.8rem; }
+    .sb-tpls { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  }
+
+  @media (min-width: 861px) and (max-width: 1100px) {
+    .sb-body { grid-template-columns: 72px 260px 1fr; }
+  }
+</style>
+
+<script>
+  import { Editor } from '../lib/scrapbook/editor';
+  import {
+    loadUrl,
+    loadPhoto,
+    makeLetters,
+    makeText,
+    makeTape,
+    type Format,
+    type Frame,
+    type TextStyle,
+  } from '../lib/scrapbook/scene';
+  import { buildTemplate, getManifest, type ResolvedTemplate } from '../lib/scrapbook/template';
+  import { copyCanvas, downloadCanvas, toast } from '../lib/collage/engine';
+  import { track } from '../lib/track';
+
+  interface Sticker { s: string; t: string; c: string; k: string; th: string; src: string }
+  interface Data {
+    library: Sticker[];
+    packs: Record<string, { name: string; slugs: string[] }>;
+    templates: ResolvedTemplate[];
+  }
+
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const data: Data = JSON.parse($('sb-data').textContent || '{}');
+  const root = $('sb');
+  const body = root.querySelector<HTMLElement>('.sb-body')!;
+  const phone = window.matchMedia('(max-width: 860px)');
+  const rad = (d = 0) => (d * Math.PI) / 180;
+
+  // ---- editor ---------------------------------------------------------------
+
+  let slotTarget: number | null = null;
+  const editor = new Editor($<HTMLCanvasElement>('sb-canvas'), {
+    change: refresh,
+    slot: (el) => {
+      slotTarget = el.id;
+      $<HTMLInputElement>('sb-slotfile').click();
+    },
+  });
+
+  function refresh() {
+    $<HTMLButtonElement>('sb-undo').disabled = !editor.canUndo;
+    $<HTMLButtonElement>('sb-redo').disabled = !editor.canRedo;
+    $('sb-empty').hidden = editor.doc.els.length > 0;
+    const sel = editor.sel;
+    $('sb-seltools').hidden = !sel;
+    const frameBtn = root.querySelector<HTMLElement>('[data-act="frame"]')!;
+    frameBtn.hidden = !sel || (sel.kind !== 'photo' && sel.kind !== 'slot');
+    root.querySelectorAll<HTMLButtonElement>('[data-format]').forEach((b) =>
+      b.setAttribute('aria-pressed', String(b.dataset.format === editor.doc.format))
+    );
+    root.querySelectorAll<HTMLButtonElement>('[data-paper]').forEach((b) =>
+      b.setAttribute('aria-pressed', String(b.dataset.paper === editor.doc.paper))
+    );
+  }
+
+  /** On a phone, get the sheet out of the way so the new thing is visible. */
+  function placed() {
+    if (phone.matches) body.dataset.sheet = 'closed';
+  }
+
+  // ---- tabs -------------------------------------------------------------------
+
+  const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-tab]')];
+  function openTab(name: string) {
+    const current = tabs.find((t) => t.getAttribute('aria-selected') === 'true')?.dataset.tab;
+    // Tapping the open tab again on a phone folds the sheet away.
+    if (phone.matches && current === name && body.dataset.sheet === 'open') {
+      body.dataset.sheet = 'closed';
+      return;
+    }
+    body.dataset.sheet = 'open';
+    tabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.tab === name)));
+    root.querySelectorAll<HTMLElement>('[data-pane]').forEach((p) => (p.hidden = p.dataset.pane !== name));
+    if (name === 'stickers') renderStickers();
+    if (name === 'symbols') loadSymbols();
+  }
+  tabs.forEach((t) => t.addEventListener('click', () => openTab(t.dataset.tab!)));
+
+  /** Makes a group of chips behave like radio buttons. */
+  function radio(selector: string, onPick: (b: HTMLButtonElement) => void) {
+    const chips = [...root.querySelectorAll<HTMLButtonElement>(selector)];
+    chips.forEach((b) =>
+      b.addEventListener('click', () => {
+        chips.forEach((c) => c.setAttribute('aria-pressed', String(c === b)));
+        onPick(b);
+      })
+    );
+    return chips;
+  }
+
+  // ---- top bar ----------------------------------------------------------------
+
+  $('sb-undo').addEventListener('click', () => editor.undo());
+  $('sb-redo').addEventListener('click', () => editor.redo());
+  root.querySelectorAll<HTMLButtonElement>('[data-format]').forEach((b) =>
+    b.addEventListener('click', () => {
+      editor.setFormat(b.dataset.format as Format);
+      track('scrapbook_format', { format: b.dataset.format });
+    })
+  );
+  $('sb-clear').addEventListener('click', () => {
+    if (editor.isEmpty || confirmLoss()) editor.load({ format: editor.doc.format, paper: 'cream', els: [] });
+  });
+
+  function confirmLoss() {
+    return !editor.dirty || window.confirm('Start over? This page is not saved anywhere.');
+  }
+
+  // ---- selection toolbar --------------------------------------------------------
+
+  const frames: Frame[] = ['polaroid', 'border', 'none'];
+  root.querySelectorAll<HTMLButtonElement>('[data-act]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const act = b.dataset.act;
+      if (act === 'frame') {
+        const cur = editor.sel?.frame ?? 'none';
+        editor.setFrame(frames[(frames.indexOf(cur) + 1) % frames.length]);
+      } else if (act === 'forward') editor.forward();
+      else if (act === 'backward') editor.backward();
+      else if (act === 'duplicate') editor.duplicate();
+      else if (act === 'flip') editor.flip();
+      else if (act === 'remove') editor.remove();
+    })
+  );
+
+  document.addEventListener('keydown', (e) => {
+    const t = e.target as HTMLElement;
+    if (t.closest('input, textarea, select, dialog')) return;
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && e.key.toLowerCase() === 'z') {
+      e.preventDefault();
+      e.shiftKey ? editor.redo() : editor.undo();
+    } else if (mod && e.key.toLowerCase() === 'y') {
+      e.preventDefault();
+      editor.redo();
+    } else if (!editor.sel) {
+      return;
+    } else if (mod && e.key.toLowerCase() === 'd') {
+      e.preventDefault();
+      editor.duplicate();
+    } else if (e.key === 'Delete' || e.key === 'Backspace') {
+      e.preventDefault();
+      editor.remove();
+    } else if (e.key === 'Escape') {
+      editor.select(null);
+    } else if (e.key.startsWith('Arrow')) {
+      e.preventDefault();
+      const step = e.shiftKey ? 30 : 6;
+      const d = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
+      if (d) editor.nudge(d[0], d[1]);
+    } else if (e.key === '+' || e.key === '=') editor.transform(1.06);
+    else if (e.key === '-') editor.transform(1 / 1.06);
+    else if (e.key === '[') editor.backward();
+    else if (e.key === ']') editor.forward();
+  });
+
+  // ---- templates ----------------------------------------------------------------
+
+  async function applyTemplate(slug: string) {
+    const t = data.templates.find((x) => x.slug === slug);
+    if (!t) {
+      editor.load({ format: editor.doc.format, paper: 'white', els: [] });
+      return;
+    }
+    root.classList.add('is-busy');
+    editor.load(await buildTemplate(t));
+    root.classList.remove('is-busy');
+    placed();
+  }
+
+  root.querySelectorAll<HTMLButtonElement>('[data-template]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      if (!editor.isEmpty && !confirmLoss()) return;
+      await applyTemplate(b.dataset.template || '');
+      track('scrapbook_template', { template: b.dataset.template || 'blank' });
+    })
+  );
+
+  // ---- photos -------------------------------------------------------------------
+
+  let newFrame: Frame = 'polaroid';
+  radio('[data-newframe]', (b) => (newFrame = b.dataset.newframe as Frame));
+
+  async function addPhotos(files: FileList | null) {
+    if (!files?.length) return;
+    let added = 0;
+    for (const f of [...files].slice(0, 12)) {
+      const key = await loadPhoto(f);
+      if (!key) continue;
+      const slot = slotTarget != null
+        ? editor.doc.els.find((e) => e.id === slotTarget && e.kind === 'slot')
+        : editor.doc.els.filter((e) => e.kind === 'slot').sort((a, b) => a.y - b.y)[0];
+      slotTarget = null;
+      if (slot) editor.fillSlot(slot.id, key);
+      else editor.addPhoto(key, newFrame);
+      added++;
+    }
+    if (!added) toast("That file couldn't be opened as a photo.");
+    else placed();
+    track('scrapbook_photo', { count: added });
+  }
+
+  $<HTMLInputElement>('sb-file').addEventListener('change', async (e) => {
+    const input = e.target as HTMLInputElement;
+    await addPhotos(input.files);
+    input.value = '';
+  });
+  $<HTMLInputElement>('sb-slotfile').addEventListener('change', async (e) => {
+    const input = e.target as HTMLInputElement;
+    await addPhotos(input.files);
+    input.value = '';
+  });
+
+  // Photos can also be dropped straight onto the page on desktop.
+  const wrap = $('sb-wrap');
+  wrap.addEventListener('dragover', (e) => e.preventDefault());
+  wrap.addEventListener('drop', (e) => {
+    e.preventDefault();
+    addPhotos(e.dataTransfer?.files ?? null);
+  });
+
+  // ---- stickers -----------------------------------------------------------------
+
+  const params = new URLSearchParams(location.search);
+  const pack = params.get('pack') ? data.packs[params.get('pack')!] : undefined;
+  let cat = '';
+  let query = '';
+  const grid = $('sb-stickers');
+
+  function renderStickers() {
+    const q = query.trim().toLowerCase();
+    const inPack = pack && cat === 'pack' ? new Set(pack.slugs) : null;
+    const list = data.library.filter(
+      (s) => (inPack ? inPack.has(s.s) : !cat || s.c === cat) && (!q || q.split(/\s+/).every((w) => s.k.includes(w)))
+    );
+    grid.innerHTML = '';
+    if (!list.length) {
+      grid.innerHTML = '<p class="sb-note">No stickers match that. Try another word.</p>';
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    for (const s of list) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.title = s.t;
+      b.dataset.src = s.src;
+      const img = document.createElement('img');
+      img.src = s.th;
+      img.alt = s.t;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      b.append(img);
+      frag.append(b);
+    }
+    grid.append(frag);
+  }
+
+  async function addSticker(src: string, slug?: string) {
+    if (!(await loadUrl(src))) {
+      toast("That sticker didn't load. Try again.");
+      return;
+    }
+    editor.addArt(src, { long: 0.36 });
+    placed();
+    track('scrapbook_sticker', { sticker: slug ?? src });
+  }
+
+  grid.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-src]');
+    if (b) addSticker(b.dataset.src!, b.title);
+  });
+
+  let searchTimer = 0;
+  $<HTMLInputElement>('sb-search').addEventListener('input', (e) => {
+    query = (e.target as HTMLInputElement).value;
+    clearTimeout(searchTimer);
+    searchTimer = window.setTimeout(renderStickers, 120);
+  });
+  const catChips = radio('#sb-cats [data-cat]', (b) => {
+    cat = b.dataset.cat || '';
+    renderStickers();
+  });
+  if (pack) {
+    const chip = catChips.find((c) => c.dataset.cat === 'pack')!;
+    chip.hidden = false;
+    chip.textContent = pack.name;
+    catChips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+    cat = 'pack';
+  }
+
+  // ---- text ---------------------------------------------------------------------
+
+  const textInput = $<HTMLTextAreaElement>('sb-text');
+  let style: 'letters' | TextStyle = 'letters';
+  let ink = '#2A2522';
+  radio('[data-style]', (b) => {
+    style = b.dataset.style as typeof style;
+    $('sb-ink-wrap').hidden = style === 'letters' || style === 'label';
+  });
+  radio('[data-ink]', (b) => (ink = b.dataset.ink!));
+  root.querySelectorAll<HTMLButtonElement>('[data-phrase]').forEach((b) =>
+    b.addEventListener('click', () => {
+      textInput.value = b.dataset.phrase!;
+      addText();
+    })
+  );
+
+  async function addText() {
+    const text = textInput.value.trim();
+    if (!text) {
+      toast('Type something first.');
+      textInput.focus();
+      return;
+    }
+    const key = style === 'letters' ? await makeLetters(text, await getManifest()) : await makeText(text, style, ink);
+    if (!key) return;
+    editor.addArt(key, { long: style === 'letters' ? 0.72 : 0.55, shadow: style === 'letters' || style === 'label', angle: rad((Math.random() - 0.5) * 6) });
+    placed();
+    track('scrapbook_text', { style });
+  }
+  $('sb-addtext').addEventListener('click', addText);
+
+  // ---- symbols ------------------------------------------------------------------
+
+  let symbols: { t: string; c: string; x: string }[] | null = null;
+  let symCat = '';
+  async function loadSymbols() {
+    if (symbols) return;
+    try {
+      symbols = await fetch('/scrapbook-symbols.json').then((r) => r.json());
+    } catch {
+      $('sb-symbols').innerHTML = '<p class="sb-note">Symbols didn\'t load. Check your connection and reopen this tab.</p>';
+      return;
+    }
+    const cats = [...new Set(symbols!.map((s) => s.c))];
+    symCat = cats[0] ?? '';
+    const bar = $('sb-symcats');
+    bar.innerHTML = cats
+      .map((c, i) => `<button type="button" class="chip" data-symcat="${c}" aria-pressed="${i === 0}">${c}</button>`)
+      .join('');
+    radio('[data-symcat]', (b) => {
+      symCat = b.dataset.symcat!;
+      renderSymbols();
+    });
+    renderSymbols();
+  }
+
+  function renderSymbols() {
+    const box = $('sb-symbols');
+    box.innerHTML = '';
+    for (const s of symbols!.filter((x) => x.c === symCat)) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = s.x;
+      b.title = s.t;
+      if (s.x.includes('\n')) b.classList.add('is-art');
+      b.addEventListener('click', async () => {
+        const key = await makeText(s.x, 'symbol', editor.doc.paper === 'black' ? '#FFFFFF' : '#2A2522');
+        editor.addArt(key, { long: s.x.includes('\n') ? 0.6 : 0.42, shadow: false, angle: 0 });
+        placed();
+        track('scrapbook_symbol', { symbol: s.t });
+      });
+      box.append(b);
+    }
+  }
+
+  // ---- tape and paper -------------------------------------------------------------
+
+  root.querySelectorAll<HTMLButtonElement>('[data-tape]').forEach((b) => {
+    b.addEventListener('click', () => {
+      editor.addArt(makeTape(b.dataset.tape!), { long: 0.36, shadow: false });
+      placed();
+      track('scrapbook_tape', { tape: b.dataset.tape });
+    });
+  });
+
+  root.querySelectorAll<HTMLButtonElement>('[data-paper]').forEach((b) =>
+    b.addEventListener('click', () => {
+      editor.setPaper(b.dataset.paper!);
+      track('scrapbook_paper', { paper: b.dataset.paper });
+    })
+  );
+
+  // ---- export ---------------------------------------------------------------------
+
+  const dialog = $<HTMLDialogElement>('sb-dialog');
+  let out: HTMLCanvasElement | null = null;
+  const filename = () => `88cutouts-scrapbook-${editor.doc.format}.png`;
+
+  $('sb-export').addEventListener('click', () => {
+    if (editor.isEmpty) {
+      toast('Add a photo or a sticker first.');
+      return;
+    }
+    editor.select(null);
+    out = editor.render();
+    $<HTMLImageElement>('sb-preview').src = out.toDataURL('image/png');
+    $('sb-share').hidden = !('canShare' in navigator);
+    dialog.showModal();
+    track('scrapbook_export_open', { format: editor.doc.format, items: editor.doc.els.length });
+  });
+
+  $('sb-close').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
+
+  const exported = () => (editor.dirty = false);
+
+  $('sb-download').addEventListener('click', () => {
+    if (!out) return;
+    downloadCanvas(out, filename());
+    exported();
+    track('scrapbook_download', { format: editor.doc.format });
+  });
+
+  $('sb-copy').addEventListener('click', async () => {
+    if (!out) return;
+    const ok = await copyCanvas(out);
+    toast(ok ? 'Copied! Paste it into your Story.' : "Copy isn't supported here. Use Download instead.");
+    if (ok) exported();
+    track(ok ? 'scrapbook_copy' : 'scrapbook_copy_unsupported', {});
+  });
+
+  $('sb-share').addEventListener('click', async () => {
+    if (!out) return;
+    const blob: Blob | null = await new Promise((r) => out!.toBlob(r, 'image/png'));
+    if (!blob) return;
+    const file = new File([blob], filename(), { type: 'image/png' });
+    if (!navigator.canShare?.({ files: [file] })) {
+      toast("Sharing isn't supported here. Use Download instead.");
+      return;
+    }
+    try {
+      await navigator.share({ files: [file], title: 'My scrapbook page' });
+      exported();
+      track('scrapbook_share', {});
+    } catch {
+      /* closed the share sheet */
+    }
+  });
+
+  // Nothing is saved, so warn before the page is thrown away.
+  window.addEventListener('beforeunload', (e) => {
+    if (editor.dirty && !editor.isEmpty) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
+  // ---- start ----------------------------------------------------------------------
+
+  (async () => {
+    const tpl = params.get('template');
+    const add = params.get('add');
+    const phrase = params.get('t');
+    if (phrase) textInput.value = phrase.slice(0, 60);
+    if (tpl) await applyTemplate(tpl);
+    else refresh();
+
+    if (add) {
+      const s = data.library.find((x) => x.s === add);
+      if (s) await addSticker(s.src, s.s);
+      openTab('stickers');
+    } else if (pack) openTab('stickers');
+    else if (params.get('tool') === 'text') openTab('text');
+    else if (tpl) openTab('photos');
+
+    if (phone.matches && (tpl || add)) body.dataset.sheet = add ? 'closed' : 'open';
+  })();
+</script>

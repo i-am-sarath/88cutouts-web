@@ -35,4 +35,4 @@ Use cutout letters for the short emotional message. Put a time, address or long 
 
 Make two exports and compare them at phone size. Ask someone to read the wording without telling them what it says; if that is not possible, leave the design for a few minutes and return with fresh eyes.
 
-Try the [text maker](/ransom-note/) for the initial heading. The [spacing guide](/blog/cutout-letter-spacing/) addresses individual gaps, while [caption panels](/blog/readable-caption-panel/) provide a place for the secondary text.
+Try the cut-out letters in the [scrapbook maker](/scrapbook/?tool=text) for the initial heading; a new line in the text box starts a new line of letters. The [spacing guide](/blog/cutout-letter-spacing/) addresses individual gaps, while [caption panels](/blog/readable-caption-panel/) provide a place for the secondary text.

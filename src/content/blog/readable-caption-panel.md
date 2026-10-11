@@ -35,4 +35,4 @@ Save a copy and view it at normal phone size. Read the whole message aloud, incl
 
 For an invitation, repeat essential details in the accompanying text message. The image can carry the visual mood while ordinary text remains easy to copy and search.
 
-Use the [cutout text maker](/ransom-note/) for a short decorative heading, and keep longer supporting copy in a conventional font. The [letter-spacing guide](/blog/cutout-letter-spacing/) helps when the heading needs more breathing room.
+Use the cut-out letters in the [scrapbook maker](/scrapbook/?tool=text) for a short decorative heading, and keep longer supporting copy in a conventional font. The [letter-spacing guide](/blog/cutout-letter-spacing/) helps when the heading needs more breathing room.

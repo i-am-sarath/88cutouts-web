@@ -1,0 +1,190 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ScrapbookEditor from '../../components/ScrapbookEditor.astro';
+import { templates } from '../../data/scrapbook-templates';
+import { getPacks } from '../../lib/packs';
+import { stickerThumb } from '../../lib/thumbs.mjs';
+
+// No ad slots on this page on purpose: the loader only runs where a slot
+// exists, so Auto Ads can't drop an ad into the editor either.
+
+const site = Astro.site?.href ?? 'https://88cutouts.com/';
+const packs = (await getPacks()).slice(0, 6);
+
+const faq = [
+  {
+    q: 'Is the scrapbook maker free?',
+    a: 'Yes. There is no account, no watermark and no paid tier. Make as many pages as you like and use them on your own Instagram, WhatsApp, Pinterest or in print.',
+  },
+  {
+    q: 'Are my photos uploaded anywhere?',
+    a: 'No. Photos are opened by your browser and drawn on the page on your own device. They are never sent to 88cutouts or anyone else, which is also why nothing is saved: close the tab and the page is gone, so download it first.',
+  },
+  {
+    q: 'How do I post my page to Instagram?',
+    a: 'Tap Save image, then Download (or Share on a phone, which can send it straight to Instagram). Pick the Story size for Stories, Post for the 4:5 feed format, or Square. In Instagram, add the image from your gallery like any photo.',
+  },
+  {
+    q: 'How do I resize or rotate a sticker or photo?',
+    a: 'Tap it to select it. On a phone, pinch with two fingers to resize and twist to rotate. With a mouse, drag the dark round handle at the corner, or use the scroll wheel (hold Shift to rotate). The red handle deletes it.',
+  },
+  {
+    q: 'Can I make a transparent PNG?',
+    a: 'Yes. Choose the "Clear" paper. The saved image has no background, so you can paste it over a photo in a Story or use it as a sticker somewhere else.',
+  },
+  {
+    q: 'Can I save my scrapbook and come back later?',
+    a: 'Not at the moment. Pages are made in one go and saved as an image. Download each page as you finish it; a set of downloaded pages in the same paper makes a book you can post as a carousel or a Story series.',
+  },
+];
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: '88cutouts Scrapbook Maker',
+    url: new URL('/scrapbook/', site).href,
+    applicationCategory: 'DesignApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript',
+    description:
+      'Make a digital scrapbook page in your browser: your photos, aesthetic stickers, cut-out letters, washi tape and paper backgrounds. Save it as an Instagram Story, post or square image.',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    featureList: [
+      'Add your own photos with polaroid or border frames',
+      'Hundreds of transparent stickers',
+      'Cut-out letters, handwriting, label tape and symbols',
+      'Washi tape and paper backgrounds',
+      'Story 9:16, post 4:5 and square sizes',
+      'Photos stay on your device',
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<BaseLayout
+  title="Free online scrapbook maker — photos, stickers and washi tape | 88cutouts"
+  description="Make a scrapbook page in your browser: add your photos, aesthetic stickers, cut-out letters and washi tape on paper backgrounds, then save it for your Instagram Story or feed. Free, no login, photos never uploaded."
+  jsonld={jsonld}
+>
+  <div class="wrap">
+    <div class="sb-intro">
+      <h1>Scrapbook maker</h1>
+      <p>Photos, stickers, cut-out letters and washi tape. Free, no login, and your photos never leave your device.</p>
+    </div>
+
+    <ScrapbookEditor />
+
+    <article class="prose sb-prose">
+      <h2>Make a page in four steps</h2>
+      <ol>
+        <li>
+          <strong>Pick a starting point.</strong> A template gives you a finished layout with empty
+          photo spots, or start with a blank page and a paper you like.
+        </li>
+        <li>
+          <strong>Add your photos.</strong> They drop straight into the template's empty spots, top
+          to bottom. Tap any spot to choose exactly which photo goes there.
+        </li>
+        <li>
+          <strong>Decorate.</strong> Stickers from the library, a title in cut-out magazine letters,
+          a handwritten line, symbols and a strip or two of washi tape across the corners.
+        </li>
+        <li>
+          <strong>Save it.</strong> Tap Save image, then download or share it. Story size fits
+          Instagram and WhatsApp Stories exactly; Post is the 4:5 feed shape.
+        </li>
+      </ol>
+
+      <h2>Why a scrapbook page beats a photo dump</h2>
+      <p>
+        A ten-slide carousel asks people to swipe; most stop at the second slide. A scrapbook
+        page shows three or four photos at once, in the order and size you chose, with a few
+        words that say why they matter. It is the difference between a camera roll and a
+        memory, and it is the kind of post people screenshot and send back to you.
+      </p>
+      <p>
+        It also takes the pressure off. Overlapping prints, slightly crooked tape and a scribbled
+        caption are the look, so a page never needs to be perfect. Tilt things a few degrees,
+        let a sticker hang off the edge of a photo and it starts to feel like paper.
+      </p>
+
+      <h2>Tips for a page that looks hand-made</h2>
+      <ul>
+        <li>Stick to one paper and two or three sticker colours that also appear in your photos.</li>
+        <li>Overlap. Photos that touch or tuck under each other look stuck in; evenly spaced ones look like a grid.</li>
+        <li>Put tape across a corner of a photo, not in empty space. That's what tape is for.</li>
+        <li>Leave some paper showing. A page with no breathing room just looks busy.</li>
+        <li>Keep the top and bottom of a Story a little quieter: Instagram's profile row and reply bar sit there.</li>
+      </ul>
+      <p>
+        More ideas are in the guides on <a href="/blog/digital-scrapbook-collage-guide/">digital scrapbook collages</a>,
+        <a href="/blog/layer-order-collage/">layering</a> and
+        <a href="/blog/negative-space-collage/">leaving negative space</a>.
+      </p>
+    </article>
+
+    <section class="sb-section">
+      <div class="section-head">
+        <h2>Templates</h2>
+      </div>
+      <div class="tpl-cards">
+        {
+          templates.map((t) => (
+            <a class="tpl-card" href={`/scrapbook/${t.slug}/`}>
+              <b>{t.name}</b>
+              <span>{t.blurb}</span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    {
+      packs.length > 0 && (
+        <section class="pack-strip sb-section">
+          <div class="section-head">
+            <h2>Decorate with a sticker pack</h2>
+            <a class="count" href="/packs/">All packs →</a>
+          </div>
+          <div class="pack-grid">
+            {packs.map((p) => (
+              <a class="pack-card" href={`/scrapbook/?pack=${p.slug}`}>
+                <div class="pack-thumbs">
+                  {p.entries.slice(0, 4).map((s) => (
+                    <img src={stickerThumb(s.data.image, 200)} alt="" width="200" height="200" loading="lazy" decoding="async" />
+                  ))}
+                </div>
+                <div class="card-meta">
+                  <div class="card-title">{p.name}</div>
+                  <div class="card-sub">Open in the scrapbook</div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <article class="prose sb-prose">
+      <h2>Questions</h2>
+      {
+        faq.map((f) => (
+          <>
+            <h3>{f.q}</h3>
+            <p>{f.a}</p>
+          </>
+        ))
+      }
+    </article>
+  </div>
+</BaseLayout>

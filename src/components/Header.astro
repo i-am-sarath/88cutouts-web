@@ -2,14 +2,14 @@
 import SearchBar from './SearchBar.astro';
 
 const path = Astro.url.pathname;
-const isActive = (href: string) =>
-  href === '/' ? path === '/' : path.startsWith(href);
+const isActive = (href: string) => path.startsWith(href);
+const onSticker = isActive('/stickers') || isActive('/category');
 ---
 
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="/" aria-label="88cutouts home">
-      <span class="spark" aria-hidden="true">✦</span>88cutouts
+      <span class="spark" aria-hidden="true">✂</span>88cutouts
     </a>
 
     <div class="search-wrap">
@@ -17,23 +17,10 @@ const isActive = (href: string) =>
     </div>
 
     <nav class="header-nav" aria-label="Main">
-      <a href="/collage-maker/" aria-current={isActive('/collage-maker') ? 'page' : undefined}>
-        Collage
-      </a>
+      <a class="nav-cta" href="/scrapbook/" aria-current={isActive('/scrapbook') ? 'page' : undefined}>Scrapbook</a>
+      <a href="/stickers/" aria-current={onSticker ? 'page' : undefined}>Stickers</a>
       <a href="/packs/" aria-current={isActive('/packs') ? 'page' : undefined}>Packs</a>
       <a href="/symbols/" aria-current={isActive('/symbols') ? 'page' : undefined}>Symbols</a>
-      <a href="/ransom-note/" aria-current={isActive('/ransom-note') ? 'page' : undefined}>
-        Cutout Text
-      </a>
-      <a href="/blog/" aria-current={isActive('/blog') ? 'page' : undefined}>Blog</a>
-      <a href="/about/" aria-current={isActive('/about') ? 'page' : undefined}>About</a>
     </nav>
   </div>
 </header>
-
-<style>
-  @media (min-width: 721px) and (max-width: 1100px) {
-    .site-header .wrap { flex-wrap: wrap; }
-    .header-nav { flex-basis: 100%; margin-left: 0; padding-bottom: .2rem; }
-  }
-</style>

@@ -1,0 +1,77 @@
+---
+import { getStickers } from '../../lib/stickers';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import CategoryPills from '../../components/CategoryPills.astro';
+import StickerCard from '../../components/StickerCard.astro';
+
+const all = await getStickers();
+const stickers = [...all].sort((a, b) => {
+  if (a.data.featured !== b.data.featured) return a.data.featured ? -1 : 1;
+  return b.data.date.valueOf() - a.data.date.valueOf();
+});
+const frames = stickers.filter((s) => s.data.type === 'frame').length;
+const site = Astro.site?.href ?? 'https://88cutouts.com/';
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'All aesthetic stickers and frames',
+    url: new URL('/stickers/', site).href,
+    isPartOf: { '@type': 'WebSite', name: '88cutouts', url: site },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: stickers.length,
+      itemListElement: stickers.slice(0, 50).map((s, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: new URL(`/stickers/${s.slug}/`, site).href,
+        name: s.data.title,
+      })),
+    },
+  },
+];
+---
+
+<BaseLayout
+  title={`All ${stickers.length} aesthetic stickers — free transparent PNGs | 88cutouts`}
+  description={`Every sticker on 88cutouts in one place: ${stickers.length} free transparent PNG stickers and frames for Instagram Stories and scrapbook pages. Copy, download, or add to a scrapbook.`}
+  jsonld={jsonld}
+>
+  <div class="wrap">
+    <p class="crumbs"><a href="/">Home</a><span>/</span>Stickers</p>
+    <div class="section-head">
+      <h1 class="tool-title">All stickers &amp; frames</h1>
+      <span class="count">{stickers.length} items</span>
+    </div>
+    <p class="lede">
+      {stickers.length - frames} stickers and {frames} {frames === 1 ? 'frame' : 'frames'}, all transparent PNGs, featured
+      ones first and then newest. Open one to copy it into a Story at the opacity you want, or
+      add it straight to a <a href="/scrapbook/">scrapbook page</a>.
+    </p>
+
+    <CategoryPills active="all" />
+
+    <div class="grid">
+      {stickers.map((entry, i) => <StickerCard entry={entry} eager={i < 6} />)}
+    </div>
+
+    <AdSlot />
+
+    <article class="prose">
+      <h2>Using them</h2>
+      <p>
+        Each sticker page has Copy and Download buttons and an opacity control. Copy puts the
+        PNG on your clipboard; in an Instagram Story, tap the screen and long-press to paste it
+        as a sticker you can pinch and rotate. Download saves the same file to your camera roll
+        for apps that won't paste images.
+      </p>
+      <p>
+        For more than one sticker, a <a href="/packs/">sticker pack</a> copies a matching set
+        in one go, and the <a href="/scrapbook/">scrapbook maker</a> puts any of these on a
+        page with your own photos, cut-out letters and washi tape.
+      </p>
+    </article>
+  </div>
+</BaseLayout>

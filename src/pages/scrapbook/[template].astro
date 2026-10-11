@@ -1,0 +1,115 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import { templates, type ScrapbookTemplate } from '../../data/scrapbook-templates';
+import { resolveTemplate } from '../../lib/scrapbook-templates';
+
+export function getStaticPaths() {
+  return templates.map((t) => ({ params: { template: t.slug }, props: { t } }));
+}
+
+interface Props {
+  t: ScrapbookTemplate;
+}
+
+const { t } = Astro.props;
+const resolved = await resolveTemplate(t);
+const others = templates.filter((o) => o.slug !== t.slug);
+const site = Astro.site?.href ?? 'https://88cutouts.com/';
+const editorUrl = `/scrapbook/?template=${t.slug}`;
+const photos = t.els.filter((e) => e.t === 'slot').length;
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: site },
+      { '@type': 'ListItem', position: 2, name: 'Scrapbook', item: new URL('/scrapbook/', site).href },
+      { '@type': 'ListItem', position: 3, name: t.name, item: new URL(`/scrapbook/${t.slug}/`, site).href },
+    ],
+  },
+];
+---
+
+<BaseLayout title={`${t.title} — free, no login | 88cutouts`} description={t.description} jsonld={jsonld}>
+  <div class="wrap">
+    <p class="crumbs"><a href="/">Home</a><span>/</span><a href="/scrapbook/">Scrapbook</a><span>/</span>{t.name}</p>
+
+    <div class="tpl-hero">
+      <div class="tpl-preview">
+        <canvas id="tpl-canvas" width="1080" height="1920" role="img" aria-label={`Preview of the ${t.name} scrapbook template`}></canvas>
+      </div>
+      <div class="tpl-copy">
+        <h1>{t.title}</h1>
+        <p class="lede">{t.description}</p>
+        <ul class="tpl-facts">
+          <li><b>{photos}</b> photo {photos === 1 ? 'spot' : 'spots'}</li>
+          <li><b>9:16</b> Story size, or switch to post or square</li>
+          <li><b>Free</b>, no login, photos stay on your device</li>
+        </ul>
+        <a class="btn-copy tpl-cta" href={editorUrl}>Use this template →</a>
+      </div>
+    </div>
+
+    <article class="prose">
+      {t.intro.map((p) => <p>{p}</p>)}
+
+      <h2>Making it yours</h2>
+      <ul>
+        {t.tips.map((tip) => <li>{tip}</li>)}
+      </ul>
+
+      <AdSlot />
+
+      <h2>Caption ideas</h2>
+      <p>For the handwritten line on the page, or for the post itself:</p>
+      <ul class="tpl-captions">
+        {t.captions.map((c) => <li>{c}</li>)}
+      </ul>
+
+      <h2>How to use it</h2>
+      <ol>
+        <li>Tap <a href={editorUrl}>Use this template</a>. It opens in the scrapbook maker.</li>
+        <li>Tap <strong>Photos → Add photos</strong> and pick {photos === 1 ? 'one' : photos}. They fill the empty spots from the top down; tap a spot to choose its photo yourself.</li>
+        <li>Drag anything to move it, pinch or use the corner handle to resize and rotate, and tap the red handle to remove it.</li>
+        <li>Change the words in the <strong>Text</strong> tab, swap stickers from <strong>Stickers</strong>, then <strong>Save image</strong>.</li>
+      </ol>
+    </article>
+
+    <section class="sb-section">
+      <div class="section-head">
+        <h2>More templates</h2>
+        <a class="count" href="/scrapbook/">Scrapbook maker →</a>
+      </div>
+      <div class="tpl-cards">
+        {
+          others.map((o) => (
+            <a class="tpl-card" href={`/scrapbook/${o.slug}/`}>
+              <b>{o.name}</b>
+              <span>{o.blurb}</span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+
+  <script type="application/json" id="tpl-data" set:html={JSON.stringify(resolved)} />
+</BaseLayout>
+
+<script>
+  import { drawDoc } from '../../lib/scrapbook/scene';
+  import { buildTemplate, type ResolvedTemplate } from '../../lib/scrapbook/template';
+
+  const canvas = document.getElementById('tpl-canvas') as HTMLCanvasElement;
+  const t: ResolvedTemplate = JSON.parse(document.getElementById('tpl-data')!.textContent || '{}');
+
+  // Drawn only once it is near the screen, so the stickers it needs don't
+  // compete with the rest of the page on load.
+  new IntersectionObserver((entries, io) => {
+    if (!entries.some((e) => e.isIntersecting)) return;
+    io.disconnect();
+    buildTemplate(t).then((doc) => drawDoc(canvas.getContext('2d')!, doc));
+  }, { rootMargin: '200px' }).observe(canvas);
+</script>

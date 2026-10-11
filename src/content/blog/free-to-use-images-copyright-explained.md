@@ -132,12 +132,12 @@ The practical exposure is low for a personal Story and meaningfully higher the m
 
 ## The terms on this site, plainly
 
-Everything in the [sticker library](/), the [sticker packs](/packs/), the [collage maker](/collage-maker/) and the [cutout text maker](/ransom-note/) is original work made for this site, and it is **free for personal use** with no account, no attribution requirement and no watermark.
+Everything in the [sticker library](/), the [sticker packs](/packs/) and the [scrapbook maker](/scrapbook/) is original work made for this site, and it is **free for personal use** with no account, no attribution requirement and no watermark.
 
 What that covers: Instagram Stories, WhatsApp, group chats, profile pictures, printed cards, invitations, school and college projects, your own personal blog.
 
 What it does not cover: reselling the files, redistributing them as a pack, using them in a product you sell, or using them as a logo or trademark. For any of that, email [hello@88cutouts.com](mailto:hello@88cutouts.com) — commercial use is usually fine to arrange, it just needs asking.
 
-Images generated in the cutout text maker are yours: nothing you type leaves your browser, and nothing is uploaded or stored.
+Pages you make in the scrapbook maker are yours: your photos and words never leave your browser, and nothing is uploaded or stored.
 
 If you believe something published here infringes your work, email the same address with a link and evidence of ownership, and it will be removed while it is looked into. That is the whole policy, and it is deliberately short.

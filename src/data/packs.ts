@@ -1,8 +1,8 @@
 /**
  * Sticker packs: small themed sets picked from the library by hand, each one
  * meant to dress a single Story. A pack page lays its stickers out as one
- * cluster you can copy in a tap, and links into the collage maker narrowed to
- * that pack (/collage-maker/?pack=<slug>).
+ * cluster you can copy in a tap, and links into the scrapbook maker narrowed to
+ * that pack (/scrapbook/?pack=<slug>).
  *
  * `stickers` are sticker slugs (file names in src/content/stickers). A slug
  * that doesn't resolve is dropped with a build warning, so deleting a sticker
@@ -21,7 +21,7 @@ export interface PackData {
   ideas: string[];
   /** A note on what to pair it with, or how to place it. */
   tip: string;
-  /** Suggested words for the collage maker. */
+  /** Suggested words for the scrapbook's cut-out letters. */
   phrase: string;
   stickers: string[];
 }
@@ -141,7 +141,7 @@ export const packs: PackData[] = [
     blurb: 'Cut-out "happy birthday" letters, a champagne cat, macarons, tulips, sparkles and a bow: one wish, fully dressed.',
     intro: [
       'A birthday Story for someone else has one job: their photo, their name and enough decoration that it looks like you made an effort. This pack covers the decoration. Ready-made "happy birthday" letters, a cat raising a glass of champagne, a stack of macarons, a tulip bouquet, blue sparkle stars, a pink satin bow and a glossy red heart.',
-      'The cut-out letters are the anchor. Put them across the top or bottom band of the Story, then add two or three of the others around the photo. If you want their name in the same style, the collage maker below builds it from the same paper-letter set.',
+      'The cut-out letters are the anchor. Put them across the top or bottom band of the Story, then add two or three of the others around the photo. If you want their name in the same style, the scrapbook maker sets it in the same paper letters.',
     ],
     ideas: [
       'A birthday shout-out: their photo in the middle, the letters across the top, macarons and tulips on the lower corners.',

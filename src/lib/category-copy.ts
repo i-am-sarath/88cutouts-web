@@ -199,7 +199,7 @@ const PAGES: Record<string, CategoryPage> = {
       {
         h: 'What goes with it',
         p: [
-          'Other hard-edged things: chunky lettering, comic bursts, pixel shapes. The cutout text maker pairs well here — paper letters have the same anti-professional, cut-and-paste register as early web graphics. Watercolour flowers and satin bows do not.',
+          'Other hard-edged things: chunky lettering, comic bursts, pixel shapes. Cut-out letters from the scrapbook maker pair well here — paper letters have the same anti-professional, cut-and-paste register as early web graphics. Watercolour flowers and satin bows do not.',
           'Backgrounds that suit it are flat and saturated, or flash-lit photos with hard shadows. Soft, film-grain images fight it.',
         ],
       },
@@ -262,7 +262,7 @@ const PAGES: Record<string, CategoryPage> = {
       },
       {
         q: 'Can I use these on a wedding or event Story?',
-        a: 'Yes, and they are one of the better sets for it. Pair a bloom with the cutout text maker for a date or a name and you have an announcement without needing a design app.',
+        a: 'Yes, and they are one of the better sets for it. Pair a bloom with cut-out letters from the scrapbook maker for a date or a name and you have an announcement without needing a design app.',
       },
     ],
   },
@@ -275,14 +275,14 @@ const PAGES: Record<string, CategoryPage> = {
         h: 'Legibility first',
         p: [
           'Text stickers have exactly one job, which is to be read instantly on a phone held at arm’s length. That means clear space around them and enough size to survive Instagram’s compression. Put lettering where the photo is quietest rather than where the composition is most interesting — the two are rarely the same place.',
-          'Do not stack two text stickers in one frame. If you need more words, use one sticker and put the rest in Instagram’s own text, or set the whole phrase in the cutout text maker.',
+          'Do not stack two text stickers in one frame. If you need more words, use one sticker and put the rest in Instagram’s own text, or set the whole phrase in cut-out letters in the scrapbook maker.',
         ],
       },
       {
         h: 'When to use a ready-made word instead of typing one',
         p: [
           'A ready-made lettering sticker has a texture and an irregular edge that live text cannot fake — it reads as an object on the photo. Instagram’s fonts are clean and uniform, which makes them invisible in a good way for captions and in a bad way for anything meant to stand out.',
-          'For a phrase that is not on this shelf, the cutout text maker sets any short message in the same paper-letter style, at whatever opacity you want.',
+          'For a phrase that is not on this shelf, the Text tab in the scrapbook maker sets any short message in the same paper-letter style.',
         ],
       },
       {
@@ -295,7 +295,7 @@ const PAGES: Record<string, CategoryPage> = {
     faq: [
       {
         q: 'Can I make my own text in this style?',
-        a: 'Yes — the cutout text maker takes any short message and returns it as paper letters on a transparent PNG, with the same opacity control as the stickers here.',
+        a: 'Yes. The Text tab in the scrapbook maker sets any short message in paper letters, and with the Clear paper it saves as a transparent PNG.',
       },
       {
         q: 'How big should text be in a Story?',
@@ -439,7 +439,7 @@ const PAGES: Record<string, CategoryPage> = {
       {
         h: 'What to pair it with',
         p: [
-          'Lettering, and anything celebratory. The cutout text maker is the natural companion — a date sticker plus a short phrase in the same paper style is a complete announcement without a design app.',
+          'Lettering, and anything celebratory. Cut-out letters from the scrapbook maker are the natural companion — a date sticker plus a short phrase in the same paper style is a complete announcement without a design app.',
           'Keep these solid. A date is information, and information should not be translucent.',
         ],
       },

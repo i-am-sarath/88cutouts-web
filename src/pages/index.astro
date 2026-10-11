@@ -2,11 +2,12 @@
 import { getStickers } from '../lib/stickers';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import AdSlot from '../components/AdSlot.astro';
-import CategoryPills from '../components/CategoryPills.astro';
 import StickerCard from '../components/StickerCard.astro';
 import StickerShuffle from '../components/StickerShuffle.astro';
 import { getPacks } from '../lib/packs';
 import { stickerThumb } from '../lib/thumbs.mjs';
+import { templates } from '../data/scrapbook-templates';
+import { PAPERS } from '../lib/scrapbook/scene';
 
 const all = await getStickers();
 
@@ -25,38 +26,52 @@ const packs = await getPacks();
 
 const categories = [...new Set(all.map((s) => s.data.category))].sort();
 
+/** Stickers dressing the hero collage: featured ones first. */
+const heroArt = stickers
+  .filter((s) => s.data.type !== 'frame' && ['cute', 'coquette', 'flowers', 'hearts', 'retro'].includes(s.data.category))
+  .slice(0, 4);
+
+const paperColor = (id: string) => PAPERS.find((p) => p.id === id)?.color || '#F6EFE3';
+
 const site = Astro.site?.href ?? 'https://88cutouts.com/';
 
 const faq = [
   {
+    q: 'Is the scrapbook maker really free?',
+    a: 'Yes. There is no account, no watermark and no paid tier. Make a page from your photos, the stickers here and cut-out letters, save it as an image and post it anywhere.',
+  },
+  {
+    q: 'Are my photos uploaded?',
+    a: 'No. The scrapbook maker draws your page in your own browser. Photos are never sent anywhere, which is also why nothing is saved: download your page before you close the tab.',
+  },
+  {
     q: 'Are these stickers really free?',
-    a: 'Yes. Every cutout here is free for personal use on your own Stories, posts, chats and notes. There is no account, no watermark and no attribution requirement. The full terms are on the about page.',
+    a: 'Yes. Every cutout here is free for personal use on your own Stories, posts, chats and notes. There is no account, no watermark and no attribution requirement. The full terms are on the licence page.',
   },
   {
     q: 'Do I need an app to use them?',
-    a: 'No. Open a sticker, tap Copy, then long-press inside an Instagram Story to paste it. The whole thing happens in your browser — nothing is installed and nothing is uploaded.',
+    a: 'No. Open a sticker, tap Copy, then long-press inside an Instagram Story to paste it. Or add it to a scrapbook page with your photos. Everything happens in your browser.',
   },
   {
     q: 'Why does my sticker have a white box around it?',
     a: 'Because it landed somewhere that flattens transparency. Instagram Stories keep the alpha channel; feed posts and some chat apps do not. Pasting into a Story, or saving the PNG and adding it as a sticker, keeps the edges clean.',
-  },
-  {
-    q: 'Can I make a sticker see-through?',
-    a: 'Yes — every sticker page has an opacity slider. Drag it down and the Copy and Download output becomes translucent, which is what you want when the cutout sits over a photo rather than on a plain background.',
-  },
-  {
-    q: 'What format are the files?',
-    a: 'PNG images with transparency. Dimensions and transparent margins vary; check the file details on each sticker page before enlarging it.',
   },
 ];
 
 const jsonld = [
   {
     '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: '88cutouts',
+    url: site,
+    description: 'Free online scrapbook maker and aesthetic transparent stickers for Instagram.',
+  },
+  {
+    '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'Free aesthetic Instagram Story stickers',
+    name: 'Free aesthetic stickers and scrapbook maker',
     description:
-      'Free transparent PNG stickers and frames for Instagram Stories. Tap to copy, adjust the opacity, no login needed.',
+      'Make scrapbook pages from your photos, and copy free transparent PNG stickers into your Instagram Stories. No login.',
     url: site,
     isPartOf: { '@type': 'WebSite', name: '88cutouts', url: site },
     mainEntity: {
@@ -83,40 +98,58 @@ const jsonld = [
 ---
 
 <BaseLayout
-  title="88cutouts — free aesthetic stickers for Instagram Stories"
-  description="Free transparent PNG stickers, frames and cutouts for your Instagram Stories. Tap to copy, set the opacity you want, and paste straight in — no login, no app."
+  title="88cutouts — free online scrapbook maker & aesthetic stickers"
+  description="Make scrapbook pages from your photos with aesthetic stickers, cut-out letters and washi tape, then post them to Instagram. Plus free transparent PNG stickers to copy into your Stories. No login, no app."
   jsonld={jsonld}
 >
-  <section class="hero">
-    <div class="wrap">
-      <h1>Aesthetic stickers, ready to paste</h1>
-      <p>
-        {stickers.length} free transparent PNG stickers, frames and cutouts — tap
-        <strong>Copy</strong> and paste straight into a Story, no login and no app to
-        install. Every one keeps its alpha channel, and every sticker page has an
-        <strong>opacity slider</strong> so you can take the same cutout from solid to
-        see-through before you copy it.
-      </p>
-      <div class="rule"></div>
+  <section class="home-hero">
+    <div class="wrap home-hero-in">
+      <div class="home-hero-copy">
+        <p class="kicker">free · no login · photos stay on your phone</p>
+        <h1>Make a scrapbook page in your browser</h1>
+        <p class="home-hero-sub">
+          Your photos, {all.length} aesthetic stickers, cut-out magazine letters and washi tape
+          on real-looking paper. Save it for your Story or feed in a minute.
+        </p>
+        <div class="action-row">
+          <a class="btn-copy btn-big" href="/scrapbook/">Start a scrapbook →</a>
+          <a class="btn-download btn-big" href="/stickers/">Browse stickers</a>
+        </div>
+      </div>
+
+      <div class="home-hero-art" aria-hidden="true">
+        <div class="snap snap-1"><span class="tape"></span><span class="snap-photo" style="background:#F7D9DA">{heroArt[0] && <img src={stickerThumb(heroArt[0].data.image, 400)} alt="" width="400" height="400" />}</span></div>
+        <div class="snap snap-2"><span class="tape tape-mint"></span><span class="snap-photo" style="background:#DAE6F1">{heroArt[1] && <img src={stickerThumb(heroArt[1].data.image, 400)} alt="" width="400" height="400" />}</span></div>
+        <div class="snap snap-3"><span class="tape tape-lilac"></span><span class="snap-photo" style="background:#F8EDC4">{heroArt[2] && <img src={stickerThumb(heroArt[2].data.image, 400)} alt="" width="400" height="400" />}</span></div>
+        {heroArt[3] && <img class="hero-sticker" src={stickerThumb(heroArt[3].data.image, 400)} alt="" width="400" height="400" />}
+        <span class="hero-word">core memory</span>
+      </div>
     </div>
   </section>
 
   <div class="wrap">
-    <CategoryPills active="all" />
+    <section class="home-steps" aria-label="How it works">
+      <div class="step"><b>1</b><h2>Pick a template</h2><p>Or start blank on cream, kraft, grid or lined paper.</p></div>
+      <div class="step"><b>2</b><h2>Add your photos</h2><p>They drop into the frames. Nothing is uploaded.</p></div>
+      <div class="step"><b>3</b><h2>Decorate</h2><p>Stickers, cut-out letters, handwriting, symbols and tape.</p></div>
+      <div class="step"><b>4</b><h2>Save &amp; post</h2><p>Story, post or square size, ready for Instagram.</p></div>
+    </section>
 
-    <section class="home-maker">
-      <div>
-        <h2>Make a scrap collage</h2>
-        <p>
-          Type a few words and get them back in cut-out paper letters with stickers scattered
-          around them. Shuffle until it looks right, then paste it into your Story as one
-          sticker.
-        </p>
+    <section>
+      <div class="section-head">
+        <h2>Start from a template</h2>
+        <a class="count" href="/scrapbook/">Blank page →</a>
       </div>
-      <div class="action-row">
-        <a class="btn-copy" href="/collage-maker/">Open the collage maker</a>
-        <a class="btn-download" href="/packs/">Sticker packs</a>
-        <a class="btn-download" href="/symbols/">Symbols &amp; dot art</a>
+      <div class="tpl-cards">
+        {
+          templates.map((t) => (
+            <a class="tpl-card" href={`/scrapbook/${t.slug}/`}>
+              <span class="tpl-card-sw" style={`background:${paperColor(t.paper)}`}><i></i><i></i></span>
+              <b>{t.name}</b>
+              <span>{t.blurb}</span>
+            </a>
+          ))
+        }
       </div>
     </section>
 
@@ -124,12 +157,12 @@ const jsonld = [
       fresh.length > 0 && (
         <>
           <div class="section-head">
-            <h2>Just added</h2>
-            <span class="count">newest first</span>
+            <h2>Just added stickers</h2>
+            <a class="count" href="/stickers/">All {all.length} →</a>
           </div>
           <p class="lede">
-            New cutouts go up a few times a week. These are the most recent — worth a look
-            before everyone else finds them.
+            New cutouts go up a few times a week. Copy one straight into a Story, or add it to a
+            scrapbook page from its sticker page.
           </p>
           <div class="grid">
             {fresh.map((entry, i) => (
@@ -140,6 +173,20 @@ const jsonld = [
       )
     }
 
+    <section class="browse-cats">
+      <div class="section-head">
+        <h2>Browse by mood</h2>
+      </div>
+      <nav class="pills pills-wrap" aria-label="All categories">
+        <a class="pill" href="/stickers/">all stickers</a>
+        {categories.map((c) => (
+          <a class="pill" href={`/category/${c}/`}>
+            {c}
+          </a>
+        ))}
+      </nav>
+    </section>
+
     {
       popular.length > 0 && (
         <>
@@ -147,10 +194,6 @@ const jsonld = [
             <h2>Popular picks</h2>
             <span class="count">the ones people reach for</span>
           </div>
-          <p class="lede">
-            The cutouts that go furthest: simple shapes, clean edges and colours that sit on
-            almost any photo without fighting it.
-          </p>
           <div class="grid">
             {popular.map((entry) => (
               <StickerCard entry={entry} />
@@ -168,7 +211,8 @@ const jsonld = [
             <a class="count" href="/packs/">All {packs.length} packs →</a>
           </div>
           <p class="lede">
-            Themed sets picked to go together. Copy a whole pack into your Story in one tap.
+            Themed sets picked to go together. Copy a whole pack into your Story in one tap, or
+            open it in the scrapbook maker.
           </p>
           <div class="pack-grid">
             {packs.slice(0, 4).map((p) => (
@@ -189,55 +233,44 @@ const jsonld = [
       )
     }
 
+    <a class="home-symbols" href="/symbols/">
+      <span class="home-symbols-art" aria-hidden="true">✧ · ♡ · ✦<br />˚ ☾ ⋆ ˚</span>
+      <span>
+        <b>Symbols &amp; dot art</b>
+        Copy-and-paste text decorations for your bio, captions and notes, or add them to a
+        scrapbook page.
+      </span>
+    </a>
+
     <StickerShuffle
       pool={all}
       count={6}
       id="home"
       heading="Don't know what you want?"
-      blurb="Six at random from the whole library. Hit shuffle until something catches your eye — half the good Stories start this way."
+      blurb="Six at random from the whole library. Hit shuffle until something catches your eye."
     />
-
-    <section class="browse-cats">
-      <div class="section-head">
-        <h2>Browse by mood</h2>
-      </div>
-      <p class="lede">
-        Each set is small on purpose, so you can look through the whole thing in a minute
-        instead of scrolling a stock library.
-      </p>
-      <nav class="pills" aria-label="All categories">
-        {categories.map((c) => (
-          <a class="pill" href={`/category/${c}/`}>
-            {c}
-          </a>
-        ))}
-        <a class="pill" href="/ransom-note/">✦ cutout text</a>
-        <a class="pill" href="/collage-maker/">✦ collage maker</a>
-        <a class="pill" href="/packs/">✦ sticker packs</a>
-      </nav>
-    </section>
-
-    <div class="section-head">
-      <h2>All stickers &amp; frames</h2>
-      <span class="count">{stickers.length} items</span>
-    </div>
-
-    {
-      stickers.length === 0 ? (
-        <p class="lede">No stickers yet — add the first one from /admin.</p>
-      ) : (
-        <div class="grid">
-          {stickers.map((entry) => (
-            <StickerCard entry={entry} />
-          ))}
-        </div>
-      )
-    }
 
     <AdSlot />
 
     <article class="prose home-prose">
-      <h2>What these are, and how to use them</h2>
+      <h2>A scrapbook without the glue</h2>
+      <p>
+        A scrapbook page is a handful of photos that belong together, stuck down a little
+        crooked, with some tape, a few bits of decoration and a line of writing that says why
+        they matter. The <a href="/scrapbook/">scrapbook maker</a> here does that on screen:
+        pick a paper, drop in your photos, and dress them with the same transparent stickers
+        this site has always offered, a title in cut-out magazine letters and a strip or two of
+        washi tape. Save the page as an Instagram Story, a 4:5 feed post or a square.
+      </p>
+      <p>
+        It runs in your browser with no account. Your photos are opened on your own device
+        and never uploaded, so there is nothing to sign up for and nothing stored. That also
+        means pages are not saved: download each one when it is done. Six
+        <a href="/scrapbook/birthday/">ready-made templates</a> cover birthdays, trips,
+        best friends, photo dumps, couples and pets.
+      </p>
+
+      <h2>What the stickers are, and how to use them</h2>
       <p>
         Every cutout on this site is a transparent PNG — a piece of artwork with no
         background at all, rather than a picture of artwork on a white square. That
@@ -248,9 +281,8 @@ const jsonld = [
       <p>
         The usual route is: open a sticker, tap <strong>Copy</strong>, switch to Instagram,
         start a Story, then tap once on the screen and long-press to paste. If your browser
-        will not copy images — some older mobile browsers refuse —
-        <strong>Download</strong> saves the same PNG to your camera roll and you can add it
-        from there. The
+        will not copy images, <strong>Download</strong> saves the same PNG to your camera roll
+        and you can add it from there. The
         <a href="/blog/how-to-add-stickers-to-instagram-stories/">full walkthrough</a>
         covers both routes, plus WhatsApp and the places transparency gets flattened.
       </p>
@@ -259,15 +291,9 @@ const jsonld = [
       <p>
         Every sticker page carries an opacity control. At full strength a cutout reads as
         the subject of the Story. Around 70% it softens into the photo underneath. Below
-        45% it behaves like a watermark — a bow in the corner, a frame around the edge, a
-        repeated shape across the background — present without competing with whatever you
-        photographed.
-      </p>
-      <p>
-        The transparency is written into the PNG itself, so what the preview shows is
-        exactly what gets copied. That matters because Instagram's own sticker opacity
-        controls are limited, and layering a faded cutout is far easier when the file
-        already arrives faded.
+        45% it behaves like a watermark — present without competing with whatever you
+        photographed. The transparency is written into the PNG itself, so what the preview
+        shows is exactly what gets copied.
       </p>
 
       <h2>Why the library is small</h2>
@@ -275,8 +301,7 @@ const jsonld = [
         {stickers.length} cutouts is not a lot next to a stock site, and that is deliberate.
         Browse by subject, compare the PNG against light and dark backgrounds, and check
         the file and artwork dimensions on each detail page. Start with a themed pack if
-        you want a coordinated set, or use the collage maker to arrange a message.
-
+        you want a coordinated set.
       </p>
       <p>
         To make your own cutouts, the
@@ -284,26 +309,6 @@ const jsonld = [
         walks through the edge decontamination step most tutorials skip — it is the reason
         stickers from elsewhere often show a faint outline once they are on a photo.
       </p>
-
-      <h2>Beyond single stickers</h2>
-      <ul>
-        <li>
-          <a href="/ransom-note/">Cutout text</a> — type a phrase and get it back as paper
-          letters, at whatever opacity you want. Best for two or three words.
-        </li>
-        <li>
-          <a href="/collage-maker/">Collage maker</a> — your words in cut-out letters with
-          stickers scattered around them, shuffled until it looks right.
-        </li>
-        <li>
-          <a href="/packs/">Sticker packs</a> — themed sets you can copy into a Story all at
-          once.
-        </li>
-        <li>
-          <a href="/blog/">The blog</a> — sizing, safe zones, file formats, and the
-          aesthetics behind the sets here, written to be read once and remembered.
-        </li>
-      </ul>
 
       <h2>Common questions</h2>
       {

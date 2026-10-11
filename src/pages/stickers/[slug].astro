@@ -119,6 +119,9 @@ const jsonld = [
           {tags.map((t) => <span class="tag">{t}</span>)}
         </div>
         <CopyDownloadButtons imageSrc={image} filename={`${entry.slug}.png`} opacity={true} />
+        <a class="add-to-scrapbook" href={`/scrapbook/?add=${entry.slug}`}>
+          <span aria-hidden="true">✂</span> Add to a scrapbook page with your photos →
+        </a>
         <div class="sticker-desc">
           <Content />
         </div>

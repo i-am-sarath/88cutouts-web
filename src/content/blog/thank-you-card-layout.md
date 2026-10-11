@@ -19,7 +19,7 @@ Write the note before choosing stickers. `Thank you for helping me move` gives t
 
 ## Use expressive letters once
 
-Make `THANK YOU` in the [cutout text maker](/ransom-note/). Put the personal note in a conventional font below it. Using decorative letters for every sentence creates unnecessary decoding work.
+Make `THANK YOU` with the cut-out letters in the [scrapbook maker](/scrapbook/?tool=text). Put the personal note in a conventional font below it. Using decorative letters for every sentence creates unnecessary decoding work.
 
 Choose a line break that keeps the heading balanced without shrinking it. The [line-break guide](/blog/cutout-text-line-breaks/) explains how to compare alternatives by meaning and visible width.
 

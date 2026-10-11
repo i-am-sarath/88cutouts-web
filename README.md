@@ -1,7 +1,7 @@
 # 88cutouts
 
-Static gallery of transparent-PNG stickers, frames and letter cutouts for Instagram
-Stories. No accounts, no backend, no database. Astro → Cloudflare Pages, edited through
+A free in-browser scrapbook maker plus a gallery of transparent-PNG stickers, frames and
+letter cutouts for Instagram Stories. No accounts, no backend, no database. Astro → Cloudflare Pages, edited through
 Sveltia CMS at `/admin`.
 
 ## Symbols & dot art
@@ -56,62 +56,37 @@ single form, and commits straight to `main`.
 | `stickers/_duplicates/` | exact and near-duplicate rejects |
 | `stickers/_on-hold/` | parked, not published — see below |
 
-## DP gallery
+## Scrapbook maker
 
-A square image that a platform will crop to a circle:
+`/scrapbook/` is the main product: a one-page scrapbook editor that runs in the browser.
+Photos, stickers from the library, cut-out letters, handwriting, label tape, symbols and
+washi tape go on a paper background, and the page saves as a Story (1080x1920), post
+(1080x1350) or square PNG. **Nothing is saved and nothing is uploaded**: photos are decoded
+on the device, and the page warns before closing with unexported work.
 
-- **`/dp/`** — a gallery of profile pictures, grouped into ten collections (`girls`,
-  `whatsapp-girls`, `attitude-girls`, `sad-girl`, …). Each collection has its own landing
-  page at `/dp/<collection>/` and every DP a detail page at `/dp/<collection>/<slug>/`.
+| File | What it does |
+| --- | --- |
+| `src/lib/scrapbook/scene.ts` | the page model, papers, tapes, generated artwork (text, letters, tape) and drawing |
+| `src/lib/scrapbook/editor.ts` | selection, drag, corner-handle and two-finger resize/rotate, wheel, undo/redo |
+| `src/lib/scrapbook/template.ts` | turns a template into a page (editor and template-page previews) |
+| `src/components/ScrapbookEditor.astro` | the editor UI: tool tabs, panels, export dialog |
+| `src/data/scrapbook-templates.ts` | the templates and the copy for their pages |
 
-There was also a `/dp-maker/` browser tool that composed a DP from the visitor's own
-photo. It was removed — almost nobody used it, and it was the largest client-side
-component on the site. `public/_redirects` sends its URL to `/dp/` with a 301.
+Templates are positioned as fractions of a 9:16 page and name stickers by slug; a slug that
+leaves the library is skipped with a build warning. Each template also gets its own page at
+`/scrapbook/<slug>/` with written help, so it can rank on its own.
 
-Nothing in the gallery is generated and nothing is scraped: every DP is a file a person
-uploaded through `/admin`, which is what keeps the gallery safe to publish on an
-AdSense-monetised site.
+URL parameters: `?template=<slug>`, `?add=<sticker-slug>` (the "Add to scrapbook" link on
+sticker pages), `?pack=<slug>` (opens the Stickers tab narrowed to a pack), `&t=<words>`
+(pre-fills the text box) and `?tool=text`.
 
-### Adding a DP
+The editor page deliberately has **no ad slots**. The AdSense loader only runs on pages
+with a slot, so Auto Ads can't place an ad inside the editor either.
 
-`/admin` → **DPs & Profile Pictures**. Square images, 900×900 or larger; they are shown
-as circles, so keep the subject centred and away from the corners. Pick a collection, and
-the DP appears on that landing page on the next build.
-
-Until the first one is uploaded, `astro build` prints `The collection "dps" does not
-exist or is empty` — that warning is expected and harmless, and the gallery pages render
-an empty state. A collection with no DPs in it is also served `noindex`, so an empty
-gallery never reaches the index; that lifts on the first upload.
-
-```bash
-npm run dp-thumbs               # 200/400/512px WebP thumbnails for what is in uploads/
-npm run dp-thumbs -- --force    # rebuild them all
-```
-
-`scripts/generate-dp-thumbs.mjs` runs automatically in `prebuild` and in `npm run dev`.
-The originals in `public/dps/uploads/` are what Copy and Download hand over, so they are
-committed; the thumbnails beside them are not.
-
-### What is committed and what is not
-
-| Path | Committed? | Why |
-| --- | --- | --- |
-| `src/data/dp-collections.json` | yes | collection config — SEO copy, FAQ, and the palettes the maker offers as swatches |
-| `src/content/dps/*.md` | yes | one file per uploaded DP, written by the CMS |
-| `public/dps/uploads/` | yes | the images themselves — this *is* the gallery |
-| `public/dps/uploads/thumbs/` | **no** | regenerated on every deploy, like `public/stickers/thumbs` |
-
-### Adding a collection
-
-Append an entry to `src/data/dp-collections.json` (it needs `slug`, `name`, `h1`,
-`title`, `blurb`, `intro`, `related`, `faq`, `palettes`), then add the slug to the `dps`
-collection's `options` list in `public/admin/config.yml`. Routes, sitemap entries,
-navigation pills and JSON-LD all follow automatically, and the page stands on its own
-copy until you upload the first image to it.
-
-The `intro` and `faq` fields are not decoration — they are what these pages rank on, and
-the FAQ is emitted as `FAQPage` JSON-LD. Write them per collection; don't template one
-block across all ten.
+The old collage maker (`/collage-maker/`), cutout text maker (`/ransom-note/`), DP maker
+and DP gallery were folded into the scrapbook or removed; `public/_redirects` 301s their
+URLs to `/scrapbook/`. Some sticker images still live in `public/dps/uploads/`, where the
+CMS used to file them, and those must stay.
 
 ## Opacity
 
@@ -121,8 +96,6 @@ image is re-drawn through a canvas with `ctx.globalAlpha` before Copy or Downloa
 it over, so a translucent sticker arrives translucent in a Story. At 100% a PNG source is
 passed straight through untouched, so the common case costs nothing. The hero image
 follows the slider via `[data-opacity-preview]`.
-
-The cut-out text tool applies the same alpha when it draws each letter onto its canvas.
 
 ## Discovery rows
 
@@ -135,14 +108,13 @@ viewed.
 
 ## Page copy
 
-Sticker, category and DP pages used to be a heading, a grid and a sentence — thin, and
-near-identical across 120 URLs. Three modules now build the body text:
+Sticker and category pages used to be a heading, a grid and a sentence — thin, and
+near-identical across 120 URLs. Two modules now build the body text:
 
 | File | Covers |
 | --- | --- |
 | `src/lib/sticker-copy.ts` | per-sticker sections and FAQ, varied by category, by the file's real aspect ratio, and by a hash of the slug |
 | `src/lib/category-copy.ts` | hand-written sections and FAQ per category shelf |
-| `src/lib/dp-copy.ts` | one paragraph per DP collection plus guidance chosen by target platform |
 
 Real file facts — pixel dimensions and byte size — come from `virtual:image-meta`, a Vite
 plugin in `astro.config.mjs` that reads the PNG IHDR header at build time. Like
@@ -205,12 +177,9 @@ Everything is editable from `/admin` (Sveltia CMS, GitHub backend). Publishing c
 
 - **Stickers & Frames** → writes one `.md` file to `src/content/stickers/`, image uploaded
   to `public/stickers/`.
-- **DPs & Profile Pictures** → writes one `.md` file to `src/content/dps/`, image uploaded
-  to `public/dps/uploads/`. Only for curated artwork; the bulk of the gallery is generated
-  (see the DP section above).
 - **Ransom Note Letters** → appends to `src/content/ransomLetters/letters.json`, image
   uploaded to `public/ransom-letters/`. One entry per character *per style variant* —
-  upload several images with the same `character` and the composer picks one at random for
+  upload several images with the same `character` and the scrapbook picks one at random for
   variety. Cover a–z, 0–9 and `. , ! ? ' -` at minimum; spaces are handled automatically.
 
 Sticker images must be alpha-transparent PNGs. Letter cutouts should be roughly square

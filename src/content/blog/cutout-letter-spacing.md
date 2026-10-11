@@ -33,6 +33,6 @@ For long names, reduce decorative variation. A familiar short word can survive m
 
 Reduce the preview until the heading is roughly the size it will appear on a phone. If a gap closes, move the letters apart slightly. If a punctuation mark disappears, make it larger or use a clearer cutout.
 
-The [cutout text maker](/ransom-note/) is a quick way to explore combinations. Its generated arrangement is a starting point; use a layered editor when you need control over individual letter positions.
+The cut-out letters in the [scrapbook maker](/scrapbook/?tool=text) are a quick way to explore combinations. Its generated arrangement is a starting point; use a layered editor when you need control over individual letter positions.
 
 Keep the heading short and put detailed information in plain text below it. The [line-break exercise](/blog/cutout-text-line-breaks/) explains how to handle longer phrases without shrinking the whole design into unreadable decoration.
