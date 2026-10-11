@@ -51,7 +51,48 @@ export const paperOf = (id: string) => PAPERS.find((p) => p.id === id) ?? PAPERS
 // ---- elements -----------------------------------------------------------------
 
 export type Kind = 'art' | 'photo' | 'slot';
-export type Frame = 'none' | 'polaroid' | 'border';
+export type Frame = 'none' | 'polaroid' | 'border' | 'stamp' | 'film' | 'torn';
+
+/** One physical print can hold several independently replaceable photos. */
+export function makeMount(w: number, h: number, style: 'strip' | 'stamp' | 'film' | 'contact'): string {
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(w); canvas.height = Math.round(h);
+  const ctx = canvas.getContext('2d')!;
+  const dark = style === 'film';
+  ctx.fillStyle = dark ? '#201C19' : '#F7F5ED';
+  ctx.fillRect(0, 0, w, h);
+  if (style === 'stamp') {
+    ctx.globalCompositeOperation = 'destination-out';
+    const radius = Math.max(9, Math.min(w,h)*.025);
+    for (let x = radius*1.5; x < w; x += radius*3) {
+      for (const y of [0,h]) { ctx.beginPath(); ctx.arc(x,y,radius,0,Math.PI*2); ctx.fill(); }
+    }
+    for (let y = radius*1.5; y < h; y += radius*3) {
+      for (const x of [0,w]) { ctx.beginPath(); ctx.arc(x,y,radius,0,Math.PI*2); ctx.fill(); }
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  // Restrained print grain, reproducible and always under the photos.
+  let seed = 17;
+  for (let i=0; i<w*h/35; i++) {
+    seed = (seed*16807)%2147483647; const x=seed%w;
+    seed = (seed*16807)%2147483647; const y=seed%h;
+    ctx.fillStyle = dark ? 'rgba(255,230,190,.05)' : 'rgba(74,61,45,.065)';
+    ctx.fillRect(x,y,1.5,1.5);
+  }
+  if (dark) {
+    ctx.fillStyle = '#DFCCA5';
+    for (let y=16;y<h-14;y+=38) {
+      ctx.fillRect(9,y,15,20); ctx.fillRect(w-24,y,15,20);
+    }
+  }
+  ctx.fillStyle = dark ? '#D0B888' : '#877E70';
+  ctx.font = '12px monospace';
+  ctx.textAlign='center';
+  if (style === 'strip') ctx.fillText('PHOTO BOOTH  •  KEEP FOREVER',w/2,h-13);
+  if (style === 'contact') ctx.fillText('MEMORIES / CONTACT SHEET',w/2,h-13);
+  return registerCanvas(canvas);
+}
 
 export interface El {
   id: number;
@@ -73,12 +114,16 @@ export interface El {
   frame?: Frame;
   /** Photos: the part of the image shown, so a photo can fill a slot's shape. */
   crop?: Crop;
+  filter?: 'mono' | 'warm';
+  /** Shared print mount; moving a photo keeps its whole strip together. */
+  group?: string;
 }
 
 export interface Doc {
   format: Format;
   paper: string;
   els: El[];
+  background?: string;
 }
 
 // ---- image sources ------------------------------------------------------------
@@ -146,7 +191,7 @@ function trimBox(c: HTMLCanvasElement): Crop {
  * down to at most 2000px (plenty for a 1080-wide page, and it keeps memory in
  * check on phones with 48 MP cameras), and kept as a canvas.
  */
-export async function loadPhoto(file: File): Promise<string | null> {
+export async function loadPhoto(file: File, trim = false): Promise<string | null> {
   let bmp: ImageBitmap | HTMLImageElement | null = null;
   let url = '';
   try {
@@ -166,18 +211,19 @@ export async function loadPhoto(file: File): Promise<string | null> {
   c.getContext('2d')!.drawImage(bmp, 0, 0, c.width, c.height);
   if ('close' in bmp) bmp.close();
   if (url) URL.revokeObjectURL(url);
-  return registerCanvas(c);
+  return registerCanvas(c, trim);
 }
 
 // ---- generated artwork ----------------------------------------------------------
 
-export type TextStyle = 'hand' | 'label' | 'type' | 'symbol';
+export type TextStyle = 'hand' | 'label' | 'type' | 'symbol' | 'caption';
 
 const FONTS: Record<TextStyle, string> = {
   hand: "700 {s}px Gaegu, 'Comic Sans MS', cursive",
   label: "700 {s}px 'Courier New', Courier, monospace",
   type: "700 {s}px Georgia, 'Times New Roman', serif",
   symbol: "{s}px 'Segoe UI Symbol', 'Apple Symbols', 'Noto Sans Symbols 2', 'Segoe UI', system-ui, sans-serif",
+  caption: "700 {s}px Quicksand, system-ui, sans-serif",
 };
 
 /**
@@ -206,6 +252,13 @@ export async function makeText(text: string, style: TextStyle, color = '#2A2522'
   c.width = Math.ceil(textW + padX * 2);
   c.height = Math.ceil(lines.length * lineH + padY * 2);
   const ctx = c.getContext('2d')!;
+  if (style === 'caption') {
+    ctx.fillStyle = '#151515';
+    ctx.beginPath();
+    ctx.roundRect(0, 0, c.width, c.height, 24);
+    ctx.fill();
+    color = '#FFFFFF';
+  }
   if (style === 'label') {
     // A strip of label tape: cream, slightly uneven ends.
     ctx.fillStyle = '#FFFDF6';
@@ -222,7 +275,7 @@ export async function makeText(text: string, style: TextStyle, color = '#2A2522'
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
   lines.forEach((l, i) => ctx.fillText(l, padX, padY + lineH * (i + 0.5)));
-  return registerCanvas(c, style !== 'label');
+  return registerCanvas(c, style !== 'label' && style !== 'caption');
 }
 
 /** A word in cut-out paper letters, from the scanned letter scraps. */
@@ -279,22 +332,6 @@ export function makeTape(id: string): string {
   ctx.fillStyle = t.ink;
   ctx.strokeStyle = t.ink;
   switch (t.kind) {
-    case 'stripes':
-      ctx.lineWidth = 12;
-      for (let x = -H; x < W + H; x += 34) {
-        ctx.beginPath();
-        ctx.moveTo(x, H);
-        ctx.lineTo(x + H, 0);
-        ctx.stroke();
-      }
-      break;
-    case 'dots':
-      for (let y = 16; y < H; y += 32) for (let x = (y / 32) % 2 ? 30 : 14; x < W; x += 32) {
-        ctx.beginPath();
-        ctx.arc(x, y, 6, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      break;
     case 'grid':
       ctx.lineWidth = 3;
       for (let x = 0; x < W; x += 24) ctx.fillRect(x, 0, 3, H);
@@ -325,6 +362,10 @@ export function makeTape(id: string): string {
 /** Extra space a photo frame adds outside the picture. */
 export function framePad(el: El) {
   if ((el.kind !== 'photo' && el.kind !== 'slot') || !el.frame || el.frame === 'none') return { l: 0, t: 0, r: 0, b: 0 };
+  if (el.frame === 'stamp' || el.frame === 'torn' || el.frame === 'film') {
+    const p = Math.min(el.w, el.h) * (el.frame === 'stamp' ? 0.09 : 0.06);
+    return { l: p, t: p, r: p, b: p };
+  }
   if (el.frame === 'border') {
     const p = Math.min(el.w, el.h) * 0.045;
     return { l: p, t: p, r: p, b: p };
@@ -368,7 +409,7 @@ export function hitTest(els: El[], x: number, y: number, prefer?: number | null)
   };
   // The selected element wins, so it can be dragged even from under another.
   const sel = prefer != null ? els.find((e) => e.id === prefer) : undefined;
-  if (sel && inside(sel)) return sel;
+  if (sel && !(sel.kind==='art'&&sel.group) && inside(sel)) return sel;
   let best: El | null = null;
   for (const el of els) if (inside(el) && (!best || el.z >= best.z)) best = el;
   return best;
@@ -437,6 +478,48 @@ export function drawPaper(ctx: CanvasRenderingContext2D, paper: Paper, W: number
       break;
     }
   }
+  if (paper.pattern !== 'kraft') {
+    const grain = ctx.createPattern(noiseTile(), 'repeat');
+    if (grain) { ctx.fillStyle = grain; ctx.globalAlpha = .35; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+  }
+}
+
+/** Paper edges are shared by empty placeholders, filled photos and exports. */
+function framePath(ctx: CanvasRenderingContext2D, el: El) {
+  const b = outerBox(el);
+  ctx.beginPath();
+  ctx.rect(b.x0, b.y0, b.x1 - b.x0, b.y1 - b.y0);
+  if (el.frame === 'stamp') {
+    const r = Math.min(el.w, el.h) * .025;
+    for (let x = b.x0 + r; x < b.x1; x += r * 3) {
+      for (const y of [b.y0, b.y1]) { ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, Math.PI * 2); }
+    }
+    for (let y = b.y0 + r; y < b.y1; y += r * 3) {
+      for (const x of [b.x0, b.x1]) { ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, Math.PI * 2); }
+    }
+  } else if (el.frame === 'torn') {
+    ctx.beginPath();
+    const edges = [[b.x0,b.y0,b.x1,b.y0], [b.x1,b.y0,b.x1,b.y1], [b.x1,b.y1,b.x0,b.y1], [b.x0,b.y1,b.x0,b.y0]];
+    edges.forEach(([x0,y0,x1,y1], edge) => {
+      const steps = Math.ceil(Math.hypot(x1-x0,y1-y0) / 10);
+      for (let i=0; i<=steps; i++) {
+        const jitter = Math.sin(i * 12.7 + edge * 4) * 4;
+        const x = x0+(x1-x0)*i/steps + (x0===x1 ? jitter : 0);
+        const y = y0+(y1-y0)*i/steps + (y0===y1 ? jitter : 0);
+        if (!edge && !i) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+    });
+    ctx.closePath();
+  }
+}
+
+function fillFrame(ctx: CanvasRenderingContext2D, el: El) {
+  ctx.save();
+  // Perforations cut inward; their outside halves are never paper.
+  if (el.frame === 'stamp') {
+    const b = outerBox(el); ctx.beginPath(); ctx.rect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0); ctx.clip();
+  }
+  framePath(ctx, el); ctx.fill('evenodd'); ctx.restore();
 }
 
 function drawEl(ctx: CanvasRenderingContext2D, el: El, exporting: boolean) {
@@ -450,8 +533,9 @@ function drawEl(ctx: CanvasRenderingContext2D, el: El, exporting: boolean) {
   const b = outerBox(el);
 
   if (el.kind === 'slot') {
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-    ctx.fillRect(b.x0, b.y0, b.x1 - b.x0, b.y1 - b.y0);
+    ctx.fillStyle = el.frame === 'film' ? '#252323' : '#FFFEFA';
+    fillFrame(ctx, el);
+    ctx.fillStyle = '#D3CBBF'; ctx.fillRect(-el.w/2, -el.h/2, el.w, el.h);
     ctx.setLineDash([18, 12]);
     ctx.lineWidth = 4;
     ctx.strokeStyle = 'rgba(42, 37, 34, 0.45)';
@@ -475,12 +559,21 @@ function drawEl(ctx: CanvasRenderingContext2D, el: El, exporting: boolean) {
     ctx.shadowOffsetY = 6;
   }
   if (el.kind === 'photo' && el.frame && el.frame !== 'none') {
-    ctx.fillStyle = '#FFFEFA';
-    ctx.fillRect(b.x0, b.y0, b.x1 - b.x0, b.y1 - b.y0);
+    ctx.fillStyle = el.frame === 'film' ? '#252323' : '#FFFEFA';
+    fillFrame(ctx, el);
     ctx.shadowColor = 'transparent';
+    if (el.frame === 'film') {
+      ctx.fillStyle = '#E7DECB';
+      for (let y = b.y0 + 10; y < b.y1 - 10; y += 25) {
+        ctx.fillRect(b.x0 + 4, y, Math.max(3, (-el.w/2-b.x0)-8), 12);
+        ctx.fillRect(el.w/2+4, y, Math.max(3, (b.x1-el.w/2)-8), 12);
+      }
+    }
   }
   if (el.flip) ctx.scale(-1, 1);
   const c = el.kind === 'photo' ? el.crop ?? { sx: 0, sy: 0, sw: s!.w, sh: s!.h } : s!.crop;
+  if (el.filter === 'mono') ctx.filter = 'grayscale(1) contrast(1.08)';
+  if (el.filter === 'warm') ctx.filter = 'sepia(.25) saturate(.85) contrast(1.05)';
   ctx.drawImage(s!.img, c.sx, c.sy, c.sw, c.sh, -el.w / 2, -el.h / 2, el.w, el.h);
   ctx.restore();
 }
@@ -498,6 +591,8 @@ export function drawDoc(ctx: CanvasRenderingContext2D, doc: Doc, opts: DrawOptio
   const { w: W, h: H } = FORMATS[doc.format];
   ctx.clearRect(0, 0, W, H);
   drawPaper(ctx, paperOf(doc.paper), W, H);
+  const bg = doc.background && sourceOf(doc.background);
+  if (bg) { const c = coverCrop(bg, W / H); ctx.drawImage(bg.img, c.sx, c.sy, c.sw, c.sh, 0, 0, W, H); }
   const order = doc.els.slice().sort((a, b) => a.z - b.z);
   for (const el of order) drawEl(ctx, el, !!opts.exporting);
 

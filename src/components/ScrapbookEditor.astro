@@ -14,6 +14,7 @@ import { stickerThumb } from '../lib/thumbs.mjs';
 import { templates } from '../data/scrapbook-templates';
 import { resolveTemplates } from '../lib/scrapbook-templates';
 import { PAPERS, TAPES } from '../lib/scrapbook/scene';
+import backgrounds from '../data/scrapbook-backgrounds.json';
 
 const stickers = await getStickers();
 const categories = [...new Set(stickers.map((s) => s.data.category))].sort();
@@ -98,9 +99,9 @@ const data = JSON.stringify({ library, packs, templates: tpls });
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 15 11-11 5 5L9 20z" /><path d="m7 12 5 5M10 9l5 5" /></svg>
         <span>Tape</span>
       </button>
-      <button type="button" role="tab" data-tab="paper" aria-selected="false">
+      <button type="button" role="tab" data-tab="paper" aria-label="Backgrounds" aria-selected="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z" /><path d="M15 3v4h4" /><path d="M9 12h7M9 16h5" /></svg>
-        <span>Paper</span>
+        <span>Backdrop</span>
       </button>
     </nav>
 
@@ -116,10 +117,10 @@ const data = JSON.stringify({ library, packs, templates: tpls });
             templates.map((t) => (
               <button type="button" class="sb-tpl" data-template={t.slug}>
                 <span class="sb-tpl-sw" style={`background:${paperSwatch(t.paper)}`}>
-                  <i />
-                  <i />
+                  <canvas data-tpl-preview={t.slug} width="216" height="384" aria-label={`${t.name} layout preview`} />
                 </span>
                 <b>{t.name}</b>
+                <small>{t.els.filter((e) => e.t === 'slot').length} photos</small>
                 <small>{t.blurb}</small>
               </button>
             ))
@@ -131,15 +132,44 @@ const data = JSON.stringify({ library, packs, templates: tpls });
         <p class="sb-pane-title">Your photos</p>
         <label class="sb-upload">
           <input type="file" id="sb-file" accept="image/*" multiple />
-          <span>+ Add photos</span>
+          <span>+ Select multiple photos</span>
         </label>
-        <p class="sb-note">Photos stay on your device. Nothing is uploaded, and empty template spots fill up first.</p>
+        <p class="sb-note">Select up to 24 photos together. They fill the frames in order; extra photos become movable prints. Tap a frame to start filling from that spot. Photos stay on your device.</p>
+        <label class="sb-note"><input type="checkbox" id="sb-as-cutout" /> Add as a cutout (transparent PNG)</label>
+        <p class="sb-label">Make your own sticker</p>
+        <label class="sb-upload"><input type="file" id="sb-person-file" accept="image/*" /><span>+ Remove portrait background</span></label>
+        <p class="sb-note">Soft-edge portrait matting. Preview and touch up before adding. First use downloads about 25 MB; your photo stays on your device.</p>
+        <label class="sb-upload"><input type="file" id="sb-object-file" accept="image/*" /><span>+ Cut out an object or pet</span></label>
+        <p class="sb-note">Detailed cutouts for pets, objects and keepsakes. First use downloads about 190 MB. Processing runs on your device.</p>
         <p class="sb-label" id="sb-frame-label">Frame for new photos</p>
         <div class="sb-chips" role="group" aria-labelledby="sb-frame-label">
           <button type="button" class="chip" data-newframe="polaroid" aria-pressed="true">Polaroid</button>
           <button type="button" class="chip" data-newframe="border" aria-pressed="false">White border</button>
           <button type="button" class="chip" data-newframe="none" aria-pressed="false">No frame</button>
+          <button type="button" class="chip" data-newframe="stamp" aria-pressed="false">Postage stamp</button>
+          <button type="button" class="chip" data-newframe="torn" aria-pressed="false">Torn paper</button>
+          <button type="button" class="chip" data-newframe="film" aria-pressed="false">Film</button>
         </div>
+        <div id="sb-photo-controls" hidden>
+          <p class="sb-label">Selected photo</p>
+          <div class="sb-chips">
+            <button type="button" class="chip" id="sb-replace">Replace photo</button>
+            <button type="button" class="chip" id="sb-person-selected">Make person cutout</button>
+            <button type="button" class="chip" data-filter="">Original</button>
+            <button type="button" class="chip" data-filter="mono">Black &amp; white</button>
+            <button type="button" class="chip" data-filter="warm">Warm film</button>
+          </div>
+          <p class="sb-label">Position inside frame</p>
+          <div class="sb-chips">
+            <button type="button" class="chip" data-crop="left" aria-label="Move crop left">←</button>
+            <button type="button" class="chip" data-crop="up" aria-label="Move crop up">↑</button>
+            <button type="button" class="chip" data-crop="down" aria-label="Move crop down">↓</button>
+            <button type="button" class="chip" data-crop="right" aria-label="Move crop right">→</button>
+            <button type="button" class="chip" data-crop="in">Zoom +</button>
+            <button type="button" class="chip" data-crop="out">Zoom −</button>
+          </div>
+        </div>
+        <p class="sb-note" id="sb-photo-status" role="status" aria-live="polite"></p>
       </div>
 
       <div class="sb-pane" data-pane="stickers" hidden>
@@ -165,6 +195,7 @@ const data = JSON.stringify({ library, packs, templates: tpls });
           <button type="button" class="chip" data-style="hand" aria-pressed="false">Handwritten</button>
           <button type="button" class="chip" data-style="label" aria-pressed="false">Label tape</button>
           <button type="button" class="chip" data-style="type" aria-pressed="false">Serif</button>
+          <button type="button" class="chip" data-style="caption" aria-pressed="false">Black caption</button>
         </div>
         <div id="sb-ink-wrap" hidden>
           <p class="sb-label" id="sb-ink-label">Colour</p>
@@ -198,9 +229,18 @@ const data = JSON.stringify({ library, packs, templates: tpls });
       </div>
 
       <div class="sb-pane" data-pane="paper" hidden>
-        <p class="sb-pane-title">Paper</p>
+        <p class="sb-pane-title">Backgrounds</p>
+        <label class="sb-upload"><input type="file" id="sb-background-file" accept="image/*" /><span>+ Use a photo background</span></label>
+        <div class="sb-chips sb-scroll" role="group" aria-label="Background collection">
+          {['All', ...new Set(backgrounds.map((b) => b.category))].map((category) => <button type="button" class="chip" data-bgcategory={category} aria-pressed={category === 'All' ? 'true' : 'false'}>{category}</button>)}
+        </div>
+        <div class="sb-backgrounds">
+          {backgrounds.map((bg) => <button type="button" class="sb-background" data-bg={bg.src} data-bg-group={bg.category} aria-pressed="false" title={bg.label}><img src={bg.thumb} alt="" width="200" height="280" loading="lazy" /><small>{bg.label}</small></button>)}
+        </div>
+        <p class="sb-note" id="sb-bg-status" role="status" aria-live="polite"></p>
+        <p class="sb-label">Solid colours</p>
         <div class="sb-papers">
-          {PAPERS.map((p) => (
+          {PAPERS.filter((p) => !p.pattern).map((p) => (
             <button type="button" class="sb-paper" data-paper={p.id} data-pattern={p.pattern ?? ''} aria-pressed={p.id === 'cream' ? 'true' : 'false'}>
               <span style={p.color ? `background-color:${p.color}` : ''} />
               <small>{p.label}</small>
@@ -222,13 +262,33 @@ const data = JSON.stringify({ library, packs, templates: tpls });
         <button type="button" data-act="duplicate" title="Duplicate (Ctrl+D)">Copy</button>
         <button type="button" data-act="flip" title="Flip">Flip</button>
         <button type="button" data-act="frame" title="Change frame" hidden>Frame</button>
+        <button type="button" data-act="editphoto" hidden>Edit photo</button>
         <button type="button" data-act="remove" class="sb-danger" title="Delete">Delete</button>
       </div>
       <p class="sb-hint" id="sb-hint">Drag to move · corner handle or two fingers to resize and rotate</p>
     </div>
   </div>
 
-  <input type="file" id="sb-slotfile" accept="image/*" hidden />
+  <input type="file" id="sb-slotfile" accept="image/*" multiple hidden />
+
+  <dialog class="sb-dialog" id="sb-cutout-dialog" aria-labelledby="sb-cutout-title">
+    <h2 id="sb-cutout-title">Choose your cutout</h2>
+    <p class="sb-note">Preview on transparency, then brush away leftovers or restore missing details.</p>
+    <canvas id="sb-cutout-canvas" role="img" aria-label="Cutout preview. Use the erase and restore brushes to touch up the edges." />
+    <div class="chip-row" id="sb-cutout-tools" hidden>
+      <button type="button" class="chip" data-brush="erase" aria-pressed="true">Erase</button>
+      <button type="button" class="chip" data-brush="restore" aria-pressed="false">Restore</button>
+      <label class="sb-note">Brush <input id="sb-brush-size" type="range" min="3" max="70" value="20" aria-label="Brush size" /></label>
+      <button type="button" class="chip" id="sb-brush-undo" disabled>Undo brush</button>
+    </div>
+    <p class="sb-note" id="sb-cutout-status" role="status" aria-live="polite">Remove the background, then touch up with erase or restore.</p>
+    <div class="sb-dialog-actions">
+      <button type="button" class="sb-save" id="sb-cutout-make">Remove background</button>
+      <button type="button" class="sb-save" id="sb-cutout-add" disabled>Add to page</button>
+      <button type="button" class="sb-ghost" id="sb-cutout-reset">Start again</button>
+      <button type="button" class="sb-ghost" id="sb-cutout-close">Cancel</button>
+    </div>
+  </dialog>
 
   <dialog class="sb-dialog" id="sb-dialog" aria-labelledby="sb-dialog-title">
     <h2 id="sb-dialog-title">Your page is ready</h2>
@@ -387,7 +447,7 @@ const data = JSON.stringify({ library, packs, templates: tpls });
   .sb-tpl-sw {
     position: relative;
     display: block;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 9 / 16;
     border-radius: 9px;
     border: 1px solid rgba(0, 0, 0, 0.08);
     overflow: hidden;
@@ -401,6 +461,16 @@ const data = JSON.stringify({ library, packs, templates: tpls });
     background-clip: content-box;
     background-color: rgba(42, 37, 34, 0.12);
   }
+  .sb-tpl-sw canvas { display: block; width: 100%; height: 100%; }
+  .sb-backgrounds { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .5rem; margin-top: .65rem; }
+  .sb-background { border: 1.5px solid var(--border); background: var(--surface); border-radius: 10px; padding: 4px; text-align: left; }
+  .sb-background img { display: block; width: 100%; height: auto; aspect-ratio: 5 / 7; object-fit: cover; border-radius: 6px; }
+  .sb-background small { display: block; padding: 5px 2px 2px; font-size: .7rem; line-height: 1.2; }
+  .sb-background[aria-pressed='true'] { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+  .sb button:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  .sb-paper[data-pattern='stripes'] span { background-image: repeating-linear-gradient(90deg, transparent 0 6px, #ffffff55 6px 9px); }
+  .sb-paper[data-pattern='sunset'] span { background-image: linear-gradient(#647E8D, #ECA259 62%, #233C46 65%); }
+  .sb-paper[data-pattern='news'] span { background-image: repeating-linear-gradient(transparent 0 3px, #6D704333 3px 4px); }
   .sb-tpl-sw i:first-child { left: 12%; top: 14%; transform: rotate(-6deg); }
   .sb-tpl-sw i:last-child { right: 12%; top: 30%; transform: rotate(5deg); }
 
@@ -420,7 +490,7 @@ const data = JSON.stringify({ library, packs, templates: tpls });
   /* stickers */
   .sb-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.4rem;
     margin-top: 0.5rem;
   }
@@ -559,6 +629,9 @@ const data = JSON.stringify({ library, packs, templates: tpls });
     background-image: var(--checker-img);
     background-size: 16px 16px;
   }
+  #sb-cutout-canvas { display: block; width: auto; max-width: 100%; height: auto; max-height: 45vh; margin: auto; background: var(--checker); cursor: crosshair; touch-action: none; }
+  #sb-cutout-tools:not([hidden]) { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; margin-top:.75rem; }
+  .sb button:disabled { cursor: default; opacity: .5; }
   .sb-dialog-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
   .sb-dialog-actions > * { flex: 1; }
   .sb-close {
@@ -623,9 +696,12 @@ const data = JSON.stringify({ library, packs, templates: tpls });
   import {
     loadUrl,
     loadPhoto,
+    registerCanvas,
     makeLetters,
     makeText,
     makeTape,
+    drawDoc,
+    sourceOf,
     type Format,
     type Frame,
     type TextStyle,
@@ -667,12 +743,16 @@ const data = JSON.stringify({ library, packs, templates: tpls });
     $('sb-seltools').hidden = !sel;
     const frameBtn = root.querySelector<HTMLElement>('[data-act="frame"]')!;
     frameBtn.hidden = !sel || (sel.kind !== 'photo' && sel.kind !== 'slot');
+    root.querySelector<HTMLElement>('[data-act="editphoto"]')!.hidden = sel?.kind !== 'photo';
+    $('sb-photo-controls').hidden = sel?.kind !== 'photo';
+    root.querySelectorAll('[data-filter]').forEach((b) => b.setAttribute('aria-pressed', String((b as HTMLElement).dataset.filter === (sel?.filter ?? ''))));
     root.querySelectorAll<HTMLButtonElement>('[data-format]').forEach((b) =>
       b.setAttribute('aria-pressed', String(b.dataset.format === editor.doc.format))
     );
     root.querySelectorAll<HTMLButtonElement>('[data-paper]').forEach((b) =>
-      b.setAttribute('aria-pressed', String(b.dataset.paper === editor.doc.paper))
+      b.setAttribute('aria-pressed', String(!editor.doc.background && b.dataset.paper === editor.doc.paper))
     );
+    root.querySelectorAll<HTMLButtonElement>('[data-bg]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.bg === editor.doc.background)));
   }
 
   /** On a phone, get the sheet out of the way so the new thing is visible. */
@@ -730,7 +810,7 @@ const data = JSON.stringify({ library, packs, templates: tpls });
 
   // ---- selection toolbar --------------------------------------------------------
 
-  const frames: Frame[] = ['polaroid', 'border', 'none'];
+  const frames: Frame[] = ['polaroid', 'border', 'stamp', 'torn', 'film', 'none'];
   root.querySelectorAll<HTMLButtonElement>('[data-act]').forEach((b) =>
     b.addEventListener('click', () => {
       const act = b.dataset.act;
@@ -738,6 +818,7 @@ const data = JSON.stringify({ library, packs, templates: tpls });
         const cur = editor.sel?.frame ?? 'none';
         editor.setFrame(frames[(frames.indexOf(cur) + 1) % frames.length]);
       } else if (act === 'forward') editor.forward();
+      else if (act === 'editphoto') openTab('photos');
       else if (act === 'backward') editor.backward();
       else if (act === 'duplicate') editor.duplicate();
       else if (act === 'flip') editor.flip();
@@ -778,16 +859,21 @@ const data = JSON.stringify({ library, packs, templates: tpls });
 
   // ---- templates ----------------------------------------------------------------
 
+  let backgroundRequest = 0;
+
   async function applyTemplate(slug: string) {
+    const request = ++backgroundRequest;
+    const retired: Record<string,string> = { birthday:'keepsake-journal', 'travel-diary':'sunset-postcards', besties:'tropical-soulmates', 'photo-dump':'film-roll-weekend', love:'velvet-photo-booth', 'pet-diary':'keepsake-journal' };
+    slug = retired[slug] ?? slug;
     const t = data.templates.find((x) => x.slug === slug);
     if (!t) {
       editor.load({ format: editor.doc.format, paper: 'white', els: [] });
       return;
     }
-    root.classList.add('is-busy');
-    editor.load(await buildTemplate(t));
-    root.classList.remove('is-busy');
-    placed();
+    root.setAttribute('aria-busy', 'true');
+    try { const doc = await buildTemplate(t); if (request === backgroundRequest) { editor.load(doc); placed(); } }
+    catch { toast('This template could not load. Please try again.'); }
+    finally { if (request === backgroundRequest) root.removeAttribute('aria-busy'); }
   }
 
   root.querySelectorAll<HTMLButtonElement>('[data-template]').forEach((b) =>
@@ -802,21 +888,180 @@ const data = JSON.stringify({ library, packs, templates: tpls });
 
   let newFrame: Frame = 'polaroid';
   radio('[data-newframe]', (b) => (newFrame = b.dataset.newframe as Frame));
+  let importing = false;
+  const cutoutDialog = $<HTMLDialogElement>('sb-cutout-dialog');
+  const cutoutCanvas = $<HTMLCanvasElement>('sb-cutout-canvas');
+  let objectSource = '';
+  let objectResult = '';
+  let objectBusy = false;
+  let cancelRemoval: (()=>void)|undefined;
+  let cutoutMode: 'portrait'|'object' = 'object';
+  let brushMode: 'erase'|'restore' = 'erase';
+  let brushCanvas: HTMLCanvasElement | null = null;
+  let brushDown = false;
+  let lastBrush: {x:number;y:number}|null = null;
+  const brushHistory: ImageData[] = [];
+  function previewBrush() {
+    if (!brushCanvas) return;
+    const ctx=cutoutCanvas.getContext('2d')!;
+    ctx.clearRect(0,0,cutoutCanvas.width,cutoutCanvas.height);
+    ctx.drawImage(brushCanvas,0,0,cutoutCanvas.width,cutoutCanvas.height);
+    $<HTMLButtonElement>('sb-brush-undo').disabled=!brushHistory.length;
+  }
+  function drawObjectSource() {
+    const s = sourceOf(objectSource);
+    if (!s) return;
+    const k = Math.min(1, 640/Math.max(s.w,s.h));
+    cutoutCanvas.width = Math.round(s.w*k); cutoutCanvas.height = Math.round(s.h*k);
+    cutoutCanvas.style.aspectRatio = `${s.w} / ${s.h}`;
+    const ctx = cutoutCanvas.getContext('2d')!;
+    ctx.drawImage(s.img,0,0,cutoutCanvas.width,cutoutCanvas.height);
+    brushCanvas=null;brushHistory.length=0;
+    $('sb-cutout-tools').hidden=true;
+    objectResult = ''; $<HTMLButtonElement>('sb-cutout-add').disabled = true;
+    $('sb-cutout-status').textContent = 'Remove the background to preview your cutout.';
+  }
+  $<HTMLInputElement>('sb-object-file').addEventListener('change', async (e) => {
+    const input = e.target as HTMLInputElement;
+    if (!input.files?.[0]) return;
+    try {
+      const key = await loadPhoto(input.files[0]);
+      if (!key) throw new Error('Unreadable photo');
+      objectSource = key; cutoutMode='object'; drawObjectSource(); cutoutDialog.showModal();
+    } catch { $('sb-photo-status').textContent = 'This photo could not be opened. Try a JPG or PNG.'; }
+    finally { input.value = ''; }
+  });
+  root.querySelectorAll<HTMLButtonElement>('[data-brush]').forEach((b)=>b.addEventListener('click',()=>{
+    brushMode=b.dataset.brush as typeof brushMode;
+    root.querySelectorAll('[data-brush]').forEach((other)=>other.setAttribute('aria-pressed',String(other===b)));
+  }));
+  function paintBrush(e:PointerEvent) {
+    if(!brushDown || !brushCanvas || objectBusy)return;
+    const r=cutoutCanvas.getBoundingClientRect();
+    const point={x:(e.clientX-r.left)*brushCanvas.width/r.width,y:(e.clientY-r.top)*brushCanvas.height/r.height};
+    const radius=Number($<HTMLInputElement>('sb-brush-size').value)*brushCanvas.width/r.width/2;
+    const start=lastBrush??point,steps=Math.max(1,Math.ceil(Math.hypot(point.x-start.x,point.y-start.y)/Math.max(1,radius/3)));
+    const ctx=brushCanvas.getContext('2d')!,original=sourceOf(objectSource)!;
+    for(let i=0;i<=steps;i++) {
+      const x=start.x+(point.x-start.x)*i/steps,y=start.y+(point.y-start.y)*i/steps;
+      ctx.save();
+      if(brushMode==='erase') {
+        const fade=ctx.createRadialGradient(x,y,radius*.65,x,y,radius);
+        fade.addColorStop(0,'rgba(0,0,0,1)');fade.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.globalCompositeOperation='destination-out';ctx.fillStyle=fade;
+        ctx.fillRect(x-radius,y-radius,radius*2,radius*2);
+      } else {
+        const patch=document.createElement('canvas');patch.width=patch.height=Math.ceil(radius*2);
+        const pc=patch.getContext('2d')!;
+        pc.drawImage(original.img,-x+radius,-y+radius,brushCanvas.width,brushCanvas.height);
+        const fade=pc.createRadialGradient(radius,radius,radius*.65,radius,radius,radius);
+        fade.addColorStop(0,'rgba(0,0,0,1)');fade.addColorStop(1,'rgba(0,0,0,0)');
+        pc.globalCompositeOperation='destination-in';pc.fillStyle=fade;pc.fillRect(0,0,patch.width,patch.height);
+        ctx.drawImage(patch,x-radius,y-radius);
+      }
+      ctx.restore();
+    }
+    lastBrush=point;previewBrush();
+  }
+  cutoutCanvas.addEventListener('pointerdown',(e)=>{
+    if(!brushCanvas||objectBusy)return;
+    e.preventDefault();cutoutCanvas.setPointerCapture(e.pointerId);
+    brushHistory.push(brushCanvas.getContext('2d')!.getImageData(0,0,brushCanvas.width,brushCanvas.height));
+    if(brushHistory.length>3)brushHistory.shift();
+    brushDown=true;lastBrush=null;paintBrush(e);
+  });
+  cutoutCanvas.addEventListener('pointermove',paintBrush);
+  const stopBrush=()=>{brushDown=false;lastBrush=null;};
+  cutoutCanvas.addEventListener('pointerup',stopBrush);cutoutCanvas.addEventListener('pointercancel',stopBrush);
+  $('sb-brush-undo').addEventListener('click',()=>{const prev=brushHistory.pop();if(prev&&brushCanvas){brushCanvas.getContext('2d')!.putImageData(prev,0,0);previewBrush();}});
+  $('sb-cutout-make').addEventListener('click', async () => {
+    if (objectBusy) return;
+    objectBusy = true;
+    cutoutDialog.querySelectorAll('button').forEach((b) => b.disabled = true);
+    $<HTMLButtonElement>('sb-cutout-close').disabled=false;
+    $('sb-cutout-status').textContent = 'Making your cutout locally… First use downloads the tool.';
+    try {
+      const { objectCutout, personCutout, cancelCutout } = await import('../lib/scrapbook/cutout');
+      cancelRemoval=cancelCutout;
+      if(!cutoutDialog.open) throw new Error('Cutout cancelled.');
+      const progress=(message:string)=>{$('sb-cutout-status').textContent=message;};
+      objectResult = cutoutMode==='portrait' ? await personCutout(objectSource,progress) : await objectCutout(objectSource,progress);
+      const s = sourceOf(objectResult)!;
+      brushCanvas=document.createElement('canvas');brushCanvas.width=s.w;brushCanvas.height=s.h;
+      brushCanvas.getContext('2d')!.drawImage(s.img,0,0);
+      brushHistory.length=0;previewBrush();$('sb-cutout-tools').hidden=false;
+      $('sb-cutout-status').textContent = 'Preview ready. Brush to erase leftovers or restore details, then add to your page.';
+    } catch (error) { objectResult = ''; $('sb-cutout-status').textContent = error instanceof Error ? error.message : 'Cutout could not be made. Check your connection and try again.'; }
+    finally {
+      objectBusy = false; cutoutDialog.querySelectorAll('button').forEach((b) => b.disabled = false);
+      cancelRemoval=undefined;
+      $<HTMLButtonElement>('sb-cutout-add').disabled = !objectResult;
+      $<HTMLButtonElement>('sb-brush-undo').disabled = !brushHistory.length;
+    }
+  });
+  $('sb-cutout-add').addEventListener('click', () => {
+    if (!objectResult || objectBusy) return;
+    editor.addArt(brushCanvas ? registerCanvas(brushCanvas,true) : objectResult,{ long:.5 }); cutoutDialog.close(); placed();
+  });
+  $('sb-cutout-reset').addEventListener('click', drawObjectSource);
+  $('sb-cutout-close').addEventListener('click', () => {cancelRemoval?.();cutoutDialog.close();});
+  cutoutDialog.addEventListener('cancel',()=>cancelRemoval?.());
+  async function makePerson(src: string) {
+    if (objectBusy) return;
+    objectSource=src;cutoutMode='portrait';drawObjectSource();cutoutDialog.showModal();
+  }
+  $('sb-person-selected').addEventListener('click', () => { if (editor.sel?.kind === 'photo') makePerson(editor.sel.src); });
+  $<HTMLInputElement>('sb-person-file').addEventListener('change', async (e) => {
+    const input = e.target as HTMLInputElement;
+    if (!input.files?.[0]) return;
+    try { const key = await loadPhoto(input.files[0]); if (key) await makePerson(key); }
+    catch { $('sb-photo-status').textContent = 'This photo could not be opened. Try a JPG or PNG.'; }
+    finally { input.value = ''; }
+  });
+  $('sb-replace').addEventListener('click', () => {
+    slotTarget = editor.sel?.id ?? null;
+    $<HTMLInputElement>('sb-slotfile').click();
+  });
+  root.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((b) => b.addEventListener('click', () => editor.setFilter(b.dataset.filter as 'mono' | 'warm' || undefined)));
+  root.querySelectorAll<HTMLButtonElement>('[data-crop]').forEach((b) => b.addEventListener('click', () => {
+    const moves: Record<string, [number, number, number]> = { left: [-.06,0,1], right: [.06,0,1], up: [0,-.06,1], down: [0,.06,1], in: [0,0,1.15], out: [0,0,1/1.15] };
+    editor.adjustCrop(...moves[b.dataset.crop!]);
+  }));
+  $<HTMLInputElement>('sb-background-file').addEventListener('change', async (e) => {
+    const input = e.target as HTMLInputElement;
+    if (!input.files?.[0]) return;
+    const request = ++backgroundRequest;
+    const key = await loadPhoto(input.files[0]);
+    if (request !== backgroundRequest) { input.value = ''; return; }
+    if (key) { editor.setBackground(key); placed(); }
+    else toast('This photo could not be opened. Try a JPG or PNG.');
+    input.value = '';
+  });
 
   async function addPhotos(files: FileList | null) {
-    if (!files?.length) return;
+    if (!files?.length || importing) return;
+    importing = true;
+    const target = slotTarget;
+    const asCutout = target == null && $<HTMLInputElement>('sb-as-cutout').checked;
+    slotTarget = null;
+    const empty = editor.doc.els.filter((el)=>el.kind==='slot').sort((a,b)=>a.z-b.z);
+    const start = empty.findIndex((el)=>el.id===target);
+    const queue = start>=0 ? [...empty.slice(start),...empty.slice(0,start)] : empty;
+    // A selected filled frame is replaced once; the remaining batch fills empties.
+    if(target!=null&&start<0&&editor.doc.els.some((el)=>el.id===target&&el.kind==='photo')) queue.unshift(editor.doc.els.find((el)=>el.id===target)!);
     let added = 0;
-    for (const f of [...files].slice(0, 12)) {
-      const key = await loadPhoto(f);
+    try { for (const f of [...files].slice(0, 24)) {
+      if (!f.type.startsWith('image/')) continue;
+      const key = await loadPhoto(f, asCutout);
       if (!key) continue;
-      const slot = slotTarget != null
-        ? editor.doc.els.find((e) => e.id === slotTarget && e.kind === 'slot')
-        : editor.doc.els.filter((e) => e.kind === 'slot').sort((a, b) => a.y - b.y)[0];
-      slotTarget = null;
-      if (slot) editor.fillSlot(slot.id, key);
+      const slot = queue.shift();
+      if (asCutout) editor.addArt(key);
+      else if (slot) editor.fillSlot(slot.id, key);
       else editor.addPhoto(key, newFrame);
       added++;
-    }
+    } } catch { toast('A photo could not be opened. Try a JPG or PNG.'); }
+    finally { importing = false; }
+    $('sb-photo-status').textContent = `${added} photo${added === 1 ? '' : 's'} added. ${editor.doc.els.filter((e) => e.kind === 'slot').length} empty spots left.`;
     if (!added) toast("That file couldn't be opened as a photo.");
     else placed();
     track('scrapbook_photo', { count: added });
@@ -988,6 +1233,18 @@ const data = JSON.stringify({ library, packs, templates: tpls });
 
   // ---- tape and paper -------------------------------------------------------------
 
+  radio('[data-bgcategory]', (b) => {
+    root.querySelectorAll<HTMLElement>('[data-bg]').forEach((tile) => tile.hidden = b.dataset.bgcategory !== 'All' && tile.dataset.bgGroup !== b.dataset.bgcategory);
+  });
+  root.querySelectorAll<HTMLButtonElement>('[data-bg]').forEach((b) => b.addEventListener('click', async () => {
+    const request = ++backgroundRequest;
+    $('sb-bg-status').textContent = 'Loading background…';
+    const source = await loadUrl(b.dataset.bg!);
+    if (request !== backgroundRequest) return;
+    if (!source) { $('sb-bg-status').textContent = 'This background could not load. Try again.'; return; }
+    editor.setBackground(b.dataset.bg!); $('sb-bg-status').textContent = `${b.title} added.`; placed();
+  }));
+
   root.querySelectorAll<HTMLButtonElement>('[data-tape]').forEach((b) => {
     b.addEventListener('click', () => {
       editor.addArt(makeTape(b.dataset.tape!), { long: 0.36, shadow: false });
@@ -998,6 +1255,7 @@ const data = JSON.stringify({ library, packs, templates: tpls });
 
   root.querySelectorAll<HTMLButtonElement>('[data-paper]').forEach((b) =>
     b.addEventListener('click', () => {
+      backgroundRequest++;
       editor.setPaper(b.dataset.paper!);
       track('scrapbook_paper', { paper: b.dataset.paper });
     })
@@ -1071,6 +1329,20 @@ const data = JSON.stringify({ library, packs, templates: tpls });
   });
 
   // ---- start ----------------------------------------------------------------------
+
+  const previewObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      previewObserver.unobserve(entry.target);
+      const canvas = entry.target as HTMLCanvasElement;
+      const t = data.templates.find((t) => t.slug === canvas.dataset.tplPreview);
+      if (t) buildTemplate(t).then((doc) => {
+        const ctx = canvas.getContext('2d')!;
+        ctx.save(); ctx.scale(canvas.width/1080, canvas.height/1920); drawDoc(ctx, doc); ctx.restore();
+      }).catch(() => {});
+    }
+  }, { root: root.querySelector('.sb-panel'), rootMargin: '150px' });
+  root.querySelectorAll('[data-tpl-preview]').forEach((c) => previewObserver.observe(c));
 
   (async () => {
     const tpl = params.get('template');

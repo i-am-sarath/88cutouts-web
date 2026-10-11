@@ -9,3 +9,17 @@
 /dp-maker/*         /scrapbook/            301
 /dp                 /scrapbook/            301
 /dp/*               /scrapbook/            301
+
+# Retired starter layouts now open the fuller scrapbook compositions.
+/scrapbook/birthday       /scrapbook/keepsake-journal/      301
+/scrapbook/birthday/      /scrapbook/keepsake-journal/      301
+/scrapbook/travel-diary   /scrapbook/sunset-postcards/      301
+/scrapbook/travel-diary/  /scrapbook/sunset-postcards/      301
+/scrapbook/besties        /scrapbook/tropical-soulmates/    301
+/scrapbook/besties/       /scrapbook/tropical-soulmates/    301
+/scrapbook/photo-dump     /scrapbook/film-roll-weekend/     301
+/scrapbook/photo-dump/    /scrapbook/film-roll-weekend/     301
+/scrapbook/love           /scrapbook/velvet-photo-booth/    301
+/scrapbook/love/          /scrapbook/velvet-photo-booth/    301
+/scrapbook/pet-diary      /scrapbook/keepsake-journal/      301
+/scrapbook/pet-diary/     /scrapbook/keepsake-journal/      301

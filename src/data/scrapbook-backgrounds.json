@@ -1,0 +1,289 @@
+[
+  {
+    "id": "amber-bokeh",
+    "label": "Amber bokeh",
+    "category": "Glow",
+    "src": "/bg/amber-bokeh.webp",
+    "thumb": "/bg/thumbs/amber-bokeh.webp"
+  },
+  {
+    "id": "atomic-starburst",
+    "label": "Atomic starburst",
+    "category": "Retro",
+    "src": "/bg/atomic-starburst.webp",
+    "thumb": "/bg/thumbs/atomic-starburst.webp"
+  },
+  {
+    "id": "blue-abstract",
+    "label": "Blue abstract",
+    "category": "Retro",
+    "src": "/bg/blue-abstract.webp",
+    "thumb": "/bg/thumbs/blue-abstract.webp"
+  },
+  {
+    "id": "brown-plaid",
+    "label": "Brown plaid",
+    "category": "Fabric",
+    "src": "/bg/brown-plaid.webp",
+    "thumb": "/bg/thumbs/brown-plaid.webp"
+  },
+  {
+    "id": "brown-tartan",
+    "label": "Brown tartan",
+    "category": "Fabric",
+    "src": "/bg/brown-tartan.webp",
+    "thumb": "/bg/thumbs/brown-tartan.webp"
+  },
+  {
+    "id": "daisies",
+    "label": "Daisies",
+    "category": "Nature",
+    "src": "/bg/daisies.webp",
+    "thumb": "/bg/thumbs/daisies.webp"
+  },
+  {
+    "id": "daisy-spin",
+    "label": "Daisy spin",
+    "category": "Nature",
+    "src": "/bg/daisy-spin.webp",
+    "thumb": "/bg/thumbs/daisy-spin.webp"
+  },
+  {
+    "id": "denim-lace-stars",
+    "label": "Denim lace stars",
+    "category": "Fabric",
+    "src": "/bg/denim-lace-stars.webp",
+    "thumb": "/bg/thumbs/denim-lace-stars.webp"
+  },
+  {
+    "id": "denim-star-lace",
+    "label": "Denim star lace",
+    "category": "Fabric",
+    "src": "/bg/denim-star-lace.webp",
+    "thumb": "/bg/thumbs/denim-star-lace.webp"
+  },
+  {
+    "id": "dried-lily-macro",
+    "label": "Dried lily macro",
+    "category": "Nature",
+    "src": "/bg/dried-lily-macro.webp",
+    "thumb": "/bg/thumbs/dried-lily-macro.webp"
+  },
+  {
+    "id": "glitter-stars-black",
+    "label": "Glitter stars black",
+    "category": "Retro",
+    "src": "/bg/glitter-stars-black.webp",
+    "thumb": "/bg/thumbs/glitter-stars-black.webp"
+  },
+  {
+    "id": "golden-hour",
+    "label": "Golden hour",
+    "category": "Glow",
+    "src": "/bg/golden-hour.webp",
+    "thumb": "/bg/thumbs/golden-hour.webp"
+  },
+  {
+    "id": "golden-string-lights",
+    "label": "Golden string lights",
+    "category": "Glow",
+    "src": "/bg/golden-string-lights.webp",
+    "thumb": "/bg/thumbs/golden-string-lights.webp"
+  },
+  {
+    "id": "leopard-dark",
+    "label": "Leopard dark",
+    "category": "Animal print",
+    "src": "/bg/leopard-dark.webp",
+    "thumb": "/bg/thumbs/leopard-dark.webp"
+  },
+  {
+    "id": "leopard-fur-close",
+    "label": "Leopard fur close",
+    "category": "Animal print",
+    "src": "/bg/leopard-fur-close.webp",
+    "thumb": "/bg/thumbs/leopard-fur-close.webp"
+  },
+  {
+    "id": "leopard-fur-photo",
+    "label": "Leopard fur photo",
+    "category": "Animal print",
+    "src": "/bg/leopard-fur-photo.webp",
+    "thumb": "/bg/thumbs/leopard-fur-photo.webp"
+  },
+  {
+    "id": "leopard-print",
+    "label": "Leopard print",
+    "category": "Animal print",
+    "src": "/bg/leopard-print.webp",
+    "thumb": "/bg/thumbs/leopard-print.webp"
+  },
+  {
+    "id": "lily-bouquet",
+    "label": "Lily bouquet",
+    "category": "Nature",
+    "src": "/bg/lily-bouquet.webp",
+    "thumb": "/bg/thumbs/lily-bouquet.webp"
+  },
+  {
+    "id": "midnight-star-speck",
+    "label": "Midnight star speck",
+    "category": "Retro",
+    "src": "/bg/midnight-star-speck.webp",
+    "thumb": "/bg/thumbs/midnight-star-speck.webp"
+  },
+  {
+    "id": "navy-corduroy",
+    "label": "Navy corduroy",
+    "category": "Fabric",
+    "src": "/bg/navy-corduroy.webp",
+    "thumb": "/bg/thumbs/navy-corduroy.webp"
+  },
+  {
+    "id": "navy-fine-rib",
+    "label": "Navy fine rib",
+    "category": "Fabric",
+    "src": "/bg/navy-fine-rib.webp",
+    "thumb": "/bg/thumbs/navy-fine-rib.webp"
+  },
+  {
+    "id": "navy-frost-swirl",
+    "label": "Navy frost swirl",
+    "category": "Retro",
+    "src": "/bg/navy-frost-swirl.webp",
+    "thumb": "/bg/thumbs/navy-frost-swirl.webp"
+  },
+  {
+    "id": "navy-gold-sparkle",
+    "label": "Navy gold sparkle",
+    "category": "Retro",
+    "src": "/bg/navy-gold-sparkle.webp",
+    "thumb": "/bg/thumbs/navy-gold-sparkle.webp"
+  },
+  {
+    "id": "navy-vintage-starburst",
+    "label": "Navy vintage starburst",
+    "category": "Retro",
+    "src": "/bg/navy-vintage-starburst.webp",
+    "thumb": "/bg/thumbs/navy-vintage-starburst.webp"
+  },
+  {
+    "id": "navy-winter-swirl",
+    "label": "Navy winter swirl",
+    "category": "Retro",
+    "src": "/bg/navy-winter-swirl.webp",
+    "thumb": "/bg/thumbs/navy-winter-swirl.webp"
+  },
+  {
+    "id": "nineties",
+    "label": "Nineties",
+    "category": "Retro",
+    "src": "/bg/nineties.webp",
+    "thumb": "/bg/thumbs/nineties.webp"
+  },
+  {
+    "id": "ocean",
+    "label": "Ocean",
+    "category": "Nature",
+    "src": "/bg/ocean.webp",
+    "thumb": "/bg/thumbs/ocean.webp"
+  },
+  {
+    "id": "olive-comic-stars",
+    "label": "Olive comic stars",
+    "category": "Retro",
+    "src": "/bg/olive-comic-stars.webp",
+    "thumb": "/bg/thumbs/olive-comic-stars.webp"
+  },
+  {
+    "id": "olive-fine-starburst",
+    "label": "Olive fine starburst",
+    "category": "Retro",
+    "src": "/bg/olive-fine-starburst.webp",
+    "thumb": "/bg/thumbs/olive-fine-starburst.webp"
+  },
+  {
+    "id": "olive-hypno-spiral",
+    "label": "Olive hypno spiral",
+    "category": "Retro",
+    "src": "/bg/olive-hypno-spiral.webp",
+    "thumb": "/bg/thumbs/olive-hypno-spiral.webp"
+  },
+  {
+    "id": "olive-spiral",
+    "label": "Olive spiral",
+    "category": "Retro",
+    "src": "/bg/olive-spiral.webp",
+    "thumb": "/bg/thumbs/olive-spiral.webp"
+  },
+  {
+    "id": "olive-starburst",
+    "label": "Olive starburst",
+    "category": "Retro",
+    "src": "/bg/olive-starburst.webp",
+    "thumb": "/bg/thumbs/olive-starburst.webp"
+  },
+  {
+    "id": "red-check-star-patch",
+    "label": "Red check star patch",
+    "category": "Fabric",
+    "src": "/bg/red-check-star-patch.webp",
+    "thumb": "/bg/thumbs/red-check-star-patch.webp"
+  },
+  {
+    "id": "red-gingham-star-patches",
+    "label": "Red gingham star patches",
+    "category": "Fabric",
+    "src": "/bg/red-gingham-star-patches.webp",
+    "thumb": "/bg/thumbs/red-gingham-star-patches.webp"
+  },
+  {
+    "id": "sage-gingham",
+    "label": "Sage gingham",
+    "category": "Fabric",
+    "src": "/bg/sage-gingham.webp",
+    "thumb": "/bg/thumbs/sage-gingham.webp"
+  },
+  {
+    "id": "sage-micro-check",
+    "label": "Sage micro check",
+    "category": "Fabric",
+    "src": "/bg/sage-micro-check.webp",
+    "thumb": "/bg/thumbs/sage-micro-check.webp"
+  },
+  {
+    "id": "sky",
+    "label": "Sky",
+    "category": "Nature",
+    "src": "/bg/sky.webp",
+    "thumb": "/bg/thumbs/sky.webp"
+  },
+  {
+    "id": "striped-beaded-fabric",
+    "label": "Striped beaded fabric",
+    "category": "Fabric",
+    "src": "/bg/striped-beaded-fabric.webp",
+    "thumb": "/bg/thumbs/striped-beaded-fabric.webp"
+  },
+  {
+    "id": "sunset-smear",
+    "label": "Sunset smear",
+    "category": "Glow",
+    "src": "/bg/sunset-smear.webp",
+    "thumb": "/bg/thumbs/sunset-smear.webp"
+  },
+  {
+    "id": "teal-rust-stripe",
+    "label": "Teal rust stripe",
+    "category": "Fabric",
+    "src": "/bg/teal-rust-stripe.webp",
+    "thumb": "/bg/thumbs/teal-rust-stripe.webp"
+  },
+  {
+    "id": "warm-abstract-blur",
+    "label": "Warm abstract blur",
+    "category": "Glow",
+    "src": "/bg/warm-abstract-blur.webp",
+    "thumb": "/bg/thumbs/warm-abstract-blur.webp"
+  }
+]

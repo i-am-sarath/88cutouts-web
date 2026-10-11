@@ -9,10 +9,11 @@
  */
 
 export type TplEl =
-  | { t: 'slot'; x: number; y: number; w: number; h: number; a?: number; frame?: 'polaroid' | 'border' | 'none' }
+  | { t: 'mount'; x: number; y: number; w: number; h: number; a?: number; mount: 'strip' | 'stamp' | 'film' | 'contact'; group?:string }
+  | { t: 'slot'; x: number; y: number; w: number; h: number; a?: number; frame?: 'polaroid' | 'border' | 'none' | 'stamp' | 'film' | 'torn'; filter?: 'mono' | 'warm'; group?:string }
   | { t: 'sticker'; slug: string; x: number; y: number; s: number; a?: number }
   | { t: 'letters'; text: string; x: number; y: number; s: number; a?: number }
-  | { t: 'hand'; text: string; x: number; y: number; s: number; a?: number; color?: string }
+  | { t: 'hand'; text: string; x: number; y: number; s: number; a?: number; color?: string; style?: 'hand' | 'label' | 'type' | 'caption' }
   | { t: 'tape'; tape: string; x: number; y: number; s: number; a?: number };
 
 export interface ScrapbookTemplate {
@@ -24,204 +25,119 @@ export interface ScrapbookTemplate {
   /** One line for the template card. */
   blurb: string;
   paper: string;
+  background?: string;
   intro: string[];
   tips: string[];
   captions: string[];
   els: TplEl[];
 }
 
+const dump = (slug: string, name: string, background: string, blurb: string, els: TplEl[]): ScrapbookTemplate => ({
+  slug, name, paper: 'cream', background: `/bg/${background}.webp`, blurb, els,
+  title: `${name} photo dump template`,
+  description: `${blurb} Add your own photos, adjust the crops, decorate with cutouts and download a scrapbook photo dump.`,
+  intro: ['Keep a whole day together on one page. This layout layers photo prints and little keepsakes into a scrapbook you can fill with your own camera roll.', 'Choose a mix of portraits, places and small details. The frames, paper and decorations are already arranged; every layer can still be moved, resized or removed.'],
+  tips: ['Add several photos at once to fill the placeholders, or tap each spot to choose a specific picture.', 'Select a photo and use the crop arrows and zoom buttons to position it inside its frame.', 'Use a landscape from your trip as the page background for a more personal collage.', 'Add your own transparent PNG cutouts from Photos and layer them over the prints.'],
+  captions: ['these are the days', 'a little collection of us', 'wish we could stay here', 'from my camera roll'],
+});
+
+// Coordinates inside the mount rotate together, leaving one continuous border.
+function mounted(x:number,y:number,w:number,h:number,a:number,mount:'strip'|'stamp'|'film'|'contact', cells:{x:number;y:number;w:number;h:number}[], filter?:'mono'|'warm'): TplEl[] {
+  const angle=a*Math.PI/180;
+  const group=`${mount}:${x}:${y}`;
+  return [
+    {t:'mount',x,y,w,h,a,mount,group},
+    ...cells.map((c):TplEl=>({t:'slot',
+      x:x+(c.x*Math.cos(angle)-c.y*Math.sin(angle)),
+      y:y+(c.x*Math.sin(angle)+c.y*Math.cos(angle))*9/16,
+      w:c.w,h:c.h,a,frame:'none',filter,group,
+    })),
+  ];
+}
+function strip(x:number,y:number,w:number,photoH:number,count:number,a:number,style:'strip'|'film'='strip',filter:'mono'|'warm'='mono'):TplEl[] {
+  const edge=style==='film'?.034:.018, gap=.008;
+  const h=count*photoH+(count-1)*gap+edge*2+.022;
+  return mounted(x,y,w,h,a,style,Array.from({length:count},(_,row)=>({
+    x:0,y:-h/2+edge+photoH/2+row*(photoH+gap),w:w-edge*2,h:photoH,
+  })),filter);
+}
+
 export const templates: ScrapbookTemplate[] = [
-  {
-    slug: 'birthday',
-    name: 'Birthday',
-    title: 'Birthday scrapbook page template',
-    description:
-      'A free birthday scrapbook page: two photo spots, "happy birthday" in cut-out letters, cake-day stickers and washi tape. Add your photos and download it as a Story.',
-    blurb: 'Two photos, cut-out "happy birthday", macarons and bows.',
-    paper: 'blush',
-    intro: [
-      'A birthday page has one job: make the person feel like the main character for a day. This template gives you a big cut-out "happy birthday" across the top, two taped-down photo spots that overlap like prints stuck into a real book, and a few sweet stickers around the edges so the page feels finished before you have added a thing.',
-      'Use one recent photo and one old one. A baby photo, a first-day-of-school picture or a blurry night-out shot next to a recent photo tells a story without any words, and it is the version people screenshot and keep.',
-    ],
-    tips: [
-      'Put the person\'s best photo in the larger, upper spot. The eye lands on the top half of a Story first.',
-      'Swap the champagne cat for something that is actually theirs: their favourite flower, a pet, a bow in their colour.',
-      'Keep the bottom fifth fairly clear if you are posting to Stories. Instagram puts the reply bar there.',
-      'Tag them with Instagram\'s own mention sticker after you upload, so the tag stays tappable.',
-    ],
-    captions: ['happy birthday to my favourite person', 'another trip around the sun ☼', 'main character day', 'make a wish ♡', 'officially one year cooler', 'cake first, questions later'],
-    els: [
-      { t: 'letters', text: 'happy birthday', x: 0.5, y: 0.11, s: 0.86, a: -2 },
-      { t: 'slot', x: 0.37, y: 0.4, w: 0.52, h: 0.52, a: -5, frame: 'polaroid' },
-      { t: 'slot', x: 0.66, y: 0.645, w: 0.44, h: 0.44, a: 6, frame: 'polaroid' },
-      { t: 'tape', tape: 'pink-stripe', x: 0.37, y: 0.255, s: 0.3, a: -8 },
-      { t: 'tape', tape: 'mint-dot', x: 0.66, y: 0.52, s: 0.26, a: 5 },
-      { t: 'sticker', slug: 'stacked-macarons', x: 0.8, y: 0.27, s: 0.26, a: 8 },
-      { t: 'sticker', slug: 'pink-satin-bow', x: 0.17, y: 0.63, s: 0.26, a: -10 },
-      { t: 'sticker', slug: 'cat-drinking-champagne', x: 0.24, y: 0.85, s: 0.3, a: -4 },
-      { t: 'sticker', slug: 'glossy-red-heart', x: 0.88, y: 0.93, s: 0.16, a: 12 },
-      { t: 'hand', text: 'make a wish ♡', x: 0.64, y: 0.875, s: 0.42, a: -3 },
-    ],
-  },
-  {
-    slug: 'travel-diary',
-    name: 'Travel diary',
-    title: 'Travel diary scrapbook page template',
-    description:
-      'A free travel scrapbook page on kraft paper: three photo spots, cut-out "summer", shells, a starfish and a coconut drink. Add your holiday photos and save it as a Story.',
-    blurb: 'Kraft paper, three photos, shells and a starfish.',
-    paper: 'kraft',
-    intro: [
-      'A holiday camera roll is mostly near-duplicates. A travel page forces you to choose three photos that actually say where you were, which is exactly why it is nicer to look back on than a 40-picture dump.',
-      'This template sits on kraft paper, like a travel journal, with three prints tumbling down the page, beachy stickers in the gaps and a handwritten line at the bottom. Change the cut-out word to the place name for a page that works as a postcard.',
-    ],
-    tips: [
-      'Pick one wide shot (the view), one close-up (food, a ticket, your feet in the sand) and one with people in it. Three different distances make the page feel deep.',
-      'Retype the title as the city or beach: short names of four to eight letters look best in cut-out letters.',
-      'Kraft paper reads warm. If your photos are very blue (sea, sky), try the Sky or Cream paper instead.',
-      'Make a page per day of the trip in the same paper and post them as a Story series.',
-    ],
-    captions: ['wish you were here', 'salt in the air, sand in my hair', 'postcard from somewhere warm', 'out of office ☼', 'collecting moments, not things', 'take me back'],
-    els: [
-      { t: 'letters', text: 'summer', x: 0.5, y: 0.085, s: 0.62, a: 3 },
-      { t: 'slot', x: 0.3, y: 0.3, w: 0.44, h: 0.44, a: -6, frame: 'polaroid' },
-      { t: 'slot', x: 0.7, y: 0.47, w: 0.44, h: 0.44, a: 5, frame: 'polaroid' },
-      { t: 'slot', x: 0.36, y: 0.68, w: 0.5, h: 0.4, a: -3, frame: 'polaroid' },
-      { t: 'tape', tape: 'kraft', x: 0.3, y: 0.185, s: 0.26, a: -10 },
-      { t: 'tape', tape: 'clear', x: 0.7, y: 0.355, s: 0.24, a: 8 },
-      { t: 'sticker', slug: 'coconut-hibiscus-drink', x: 0.8, y: 0.21, s: 0.26, a: 10 },
-      { t: 'sticker', slug: 'orange-starfish', x: 0.14, y: 0.49, s: 0.2, a: -15 },
-      { t: 'sticker', slug: 'pink-scallop-shell', x: 0.82, y: 0.73, s: 0.22, a: 12 },
-      { t: 'sticker', slug: 'golden-sun-charm', x: 0.13, y: 0.83, s: 0.18, a: -6 },
-      { t: 'sticker', slug: 'seashell-starfish-bouquet', x: 0.78, y: 0.91, s: 0.28, a: -6 },
-      { t: 'hand', text: 'wish you were here', x: 0.42, y: 0.9, s: 0.5, a: -2 },
-    ],
-  },
-  {
-    slug: 'besties',
-    name: 'Besties',
-    title: 'Best friends scrapbook page template',
-    description:
-      'A free best-friends scrapbook page on grid paper: two portrait photos, cut-out "my girls", bows, lips and sparkle glasses. Add your photos and post it as a Story.',
-    blurb: 'Grid paper, two portrait photos, bows and sparkles.',
-    paper: 'grid',
-    intro: [
-      'Friend pages are the ones people actually reshare, because everyone on them wants a copy. This template uses two tall portrait spots, which suit the way phone photos of friends are usually taken, overlapping down a sheet of grid paper like a school notebook.',
-      'Coquette bows, a lipstick kiss and sparkle glasses keep it playful. Swap the cut-out title for an inside joke or your group chat name and it stops being a template and starts being yours.',
-    ],
-    tips: [
-      'Use portrait photos here. Landscape shots get cropped hard to fit the tall spots.',
-      'Retype the title as the group chat name. Inside jokes get more replies than "besties".',
-      'If there are more than two of you, add photos from the Photos tab and let them overlap. A crowded page suits a crowded friendship.',
-      'Make a matching page for each friend\'s birthday through the year using the same paper and tape.',
-    ],
-    captions: ['core memories ✧', 'my people', 'the group chat in real life', 'partners in crime', 'never a dull moment', 'found my forever people'],
-    els: [
-      { t: 'letters', text: 'my girls', x: 0.5, y: 0.095, s: 0.7, a: -2 },
-      { t: 'slot', x: 0.33, y: 0.36, w: 0.5, h: 0.62, a: -4, frame: 'polaroid' },
-      { t: 'slot', x: 0.68, y: 0.6, w: 0.5, h: 0.62, a: 5, frame: 'polaroid' },
-      { t: 'tape', tape: 'lilac-grid', x: 0.33, y: 0.19, s: 0.28, a: -6 },
-      { t: 'tape', tape: 'pink-stripe', x: 0.68, y: 0.43, s: 0.26, a: 7 },
-      { t: 'sticker', slug: 'pink-gingham-bow', x: 0.8, y: 0.21, s: 0.26, a: 12 },
-      { t: 'sticker', slug: 'kiss-lips', x: 0.17, y: 0.66, s: 0.2, a: -10 },
-      { t: 'sticker', slug: 'sparkle-glasses', x: 0.2, y: 0.87, s: 0.26, a: -6 },
-      { t: 'sticker', slug: 'pink-doodle-star', x: 0.87, y: 0.88, s: 0.16, a: 10 },
-      { t: 'hand', text: 'core memories ✧', x: 0.6, y: 0.93, s: 0.46, a: -2 },
-    ],
-  },
-  {
-    slug: 'photo-dump',
-    name: 'Photo dump',
-    title: 'Photo dump scrapbook page template',
-    description:
-      'A free photo dump scrapbook page: four photo spots with white borders on dotted paper, cut-out "photo dump", a film camera and a cassette tape. Add four photos and save it as one Story.',
-    blurb: 'Four bordered photos, retro camera and cassette.',
-    paper: 'dots',
-    intro: [
-      'A photo dump carousel scatters your week across ten slides that most people swipe past. Four photos on one page get seen together, in the order you chose, which is the whole point of a dump.',
-      'This layout puts four white-bordered prints in a loose zig-zag on dotted paper, with a film camera and a cassette at the bottom for that retro camera-roll feeling. It works for a week, a month, a festival or a "things that made me happy lately" round-up.',
-    ],
-    tips: [
-      'Mix close-ups and wide shots so the four prints don\'t all look the same size inside their frames.',
-      'Choose one colour that appears in every photo (a red top, a blue sky) and the page will feel planned.',
-      'The white border frame suits photo dumps better than polaroids: it keeps four photos from feeling heavy.',
-      'Rename the title to the month — "october" in cut-out letters makes a monthly series.',
-    ],
-    captions: ['lately', 'photo dump ✧ no context', 'a week in pictures', 'recently on my camera roll', 'small things, good days', 'month in review'],
-    els: [
-      { t: 'letters', text: 'photo dump', x: 0.5, y: 0.075, s: 0.78, a: -1 },
-      { t: 'slot', x: 0.29, y: 0.275, w: 0.46, h: 0.46, a: -3, frame: 'border' },
-      { t: 'slot', x: 0.72, y: 0.33, w: 0.42, h: 0.52, a: 4, frame: 'border' },
-      { t: 'slot', x: 0.3, y: 0.6, w: 0.44, h: 0.5, a: 3, frame: 'border' },
-      { t: 'slot', x: 0.7, y: 0.7, w: 0.46, h: 0.46, a: -4, frame: 'border' },
-      { t: 'tape', tape: 'night-star', x: 0.29, y: 0.145, s: 0.25, a: -6 },
-      { t: 'tape', tape: 'butter-check', x: 0.72, y: 0.185, s: 0.25, a: 6 },
-      { t: 'sticker', slug: 'retro-film-camera', x: 0.78, y: 0.9, s: 0.3, a: 8 },
-      { t: 'sticker', slug: 'heart-cassette-tape', x: 0.24, y: 0.89, s: 0.3, a: -8 },
-    ],
-  },
-  {
-    slug: 'love',
-    name: 'Love',
-    title: 'Couple and love scrapbook page template',
-    description:
-      'A free love scrapbook page on lined paper: one big polaroid, cut-out "you & me", a sealed love letter, a red rose and a love coupon. Add your photo for an anniversary or Valentine\'s Story.',
-    blurb: 'One big polaroid, love letter, rose and a coupon.',
-    paper: 'lined',
-    intro: [
-      'A love page should feel like a note slipped into a book, not an advert. This one is built around a single large polaroid on lined notebook paper, with a handwritten line in the polaroid\'s white strip — the place people used to write dates and names on real instant photos.',
-      'Around it: a sealed love letter, a rose, a lipstick kiss and a love coupon. It is made for anniversaries and Valentine\'s Day, but it works just as well for a long-distance "miss you" or a first-date memory.',
-    ],
-    tips: [
-      'Pick a photo where you are both looking at each other, or at the same thing. It reads warmer than both looking at the camera.',
-      'Rewrite the handwritten line in the polaroid strip with a date or a place. Specific beats sweet.',
-      'Lined paper looks best with the photo tilted a few degrees off the lines. Use the corner handle to rotate it.',
-      'For a private message, download it and send it in a chat instead of posting it.',
-    ],
-    captions: ['my favourite person', 'you & me, always', 'still my favourite hello', 'happy anniversary ♡', 'ten out of ten, would choose again', 'my safe place'],
-    els: [
-      { t: 'letters', text: 'you & me', x: 0.5, y: 0.095, s: 0.66, a: 2 },
-      { t: 'slot', x: 0.5, y: 0.42, w: 0.66, h: 0.66, a: -3, frame: 'polaroid' },
-      { t: 'tape', tape: 'red-heart', x: 0.5, y: 0.235, s: 0.3, a: -4 },
-      { t: 'hand', text: 'my favourite person', x: 0.5, y: 0.645, s: 0.5, a: -3 },
-      { t: 'sticker', slug: 'red-lips-kiss', x: 0.17, y: 0.25, s: 0.18, a: -12 },
-      { t: 'sticker', slug: 'crumpled-paper-heart', x: 0.85, y: 0.24, s: 0.2, a: 12 },
-      { t: 'sticker', slug: 'sealed-love-letter', x: 0.24, y: 0.79, s: 0.34, a: -8 },
-      { t: 'sticker', slug: 'dark-red-rose', x: 0.79, y: 0.76, s: 0.3, a: 10 },
-      { t: 'sticker', slug: 'love-coupon-ticket', x: 0.55, y: 0.92, s: 0.36, a: 4 },
-    ],
-  },
-  {
-    slug: 'pet-diary',
-    name: 'Pet diary',
-    title: 'Pet scrapbook page template',
-    description:
-      'A free pet scrapbook page on butter-yellow paper: two polaroids, cut-out "my baby", cat and teddy stickers and washi tape. Add photos of your cat or dog and save it as a Story.',
-    blurb: 'Two polaroids, cut-out "my baby", cats and a teddy.',
-    paper: 'butter',
-    intro: [
-      'Pet photos are the most-saved photos on most phones and the least-organised. A pet page is a reason to finally pick the two best ones: one portrait where they look noble, one where they look ridiculous.',
-      'This template sets two polaroids on soft butter-yellow paper with cut-out "my baby" on top and a few animal stickers around them. Retype the title as your pet\'s name for a page that makes a nice gotcha-day or birthday post.',
-    ],
-    tips: [
-      'Pet photos taken at their eye level look best in the big spot. Get down on the floor for the shot.',
-      'Retype the title as the pet\'s name. Short names look great in big cut-out letters.',
-      'Swap the cat stickers for dog ones if needed, or use stickers in the pet\'s colours.',
-      'Do one page a year on their birthday or adoption day and you will have a book of them growing up.',
-    ],
-    captions: ['my baby', 'the real boss of the house', 'professional napper', 'happy gotcha day', 'best friend, four paws', 'too cute to function'],
-    els: [
-      { t: 'letters', text: 'my baby', x: 0.5, y: 0.095, s: 0.64, a: -2 },
-      { t: 'slot', x: 0.36, y: 0.38, w: 0.56, h: 0.56, a: -4, frame: 'polaroid' },
-      { t: 'slot', x: 0.68, y: 0.665, w: 0.44, h: 0.44, a: 6, frame: 'polaroid' },
-      { t: 'tape', tape: 'mint-dot', x: 0.36, y: 0.225, s: 0.3, a: -7 },
-      { t: 'tape', tape: 'pink-stripe', x: 0.68, y: 0.54, s: 0.26, a: 6 },
-      { t: 'sticker', slug: 'cat-with-pink-bow', x: 0.81, y: 0.22, s: 0.26, a: 8 },
-      { t: 'sticker', slug: 'heart-paws-bow-cat', x: 0.18, y: 0.68, s: 0.26, a: -8 },
-      { t: 'sticker', slug: 'brown-teddy-bear', x: 0.24, y: 0.89, s: 0.24, a: -6 },
-      { t: 'sticker', slug: 'hamster-peace-sign', x: 0.82, y: 0.9, s: 0.24, a: 10 },
-    ],
-  },
+  dump('tropical-soulmates', 'Tropical soulmates', 'leopard-print', 'Seven layered photos, leopard print, hibiscus and little love notes.', [
+    { t: 'sticker', slug: 'torn-kraft-paper-scrap', x: .7, y: .22, s: .75, a: 20 },
+    ...strip(.17,.47,.38,.44,3,2,'strip','warm'),
+    ...mounted(.7,.57,.61,.93,-7,'stamp',[
+      {x:-.135,y:-.205,w:.265,h:.39},{x:.135,y:-.205,w:.265,h:.39},
+      {x:-.135,y:.19,w:.265,h:.39},{x:.135,y:.19,w:.265,h:.39},
+    ]),
+    { t: 'sticker', slug: 'dark-pink-hibiscus', x: .86, y: .22, s: .39, a: 12 },
+    { t: 'sticker', slug: 'crimson-ribbon-bow', x: .8, y: .89, s: .35, a: -5 },
+    { t: 'sticker', slug: 'glossy-red-heart', x: .42, y: .77, s: .16, a: -15 },
+    { t: 'hand', text: 'soulmates!', x: .2, y: .3, s: .29, style: 'caption' },
+    { t: 'hand', text: 'you’re so gorgeous!', x: .68, y: .55, s: .61, a: -7, color: '#FFFFFF' },
+    { t: 'hand', text: 'cuties', x: .7, y: .8, s: .22, style: 'caption', a:-7 },
+    { t: 'hand', text: 'i love you\nmore than a little', x: .47, y: .88, s: .47, style: 'label', a: -3 },
+  ]),
+  dump('sunset-postcards', 'Sunset postcards', 'ocean', 'Five travel prints over ocean waves, sun charms and shells.', [
+    { t: 'slot', x: .68, y: .17, w: .31, h: .43, a:1, frame: 'border', filter: 'warm' },
+    { t: 'slot', x: .265, y: .27, w: .42, h: .33, a:-1, frame: 'border', filter: 'warm' },
+    ...mounted(.4,.59,.66,.61,0,'stamp',[{x:0,y:0,w:.58,h:.53}], 'warm'),
+    { t: 'slot', x: .78, y: .82, w: .32, h: .47, a:1, frame: 'border', filter: 'warm' },
+    { t: 'slot', x: .75, y: .41, w: .19, h: .2, a: -2, frame: 'torn' },
+    { t: 'tape', tape: 'clear', x: .84, y: .067, s: .22, a: 28 },
+    { t: 'tape', tape: 'clear', x: .85, y: .65, s: .24, a: 35 },
+    { t: 'tape', tape: 'kraft', x: .64, y: .91, s: .22, a: 45 },
+    { t: 'sticker', slug: 'golden-sun-charm', x: .13, y: .44, s: .23, a: -12 },
+    { t: 'sticker', slug: 'gold-sun-swirl', x: .5, y: .105, s: .17 },
+    { t: 'sticker', slug: 'orange-starfish', x: .89, y: .31, s: .14, a: 12 },
+    { t: 'sticker', slug: 'golden-scallop-shell', x: .12, y: .86, s: .26, a: -20 },
+    { t: 'hand', text: 'somewhere with you', x: .42, y: .95, s: .51, color: '#FFF9EC', a: -3 },
+  ]),
+  dump('velvet-photo-booth', 'Velvet photo booth', 'red-gingham-star-patches', 'Sixteen crowded booth snapshots, connected print strips and golden charms.', [
+    ...strip(.29,.31,.24,.215,3,-1),
+    ...strip(.505,.47,.24,.26,4,1),
+    ...strip(.695,.345,.25,.215,3,-2),
+    ...strip(.31,.68,.22,.255,3,1),
+    ...mounted(.7,.7,.31,.67,0,'contact',[
+      {x:0,y:-.22,w:.275,h:.205},{x:0,y:-.01,w:.275,h:.205},{x:0,y:.2,w:.275,h:.205},
+    ],'mono'),
+    { t: 'sticker', slug: 'golden-lily', x: .62, y: .17, s: .2, a: -10 },
+    { t: 'sticker', slug: 'golden-flower-pushpin', x: .23, y: .18, s: .12, a: -20 },
+    { t: 'sticker', slug: 'tan-stitched-star-patch', x: .82, y: .47, s: .22, a: 15 },
+    { t: 'sticker', slug: 'golden-sun-charm', x: .17, y: .76, s: .18, a: -15 },
+    { t: 'sticker', slug: 'glossy-red-heart', x: .82, y: .67, s: .1, a: 12 },
+    { t: 'hand', text: 'our kind of night', x: .5, y: .94, s: .51, color: '#F8E5BA', a: -3 },
+  ]),
+  dump('film-roll-weekend', 'Film roll weekend', 'navy-gold-sparkle', 'Eight warm film frames on a starry backdrop, a camera and white captions.', [
+    ...strip(.28,.44,.39,.28,4,-5,'film','warm'),
+    ...strip(.72,.51,.39,.28,4,5,'film','warm'),
+    { t: 'sticker', slug: 'retro-film-camera', x: .76, y: .9, s: .25, a: 8 },
+    { t: 'hand', text: 'weekend on film', x: .42, y: .92, s: .58, color: '#FFFFFF', a: -4 },
+  ]),
+  dump('blue-hour', 'Blue hour', 'denim-lace-stars', 'Six overlapping prints on denim and lace, blue bows and notebook scraps.', [
+    { t: 'sticker', slug: 'torn-lined-paper-scrap', x: .48, y: .46, s: .9, a: -5 },
+    ...strip(.28,.43,.37,.37,3,-5,'strip','warm'),
+    ...mounted(.71,.52,.43,.88,5,'stamp',[
+      {x:0,y:-.21,w:.35,h:.37},{x:0,y:.19,w:.35,h:.37},
+    ]),
+    {t:'slot',x:.63,y:.83,w:.37,h:.28,a:-9,frame:'polaroid'},
+    { t: 'sticker', slug: 'blue-satin-bow', x: .72, y: .11, s: .28, a: 10 },
+    { t: 'sticker', slug: 'blue-sparkle-stars', x: .17, y: .85, s: .23 },
+    { t: 'hand', text: 'little things, lately', x: .5, y: .95, s: .62, color: '#FFFFFF', a: -3 },
+  ]),
+  dump('keepsake-journal', 'Keepsake journal', 'brown-plaid', 'Five taped prints on brown plaid, torn paper and golden flowers.', [
+    { t: 'sticker', slug: 'torn-lined-paper-scrap', x: .5, y: .55, s: .91, a: 8 },
+    { t: 'slot', x: .33, y: .25, w: .48, h: .4, a: -8, frame: 'torn', filter: 'warm' },
+    { t: 'slot', x: .74, y: .3, w: .32, h: .42, a: 8, frame: 'polaroid', filter: 'warm' },
+    { t: 'slot', x: .3, y: .56, w: .32, h: .36, a: -5, frame: 'border' },
+    { t: 'slot', x: .69, y: .6, w: .4, h: .37, a: 5, frame: 'stamp' },
+    { t: 'slot', x: .4, y: .8, w: .4, h: .3, a: -6, frame: 'border' },
+    { t: 'tape', tape: 'kraft', x: .33, y: .14, s: .26, a: -12 },
+    { t: 'tape', tape: 'clear', x: .73, y: .18, s: .23, a: 15 },
+    { t: 'sticker', slug: 'golden-lily', x: .86, y: .79, s: .25, a: 15 },
+    { t: 'hand', text: 'a day to keep', x: .5, y: .065, s: .56, a: -2, color: '#FFF9EC' },
+    { t: 'hand', text: 'remember this feeling', x: .53, y: .94, s: .61, style: 'label', a: 3 },
+  ]),
 ];
 
 export const templateBySlug = (slug: string) => templates.find((t) => t.slug === slug);

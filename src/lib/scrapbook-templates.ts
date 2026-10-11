@@ -20,7 +20,7 @@ export async function resolveTemplate(t: ScrapbookTemplate): Promise<ResolvedTem
     if (image) els.push({ ...el, src: stickerThumb(image, 512) });
     else console.warn(`[scrapbook] "${t.slug}": sticker "${el.slug}" not found, skipped.`);
   }
-  return { slug: t.slug, name: t.name, paper: t.paper, els };
+  return { slug: t.slug, name: t.name, paper: t.paper, background: t.background, els };
 }
 
 export const resolveTemplates = () => Promise.all(templates.map(resolveTemplate));

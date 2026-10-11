@@ -92,7 +92,7 @@ export class Editor {
   }
 
   get isEmpty() {
-    return !this.doc.els.some((e) => e.kind !== 'slot');
+    return !this.doc.background && !this.doc.els.some((e) => e.kind !== 'slot');
   }
 
   private resizeCanvas() {
@@ -259,10 +259,39 @@ export class Editor {
   }
 
   setPaper(id: string) {
-    if (id === this.doc.paper) return;
+    if (id === this.doc.paper && !this.doc.background) return;
     this.checkpoint();
     this.doc.paper = id;
+    delete this.doc.background;
+    this.dirty = true;
     this.changed();
+  }
+
+  setBackground(src: string) {
+    if (!sourceOf(src)) return;
+    this.checkpoint();
+    this.doc.background = src;
+    this.dirty = true;
+    this.changed();
+  }
+
+  setFilter(filter?: El['filter']) {
+    if (this.sel?.kind !== 'photo') return;
+    this.checkpoint(); this.sel.filter = filter; this.dirty = true; this.changed();
+  }
+
+  /** Move or zoom the image inside its frame, keeping the frame covered. */
+  adjustCrop(dx: number, dy: number, zoom = 1) {
+    const el = this.sel;
+    const s = el && sourceOf(el.src);
+    if (!el || el.kind !== 'photo' || !s) return;
+    this.checkpoint();
+    const c = el.crop ?? coverCrop(s, el.w / el.h);
+    const max = coverCrop(s, el.w / el.h);
+    const sw = Math.max(max.sw / 8, Math.min(max.sw, c.sw / zoom));
+    const sh = sw * el.h / el.w;
+    el.crop = { sx: Math.max(0, Math.min(s.w-sw, c.sx+(c.sw-sw)/2+dx*c.sw)), sy: Math.max(0, Math.min(s.h-sh, c.sy+(c.sh-sh)/2+dy*c.sh)), sw, sh };
+    this.dirty = true; this.changed();
   }
 
   // ---- the selected element ----------------------------------------------------
@@ -276,7 +305,9 @@ export class Editor {
     const el = this.sel;
     if (!el) return;
     this.checkpoint();
-    this.doc.els = this.doc.els.filter((e) => e !== el);
+    if (el.group && (el.kind==='photo'||el.kind==='slot')) {
+      el.kind='slot';el.src='';delete el.crop;
+    } else this.doc.els = this.doc.els.filter((e) => el.group ? e.group!==el.group : e !== el);
     this.selected = null;
     this.changed();
   }
@@ -285,6 +316,15 @@ export class Editor {
     const el = this.sel;
     if (!el) return;
     const off = this.size.w * 0.05;
+    if(el.group) {
+      this.checkpoint();
+      const group=`copy:${this.nextId}`;
+      for(const item of this.doc.els.filter((e)=>e.group===el.group)) {
+        const copy=this.push({...item,group,x:item.x+off,y:item.y+off,crop:item.crop&&{...item.crop}},true);
+        if(item===el)this.selected=copy.id;
+      }
+      this.dirty=true;this.changed();return;
+    }
     this.push({ ...el, x: el.x + off, y: el.y + off, crop: el.crop && { ...el.crop } });
   }
 
@@ -300,7 +340,8 @@ export class Editor {
     const el = this.sel;
     if (!el) return;
     this.checkpoint();
-    el.z = this.topZ() + 1;
+    const items=this.doc.els.filter((e)=>el.group ? e.group===el.group : e===el).sort((a,b)=>a.z-b.z);
+    const top=this.topZ()+1;items.forEach((item,i)=>item.z=top+i);
     this.changed();
   }
 
@@ -309,7 +350,8 @@ export class Editor {
     if (!el) return;
     this.checkpoint();
     const low = this.doc.els.reduce((m, e) => Math.min(m, e.z), Infinity);
-    el.z = low - 1;
+    const items=this.doc.els.filter((e)=>el.group ? e.group===el.group : e===el).sort((a,b)=>a.z-b.z);
+    items.forEach((item,i)=>item.z=low-items.length+i);
     this.changed();
   }
 
@@ -325,8 +367,10 @@ export class Editor {
     const el = this.sel;
     if (!el) return;
     if (!this.pending) this.pending = this.snap();
+    const before={...el};
     el.x += dx;
     el.y += dy;
+    this.syncGroup(before,el);
     this.settleSoon();
     this.draw();
   }
@@ -336,8 +380,10 @@ export class Editor {
     const el = this.sel;
     if (!el) return;
     if (!this.pending) this.pending = this.snap();
+    const before={...el};
     this.scaleTo(el, el.w * scale, el.h * scale);
     el.angle += rotate;
+    this.syncGroup(before,el);
     this.settleSoon();
     this.draw();
   }
@@ -367,6 +413,19 @@ export class Editor {
     if (Math.max(w, h) * k > max) k = max / Math.max(w, h);
     el.w = w * k;
     el.h = h * k;
+  }
+
+  /** Apply the selected print's affine change to its shared mount and cells. */
+  private syncGroup(before:El,after:El) {
+    if(!after.group)return;
+    const scale=after.w/before.w,angle=after.angle-before.angle;
+    const c=Math.cos(angle),s=Math.sin(angle);
+    for(const item of this.doc.els) {
+      if(item.id===after.id||item.group!==after.group)continue;
+      const dx=(item.x-before.x)*scale,dy=(item.y-before.y)*scale;
+      item.x=after.x+dx*c-dy*s;item.y=after.y+dx*s+dy*c;
+      item.w*=scale;item.h*=scale;item.angle+=angle;
+    }
   }
 
   // ---- export -------------------------------------------------------------------
@@ -481,6 +540,7 @@ export class Editor {
     if (!g) return;
     const el = this.doc.els.find((x) => x.id === g.id);
     if (!el) return;
+    const before={...el};
 
     if (g.type === 'move') {
       el.x = g.ox + (p.x - g.sx);
@@ -500,6 +560,7 @@ export class Editor {
       el.x = g.x0 + ((a.x + b.x) / 2 - g.mx);
       el.y = g.y0 + ((a.y + b.y) / 2 - g.my);
     }
+    this.syncGroup(before,el);
     this.draw();
   }
 

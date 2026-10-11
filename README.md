@@ -69,12 +69,32 @@ on the device, and the page warns before closing with unexported work.
 | `src/lib/scrapbook/scene.ts` | the page model, papers, tapes, generated artwork (text, letters, tape) and drawing |
 | `src/lib/scrapbook/editor.ts` | selection, drag, corner-handle and two-finger resize/rotate, wheel, undo/redo |
 | `src/lib/scrapbook/template.ts` | turns a template into a page (editor and template-page previews) |
+| `src/lib/scrapbook/cutout.ts`, `matting.worker.ts` | lazy-loaded local matting, worker inference and continuous alpha edges |
 | `src/components/ScrapbookEditor.astro` | the editor UI: tool tabs, panels, export dialog |
 | `src/data/scrapbook-templates.ts` | the templates and the copy for their pages |
 
 Templates are positioned as fractions of a 9:16 page and name stickers by slug; a slug that
 leaves the library is skipped with a build warning. Each template also gets its own page at
 `/scrapbook/<slug>/` with written help, so it can rank on its own.
+
+The six photo-dump layouts use real image backgrounds from `stickers/bg/`. Run
+`npm run import-backgrounds` after adding images there: it copies them to `public/bg/`,
+creates small gallery thumbnails, and updates `src/data/scrapbook-backgrounds.json`.
+The Backgrounds tab offers all 41 images, category filters, solid colours and a custom
+photo background. Full-size backgrounds load only when chosen or used by a template.
+
+Background removal runs **entirely in the user's browser**, in a dedicated worker.
+Portraits use Apache-2.0 MODNet with continuous alpha matting; objects and pets use
+MIT BiRefNet Lite at 512px. Both use full-precision WASM, single-threaded so static
+hosting does not need cross-origin isolation headers. The half-precision object model
+was rejected during browser QA because it returned incorrect empty masks.
+Transformers.js 3.8.1 loads lazily from jsDelivr and model files load from Hugging Face,
+cached by its runtime on the user's device. Portrait weights are about 25 MB; detailed
+object weights are about 190 MB. Users preview both
+results and can erase/restore details with brush undo before adding the cutout.
+No photo data is sent to either host, no API key is required, and there is no server
+inference or per-use fee. First use needs a connection; low-memory devices can fail
+to run the detailed model and display the error without silently downgrading quality.
 
 URL parameters: `?template=<slug>`, `?add=<sticker-slug>` (the "Add to scrapbook" link on
 sticker pages), `?pack=<slug>` (opens the Stickers tab narrowed to a pack), `&t=<words>`
