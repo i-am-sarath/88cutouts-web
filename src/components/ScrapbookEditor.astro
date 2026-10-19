@@ -37,6 +37,14 @@ const packs = Object.fromEntries(
 
 const tpls = await resolveTemplates();
 
+/** A swatch that hints at the paper's pattern. */
+const paperStyle = (p: (typeof PAPERS)[number]) =>
+  p.pattern === 'checker'
+    ? `background: repeating-conic-gradient(${p.color} 0 25%, ${p.line} 0 50%) 0 0 / 50% 50%`
+    : p.pattern === 'tiles'
+      ? `background: linear-gradient(${p.line} 2px, transparent 2px) 0 0 / 50% 50%, linear-gradient(90deg, ${p.line} 2px, ${p.color} 2px) 0 0 / 50% 50%`
+      : p.color ? `background-color:${p.color}` : '';
+
 const paperSwatch = (id: string) => PAPERS.find((p) => p.id === id)?.color || '#F6EFE3';
 
 const textPresets = ['happy birthday', 'core memory', 'my girls', 'photo dump', 'miss you', 'best day ever', 'summer 2026', 'love you'];
@@ -273,11 +281,11 @@ const data = JSON.stringify({ library, packs, templates: tpls });
           {backgrounds.map((bg) => <button type="button" class="sb-background" data-bg={bg.src} data-bg-group={bg.category} aria-pressed="false" title={bg.label}><img src={bg.thumb} alt="" width="200" height="280" loading="lazy" /><small>{bg.label}</small></button>)}
         </div>
         <p class="sb-note" id="sb-bg-status" role="status" aria-live="polite"></p>
-        <p class="sb-label">Solid colours</p>
+        <p class="sb-label">Papers</p>
         <div class="sb-papers">
-          {PAPERS.filter((p) => !p.pattern).map((p) => (
+          {PAPERS.filter((p) => !p.pattern || p.pattern === 'checker' || p.pattern === 'tiles').map((p) => (
             <button type="button" class="sb-paper" data-paper={p.id} data-pattern={p.pattern ?? ''} aria-pressed={p.id === 'cream' ? 'true' : 'false'}>
-              <span style={p.color ? `background-color:${p.color}` : ''} />
+              <span style={paperStyle(p)} />
               <small>{p.label}</small>
             </button>
           ))}

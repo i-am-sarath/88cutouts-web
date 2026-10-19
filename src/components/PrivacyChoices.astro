@@ -3,11 +3,11 @@ interface Props { analyticsId: string; }
 const { analyticsId } = Astro.props;
 ---
 <section id="privacy-choices" class="privacy-choices" aria-label="Optional analytics cookies" hidden>
-  <h2>Optional analytics</h2>
-  <p>Allow Google Analytics to measure visits and feature use? The tools work without it. <a href="/privacy/">Privacy details</a>.</p>
+  <h2>Analytics</h2>
+  <p>Google Analytics measures visits and feature use. The tools work the same if you turn it off. <a href="/privacy/">Privacy details</a>.</p>
   <div class="action-row">
-    <button type="button" class="btn" data-privacy-choice="denied">Decline</button>
-    <button type="button" class="btn" data-privacy-choice="granted">Allow analytics</button>
+    <button type="button" class="btn" data-privacy-choice="denied">Turn off analytics</button>
+    <button type="button" class="btn" data-privacy-choice="granted">Keep analytics on</button>
   </div>
 </section>
 <script is:inline define:vars={{ analyticsId }}>
@@ -45,9 +45,8 @@ const { analyticsId } = Astro.props;
         });
       });
     };
-    const choice = read();
-    if (choice === 'granted') enable();
-    else if (choice !== 'denied') panel.hidden = false;
+    // No pop-up: analytics runs unless the visitor turned it off in cookie settings.
+    if (read() !== 'denied') enable();
     document.querySelectorAll('[data-privacy-choice]').forEach(button => {
       button.addEventListener('click', () => {
         const value = button.getAttribute('data-privacy-choice');

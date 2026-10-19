@@ -26,7 +26,7 @@ export interface Paper {
   label: string;
   /** Empty for a transparent page. */
   color: string;
-  pattern?: 'grid' | 'lines' | 'dots' | 'kraft';
+  pattern?: 'grid' | 'lines' | 'dots' | 'kraft' | 'checker' | 'tiles';
   /** Line colour for patterned papers. */
   line?: string;
 }
@@ -37,6 +37,8 @@ export const PAPERS: Paper[] = [
   { id: 'grid', label: 'Grid', color: '#FBF7EF', pattern: 'grid', line: 'rgba(120, 150, 190, 0.28)' },
   { id: 'lined', label: 'Lined', color: '#FFFFFF', pattern: 'lines', line: 'rgba(110, 150, 200, 0.35)' },
   { id: 'dots', label: 'Dotted', color: '#FBEDEB', pattern: 'dots', line: 'rgba(150, 90, 90, 0.3)' },
+  { id: 'checker', label: 'Pastel checks', color: '#FBF1C4', pattern: 'checker', line: '#C9DDF0' },
+  { id: 'tiles', label: 'Terracotta tiles', color: '#D9733A', pattern: 'tiles', line: '#F3E6D6' },
   { id: 'blush', label: 'Blush', color: '#F7D9DA' },
   { id: 'sage', label: 'Sage', color: '#DCE5D2' },
   { id: 'sky', label: 'Sky', color: '#DAE6F1' },
@@ -816,6 +818,26 @@ export function drawPaper(ctx: CanvasRenderingContext2D, paper: Paper, W: number
         ctx.fill();
       }
       break;
+    case 'checker': {
+      const sq = W / 8;
+      for (let y = 0, r = 0; y < H; y += sq, r++) for (let x = (r % 2) * sq; x < W; x += sq * 2) ctx.fillRect(x, y, sq, sq);
+      break;
+    }
+    case 'tiles': {
+      // Glazed terracotta: square tiles, each a slightly different fire.
+      const sq = W / 5, grout = 6;
+      let seed = 11;
+      for (let y = 0; y < H; y += sq) for (let x = 0; x < W; x += sq) {
+        seed = (seed * 16807) % 2147483647;
+        const k = (seed / 2147483647 - 0.5) * 0.16;
+        ctx.fillStyle = `rgba(${k > 0 ? '255, 220, 170' : '120, 40, 10'}, ${Math.abs(k)})`;
+        ctx.fillRect(x + grout / 2, y + grout / 2, sq - grout, sq - grout);
+      }
+      ctx.fillStyle = paper.line ?? '#FFFFFF';
+      for (let x = 0; x <= W; x += sq) ctx.fillRect(x - grout / 2, 0, grout, H);
+      for (let y = 0; y <= H; y += sq) ctx.fillRect(0, y - grout / 2, W, grout);
+      break;
+    }
     case 'kraft': {
       const pat = ctx.createPattern(noiseTile(), 'repeat');
       if (pat) {
