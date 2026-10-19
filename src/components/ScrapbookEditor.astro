@@ -13,7 +13,7 @@ import { getPacks } from '../lib/packs';
 import { stickerThumb } from '../lib/thumbs.mjs';
 import { templates } from '../data/scrapbook-templates';
 import { resolveTemplates } from '../lib/scrapbook-templates';
-import { PAPERS, TAPES } from '../lib/scrapbook/scene';
+import { PAPERS, TAPES, DOODLES } from '../lib/scrapbook/scene';
 import backgrounds from '../data/scrapbook-backgrounds.json';
 
 const stickers = await getStickers();
@@ -37,6 +37,14 @@ const packs = Object.fromEntries(
 
 const tpls = await resolveTemplates();
 
+/** A swatch that hints at the paper's pattern. */
+const paperStyle = (p: (typeof PAPERS)[number]) =>
+  p.pattern === 'checker'
+    ? `background: repeating-conic-gradient(${p.color} 0 25%, ${p.line} 0 50%) 0 0 / 50% 50%`
+    : p.pattern === 'tiles'
+      ? `background: linear-gradient(${p.line} 2px, transparent 2px) 0 0 / 50% 50%, linear-gradient(90deg, ${p.line} 2px, ${p.color} 2px) 0 0 / 50% 50%`
+      : p.color ? `background-color:${p.color}` : '';
+
 const paperSwatch = (id: string) => PAPERS.find((p) => p.id === id)?.color || '#F6EFE3';
 
 const textPresets = ['happy birthday', 'core memory', 'my girls', 'photo dump', 'miss you', 'best day ever', 'summer 2026', 'love you'];
@@ -47,6 +55,16 @@ const inks = [
   { id: '#E07A9B', label: 'Pink' },
   { id: '#3E64A8', label: 'Blue' },
   { id: '#4E7A55', label: 'Green' },
+];
+
+const doodleInks = [
+  { id: '#E8743B', label: 'Orange' },
+  { id: '#E58AA6', label: 'Pink' },
+  { id: '#C8423B', label: 'Red' },
+  { id: '#F2C84B', label: 'Yellow' },
+  { id: '#3E64A8', label: 'Blue' },
+  { id: '#2A2522', label: 'Ink' },
+  { id: '#FFFFFF', label: 'White' },
 ];
 
 const data = JSON.stringify({ library, packs, templates: tpls });
@@ -97,7 +115,7 @@ const data = JSON.stringify({ library, packs, templates: tpls });
       </button>
       <button type="button" role="tab" data-tab="tape" aria-selected="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 15 11-11 5 5L9 20z" /><path d="m7 12 5 5M10 9l5 5" /></svg>
-        <span>Tape</span>
+        <span>Doodles</span>
       </button>
       <button type="button" role="tab" data-tab="paper" aria-label="Backgrounds" aria-selected="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z" /><path d="M15 3v4h4" /><path d="M9 12h7M9 16h5" /></svg>
@@ -149,6 +167,10 @@ const data = JSON.stringify({ library, packs, templates: tpls });
           <button type="button" class="chip" data-newframe="stamp" aria-pressed="false">Postage stamp</button>
           <button type="button" class="chip" data-newframe="torn" aria-pressed="false">Torn paper</button>
           <button type="button" class="chip" data-newframe="film" aria-pressed="false">Film</button>
+          <button type="button" class="chip" data-newframe="circle" aria-pressed="false">Circle</button>
+          <button type="button" class="chip" data-newframe="oval" aria-pressed="false">Oval</button>
+          <button type="button" class="chip" data-newframe="rounded" aria-pressed="false">Rounded</button>
+          <button type="button" class="chip" data-newframe="scallop" aria-pressed="false">Scalloped</button>
         </div>
         <div id="sb-photo-controls" hidden>
           <p class="sb-label">Selected photo</p>
@@ -196,7 +218,17 @@ const data = JSON.stringify({ library, packs, templates: tpls });
           <button type="button" class="chip" data-style="label" aria-pressed="false">Label tape</button>
           <button type="button" class="chip" data-style="type" aria-pressed="false">Serif</button>
           <button type="button" class="chip" data-style="caption" aria-pressed="false">Black caption</button>
+          <button type="button" class="chip" data-style="words" aria-pressed="false">Word cut-outs</button>
+          <button type="button" class="chip" data-style="script" aria-pressed="false">Script</button>
+          <button type="button" class="chip" data-style="outline" aria-pressed="false">Bubble outline</button>
         </div>
+        <p class="sb-label" id="sb-card-label">Phone screen</p>
+        <div class="sb-chips" role="group" aria-labelledby="sb-card-label">
+          <button type="button" class="chip" data-style="card:lyrics" aria-pressed="false">Lyric card</button>
+          <button type="button" class="chip" data-style="card:bubble" aria-pressed="false">Text bubble</button>
+          <button type="button" class="chip" data-style="card:player" aria-pressed="false">Music player</button>
+        </div>
+        <p class="sb-note" id="sb-card-note" hidden>For a lyric card or player, put the song name and artist on the next lines.</p>
         <div id="sb-ink-wrap" hidden>
           <p class="sb-label" id="sb-ink-label">Colour</p>
           <div class="sb-chips" role="group" aria-labelledby="sb-ink-label">
@@ -226,6 +258,17 @@ const data = JSON.stringify({ library, packs, templates: tpls });
           ))}
         </div>
         <p class="sb-note">Drag tape over the corner of a photo so it looks stuck down.</p>
+        <p class="sb-pane-title">Doodles</p>
+        <div class="sb-chips" role="group" aria-label="Doodle colour">
+          {doodleInks.map((c, i) => (
+            <button type="button" class="sb-ink" data-doodleink={c.id} aria-pressed={i === 0 ? 'true' : 'false'} aria-label={c.label} title={c.label}>
+              <i style={`background:${c.id}`} />
+            </button>
+          ))}
+        </div>
+        <div class="sb-chips">
+          {DOODLES.map((d) => <button type="button" class="chip" data-doodle={d.id}>{d.label}</button>)}
+        </div>
       </div>
 
       <div class="sb-pane" data-pane="paper" hidden>
@@ -238,11 +281,11 @@ const data = JSON.stringify({ library, packs, templates: tpls });
           {backgrounds.map((bg) => <button type="button" class="sb-background" data-bg={bg.src} data-bg-group={bg.category} aria-pressed="false" title={bg.label}><img src={bg.thumb} alt="" width="200" height="280" loading="lazy" /><small>{bg.label}</small></button>)}
         </div>
         <p class="sb-note" id="sb-bg-status" role="status" aria-live="polite"></p>
-        <p class="sb-label">Solid colours</p>
+        <p class="sb-label">Papers</p>
         <div class="sb-papers">
-          {PAPERS.filter((p) => !p.pattern).map((p) => (
+          {PAPERS.filter((p) => !p.pattern || p.pattern === 'checker' || p.pattern === 'tiles').map((p) => (
             <button type="button" class="sb-paper" data-paper={p.id} data-pattern={p.pattern ?? ''} aria-pressed={p.id === 'cream' ? 'true' : 'false'}>
-              <span style={p.color ? `background-color:${p.color}` : ''} />
+              <span style={paperStyle(p)} />
               <small>{p.label}</small>
             </button>
           ))}
@@ -700,11 +743,16 @@ const data = JSON.stringify({ library, packs, templates: tpls });
     makeLetters,
     makeText,
     makeTape,
+    makeWords,
+    makeDoodle,
+    makeCard,
     drawDoc,
     sourceOf,
     type Format,
     type Frame,
     type TextStyle,
+    type DoodleKind,
+    type CardKind,
   } from '../lib/scrapbook/scene';
   import { buildTemplate, getManifest, type ResolvedTemplate } from '../lib/scrapbook/template';
   import { copyCanvas, downloadCanvas, toast } from '../lib/collage/engine';
@@ -810,7 +858,7 @@ const data = JSON.stringify({ library, packs, templates: tpls });
 
   // ---- selection toolbar --------------------------------------------------------
 
-  const frames: Frame[] = ['polaroid', 'border', 'stamp', 'torn', 'film', 'none'];
+  const frames: Frame[] = ['polaroid', 'border', 'stamp', 'torn', 'film', 'circle', 'oval', 'rounded', 'scallop', 'none'];
   root.querySelectorAll<HTMLButtonElement>('[data-act]').forEach((b) =>
     b.addEventListener('click', () => {
       const act = b.dataset.act;
@@ -1158,11 +1206,12 @@ const data = JSON.stringify({ library, packs, templates: tpls });
   // ---- text ---------------------------------------------------------------------
 
   const textInput = $<HTMLTextAreaElement>('sb-text');
-  let style: 'letters' | TextStyle = 'letters';
+  let style: 'letters' | 'words' | TextStyle | `card:${CardKind}` = 'letters';
   let ink = '#2A2522';
   radio('[data-style]', (b) => {
     style = b.dataset.style as typeof style;
     $('sb-ink-wrap').hidden = style === 'letters' || style === 'label';
+    $('sb-card-note').hidden = style !== 'card:lyrics' && style !== 'card:player';
   });
   radio('[data-ink]', (b) => (ink = b.dataset.ink!));
   root.querySelectorAll<HTMLButtonElement>('[data-phrase]').forEach((b) =>
@@ -1179,9 +1228,15 @@ const data = JSON.stringify({ library, packs, templates: tpls });
       textInput.focus();
       return;
     }
-    const key = style === 'letters' ? await makeLetters(text, await getManifest()) : await makeText(text, style, ink);
+    let key: string | null;
+    if (style === 'letters') key = await makeLetters(text, await getManifest());
+    else if (style === 'words') key = makeWords(text, ink);
+    // Cards keep their own warm colours unless a colour was picked.
+    else if (style.startsWith('card:')) key = await makeCard(style.slice(5) as CardKind, text, ink === '#2A2522' ? undefined : ink);
+    else key = await makeText(text, style as TextStyle, ink);
     if (!key) return;
-    editor.addArt(key, { long: style === 'letters' ? 0.72 : 0.55, shadow: style === 'letters' || style === 'label', angle: rad((Math.random() - 0.5) * 6) });
+    const card = style.startsWith('card:');
+    editor.addArt(key, { long: style === 'letters' || style === 'words' ? 0.72 : card ? 0.6 : 0.55, shadow: style === 'letters' || style === 'label' || card, angle: rad((Math.random() - 0.5) * 6) });
     placed();
     track('scrapbook_text', { style });
   }
@@ -1244,6 +1299,16 @@ const data = JSON.stringify({ library, packs, templates: tpls });
     if (!source) { $('sb-bg-status').textContent = 'This background could not load. Try again.'; return; }
     editor.setBackground(b.dataset.bg!); $('sb-bg-status').textContent = `${b.title} added.`; placed();
   }));
+
+  let doodleInk = '#E8743B';
+  radio('[data-doodleink]', (b) => (doodleInk = b.dataset.doodleink!));
+  root.querySelectorAll<HTMLButtonElement>('[data-doodle]').forEach((b) => {
+    b.addEventListener('click', () => {
+      editor.addArt(makeDoodle(b.dataset.doodle as DoodleKind, doodleInk), { long: 0.4, shadow: false, angle: rad((Math.random() - 0.5) * 20) });
+      placed();
+      track('scrapbook_doodle', { doodle: b.dataset.doodle });
+    });
+  });
 
   root.querySelectorAll<HTMLButtonElement>('[data-tape]').forEach((b) => {
     b.addEventListener('click', () => {
@@ -1336,7 +1401,7 @@ const data = JSON.stringify({ library, packs, templates: tpls });
       previewObserver.unobserve(entry.target);
       const canvas = entry.target as HTMLCanvasElement;
       const t = data.templates.find((t) => t.slug === canvas.dataset.tplPreview);
-      if (t) buildTemplate(t).then((doc) => {
+      if (t) buildTemplate(t, { demo: true }).then((doc) => {
         const ctx = canvas.getContext('2d')!;
         ctx.save(); ctx.scale(canvas.width/1080, canvas.height/1920); drawDoc(ctx, doc); ctx.restore();
       }).catch(() => {});

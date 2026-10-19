@@ -8,12 +8,18 @@
  * library is simply left out at build time.
  */
 
+import type { CardKind, DoodleKind } from '../lib/scrapbook/scene';
+
 export type TplEl =
   | { t: 'mount'; x: number; y: number; w: number; h: number; a?: number; mount: 'strip' | 'stamp' | 'film' | 'contact'; group?:string }
-  | { t: 'slot'; x: number; y: number; w: number; h: number; a?: number; frame?: 'polaroid' | 'border' | 'none' | 'stamp' | 'film' | 'torn'; filter?: 'mono' | 'warm'; group?:string }
+  | { t: 'slot'; x: number; y: number; w: number; h: number; a?: number; frame?: 'polaroid' | 'border' | 'none' | 'stamp' | 'film' | 'torn' | 'circle' | 'oval' | 'rounded' | 'scallop'; filter?: 'mono' | 'warm'; group?:string; /** Sample photo shown in previews, never in the editor. */ demo?: string }
   | { t: 'sticker'; slug: string; x: number; y: number; s: number; a?: number }
   | { t: 'letters'; text: string; x: number; y: number; s: number; a?: number }
-  | { t: 'hand'; text: string; x: number; y: number; s: number; a?: number; color?: string; style?: 'hand' | 'label' | 'type' | 'caption' }
+  | { t: 'hand'; text: string; x: number; y: number; s: number; a?: number; color?: string; style?: 'hand' | 'label' | 'type' | 'caption' | 'script' | 'outline' }
+  /** A poem cut out word by word, each word on its own slip of paper. */
+  | { t: 'words'; text: string; x: number; y: number; s: number; a?: number; color?: string }
+  | { t: 'doodle'; kind: DoodleKind; x: number; y: number; s: number; a?: number; color?: string }
+  | { t: 'card'; kind: CardKind; text: string; x: number; y: number; s: number; a?: number; color?: string }
   | { t: 'tape'; tape: string; x: number; y: number; s: number; a?: number };
 
 export interface ScrapbookTemplate {
@@ -62,7 +68,105 @@ function strip(x:number,y:number,w:number,photoH:number,count:number,a:number,st
   })),filter);
 }
 
+/** A template on plain paper rather than a photo background. */
+const sheet = (slug: string, name: string, paper: string, blurb: string, extra: Pick<ScrapbookTemplate, 'intro' | 'captions'>, els: TplEl[]): ScrapbookTemplate => ({
+  slug, name, paper, blurb, els, ...extra,
+  title: `${name} scrapbook template`,
+  description: `${blurb} Add your own photos, change the words and download the page for your Story.`,
+  tips: ['Add three photos at once to fill the frames in order, or tap a frame to choose one picture.', 'Tap the cut-out words and use Delete, then make your own in Text with the Word cut-outs style.', 'The crayon doodles live under Doodles; pick a colour first, then tap a shape.', 'For a lyric card, type the lyric, then the song and artist on the next two lines.'],
+});
+
 export const templates: ScrapbookTemplate[] = [
+  sheet('love-letter-poem', 'Love letter poem', 'white', 'Three rounded photos, crayon spirals, a lyric card and a love poem cut out word by word.', {
+    intro: ['A page for one person: three photos, a song that is yours, and a short poem cut out of paper slips one word at a time, the way people used to make notes from magazines.', 'The orange crayon spirals and lilies hold it together, and every word, doodle and card can be moved, recoloured or rewritten.'],
+    captions: ['I give you all my smiles', 'you are my favourite person', 'not a lot, just forever', 'everything I know about love'],
+  }, [
+    { t: 'doodle', kind: 'spiral', x: .19, y: .1, s: .4, a: 10, color: '#E8743B' },
+    { t: 'doodle', kind: 'squiggle', x: .08, y: .75, s: .5, a: 72, color: '#E8743B' },
+    { t: 'doodle', kind: 'wave', x: .95, y: .52, s: .32, a: -35, color: '#E8743B' },
+    { t: 'slot', x: .32, y: .255, w: .5, h: .64, frame: 'rounded', demo: '/bg/golden-hour.webp' },
+    { t: 'sticker', slug: 'maroon-number-7-billiard-ball', x: .55, y: .09, s: .1, a: -10 },
+    { t: 'words', text: 'I give you\nall my smiles\nand every bit\nof my love', x: .79, y: .2, s: .4, a: 2, color: '#3E64A8' },
+    { t: 'slot', x: .74, y: .5, w: .44, h: .36, a: 2, frame: 'rounded', demo: '/bg/daisies.webp' },
+    { t: 'card', kind: 'lyrics', text: 'Not a lot, just forever\nour song\non repeat', x: .27, y: .5, s: .5, a: -3 },
+    { t: 'slot', x: .52, y: .69, w: .5, h: .42, a: -2, frame: 'rounded', demo: '/bg/ocean.webp' },
+    { t: 'sticker', slug: 'golden-lily', x: .83, y: .64, s: .24, a: 18 },
+    { t: 'sticker', slug: 'golden-lily-1', x: .25, y: .62, s: .17, a: -25 },
+    { t: 'words', text: 'you are more than I know\nand everything I know\nabout love', x: .48, y: .885, s: .78, a: -1, color: '#3E64A8' },
+    { t: 'hand', text: 'forever', x: .82, y: .96, s: .26, a: -6, style: 'script', color: '#E8743B' },
+  ]),
+  sheet('orange-tile-memories', 'Orange tile memories', 'tiles', 'Three bordered prints pinned to terracotta tiles, with a dog, a yellow starburst and flowers.', {
+    intro: ['Warm terracotta tiles make every photo on top of them glow. Three prints sit at slight angles as if pinned to a kitchen wall, with a sleepy dog draped over the top one.', 'It suits birthdays, holidays and slow summer days. Swap the dog for any sticker that belongs in your day.'],
+    captions: ['best day ever', 'summer at home', 'the good days', 'a little sunshine'],
+  }, [
+    
+    { t: 'slot', x: .7, y: .25, w: .42, h: .44, a: 3, frame: 'border', demo: '/bg/sky.webp' },
+    { t: 'slot', x: .3, y: .46, w: .5, h: .56, a: -3, frame: 'border', demo: '/bg/golden-hour.webp' },
+    { t: 'slot', x: .66, y: .71, w: .5, h: .42, a: 2, frame: 'border', demo: '/bg/lily-bouquet.webp' },
+    { t: 'sticker', slug: 'dachshund-in-pink-dress', x: .78, y: .1, s: .32, a: 6 },
+    { t: 'doodle', kind: 'burst', x: .17, y: .21, s: .24, a: 12, color: '#F2C84B' },
+    { t: 'sticker', slug: 'pink-plumeria-flower', x: .9, y: .56, s: .22, a: -10 },
+    { t: 'sticker', slug: 'orange-dahlia', x: .14, y: .7, s: .2, a: 15 },
+    { t: 'tape', tape: 'kraft', x: .3, y: .25, s: .2, a: -30 },
+    { t: 'sticker', slug: 'dark-red-push-pin', x: .52, y: .14, s: .1, a: 10 },
+    { t: 'hand', text: 'best day ever', x: .36, y: .9, s: .6, a: -4, style: 'script', color: '#FFFFFF' },
+  ]),
+  sheet('pastel-girl-diary', 'Pastel girl diary', 'checker', 'Pastel checks, pink squiggles, cut-out words and four photos in polaroids, rounded and scalloped frames.', {
+    intro: ['A diary page on butter and baby blue checks, with pink crayon squiggles running between the photos. It borrows from the girly collage pages people post with song lines and bubble titles.', 'Two prints turn black and white automatically for contrast; tap one and choose Original to bring the colour back.'],
+    captions: ['girls just wanna have fun', 'my world of flowers', 'main character', 'soft days'],
+  }, [
+    { t: 'doodle', kind: 'squiggle', x: .14, y: .22, s: .48, a: 80, color: '#E58AA6' },
+    { t: 'doodle', kind: 'squiggle', x: .66, y: .9, s: .55, a: -15, color: '#E58AA6' },
+    { t: 'doodle', kind: 'burst', x: .84, y: .52, s: .3, a: 8, color: '#F4B6C2' },
+    { t: 'slot', x: .6, y: .19, w: .48, h: .4, a: 4, frame: 'polaroid', filter: 'mono', demo: '/bg/lily-bouquet.webp' },
+    { t: 'slot', x: .4, y: .46, w: .5, h: .44, a: -3, frame: 'rounded', demo: '/bg/golden-hour.webp' },
+    { t: 'slot', x: .22, y: .72, w: .32, h: .4, a: -6, frame: 'scallop', demo: '/bg/daisies.webp' },
+    { t: 'slot', x: .73, y: .75, w: .38, h: .38, a: 5, frame: 'polaroid', filter: 'mono', demo: '/bg/sky.webp' },
+    { t: 'sticker', slug: 'heart-sealed-envelope', x: .86, y: .1, s: .2, a: 12 },
+    { t: 'sticker', slug: 'red-cherry-pair', x: .18, y: .48, s: .16, a: -10 },
+    { t: 'sticker', slug: 'pink-cherry-blossom', x: .47, y: .84, s: .22, a: 10 },
+    { t: 'doodle', kind: 'sparkle', x: .26, y: .3, s: .12, color: '#F2C84B' },
+    { t: 'words', text: 'girls just\nwanna have fun', x: .56, y: .63, s: .42, a: -6, color: '#E07A9B' },
+    { t: 'hand', text: 'my world', x: .93, y: .32, s: .4, a: 90, style: 'outline', color: '#E07A9B' },
+    { t: 'hand', text: 'of flowers', x: .35, y: .95, s: .45, a: -4, style: 'script', color: '#C8423B' },
+  ]),
+  sheet('solitude-editorial', 'Solitude editorial', 'white', 'A magazine-style page: a big print, a polaroid, a black and white circle, a red lily and quiet serif words.', {
+    intro: ['A calmer, editorial page: lots of white, one big photo, a polaroid and a black and white circle, with a red lily breaking the grid. It reads like a page from a fashion zine.', 'The serif title and caption are plain text, so change them to a name, a place or a line from a song.'],
+    captions: ['solitude', 'a soul that blooms by the sea', 'golden hour, quietly', 'slow mornings'],
+  }, [
+    { t: 'slot', x: .31, y: .21, w: .44, h: .42, a: -2, frame: 'polaroid', demo: '/bg/golden-string-lights.webp' },
+    { t: 'slot', x: .66, y: .48, w: .56, h: .74, frame: 'none', demo: '/bg/sunset-smear.webp' },
+    { t: 'sticker', slug: 'black-white-vinyl', x: .6, y: .25, s: .24, a: 0 },
+    { t: 'slot', x: .26, y: .66, w: .4, h: .4, frame: 'circle', filter: 'mono', demo: '/bg/ocean.webp' },
+    { t: 'sticker', slug: 'magenta-lily', x: .2, y: .44, s: .4, a: -12 },
+    { t: 'hand', text: 'retro', x: .78, y: .3, s: .22, style: 'script', color: '#FFFFFF' },
+    { t: 'sticker', slug: 'pale-pink-orchid', x: .33, y: .84, s: .22, a: 8 },
+    { t: 'hand', text: 'SOLITUDE', x: .7, y: .05, s: .54, style: 'type', color: '#9AA58A' },
+    { t: 'doodle', kind: 'sparkle', x: .93, y: .1, s: .06, color: '#2A2522' },
+    { t: 'doodle', kind: 'sparkle', x: .1, y: .93, s: .05, color: '#2A2522' },
+    { t: 'hand', text: 'a soul that blooms\nby the sea', x: .7, y: .88, s: .48, style: 'type', color: '#2A2522' },
+  ]),
+  sheet('little-life-clipboard', 'Little life clipboard', 'kraft', 'A clipboard of little moments: film frames, a polaroid, an oval locket, message bubbles and a now-playing card.', {
+    intro: ['Everything from one ordinary, lovely week, clipped to a board: two film frames, a polaroid, an oval like a locket and a round snapshot, with the messages and the song that went with them.', 'Change the bubbles to things your friends actually said, and the player to the song that was on repeat.'],
+    captions: ['i think i like this little life', 'live, laugh, and love', 'oops', 'iloveyou!'],
+  }, [
+    { t: 'sticker', slug: 'torn-lined-paper-scrap', x: .5, y: .52, s: .96, a: 2 },
+    ...strip(.28,.3,.34,.2,2,-4,'film','warm'),
+    { t: 'slot', x: .72, y: .27, w: .44, h: .32, a: 4, frame: 'polaroid', demo: '/bg/daisies.webp' },
+    { t: 'slot', x: .3, y: .62, w: .3, h: .38, a: -5, frame: 'oval', demo: '/bg/sunset-smear.webp' },
+    { t: 'slot', x: .71, y: .61, w: .44, h: .3, a: 3, frame: 'rounded', demo: '/bg/ocean.webp' },
+    { t: 'slot', x: .55, y: .82, w: .26, h: .26, frame: 'circle', demo: '/bg/amber-bokeh.webp' },
+    { t: 'sticker', slug: 'cream-binder-clip', x: .5, y: .06, s: .3 },
+    { t: 'sticker', slug: 'bunny-plush-headphones', x: .12, y: .14, s: .22, a: -8 },
+    { t: 'sticker', slug: 'green-gingham-bow', x: .88, y: .45, s: .18, a: 12 },
+    { t: 'sticker', slug: 'orange-goldfish', x: .46, y: .44, s: .2, a: -10 },
+    { t: 'sticker', slug: 'big-ripe-strawberry', x: .88, y: .74, s: .13, a: 10 },
+    { t: 'sticker', slug: 'pale-pink-orchid', x: .14, y: .82, s: .2, a: -10 },
+    { t: 'card', kind: 'bubble', text: 'oops', x: .84, y: .15, s: .16, a: 3, color: '#E58AA6' },
+    { t: 'card', kind: 'bubble', text: 'iloveyou!', x: .22, y: .47, s: .26, a: -3, color: '#3B82F6' },
+    { t: 'card', kind: 'player', text: 'little life\non repeat', x: .3, y: .9, s: .44, a: -2 },
+    { t: 'hand', text: 'i think i like this little life...', x: .5, y: .975, s: .8, color: '#FFFFFF' },
+  ]),
   dump('tropical-soulmates', 'Tropical soulmates', 'leopard-print', 'Seven layered photos, leopard print, hibiscus and little love notes.', [
     { t: 'sticker', slug: 'torn-kraft-paper-scrap', x: .7, y: .22, s: .75, a: 20 },
     ...strip(.17,.47,.38,.44,3,2,'strip','warm'),
