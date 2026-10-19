@@ -73,6 +73,18 @@ on the device, and the page warns before closing with unexported work.
 | `src/components/ScrapbookEditor.astro` | the editor UI: tool tabs, panels, export dialog |
 | `src/data/scrapbook-templates.ts` | the templates and the copy for their pages |
 
+Templates can use stickers, photo frames (including circle, oval, rounded and scalloped
+shapes), cut-out letters, handwriting, script and bubble-outline text, word-by-word poem
+cut-outs, crayon doodles and phone-screen cards (lyric card, text bubble, music player).
+Previews fill the frames with sample scenery from `public/bg/` (a slot's `demo` picks one);
+the editor always opens with empty frames. After changing a template, refresh the pictures
+used by the homepage and template cards:
+
+```bash
+npm run build && npx astro preview --port 4329 &
+node scripts/render-template-previews.mjs   # writes public/scrapbook/previews/<slug>.webp
+```
+
 Templates are positioned as fractions of a 9:16 page and name stickers by slug; a slug that
 leaves the library is skipped with a build warning. Each template also gets its own page at
 `/scrapbook/<slug>/` with written help, so it can rank on its own.

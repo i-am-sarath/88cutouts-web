@@ -51,7 +51,10 @@ export const paperOf = (id: string) => PAPERS.find((p) => p.id === id) ?? PAPERS
 // ---- elements -----------------------------------------------------------------
 
 export type Kind = 'art' | 'photo' | 'slot';
-export type Frame = 'none' | 'polaroid' | 'border' | 'stamp' | 'film' | 'torn';
+export type Frame = 'none' | 'polaroid' | 'border' | 'stamp' | 'film' | 'torn' | 'circle' | 'oval' | 'rounded' | 'scallop';
+/** Frames that cut the picture itself into a shape rather than adding a mat around it. */
+export const SHAPED: Frame[] = ['circle', 'oval', 'rounded', 'scallop'];
+const isShaped = (f?: Frame) => !!f && SHAPED.includes(f);
 
 /** One physical print can hold several independently replaceable photos. */
 export function makeMount(w: number, h: number, style: 'strip' | 'stamp' | 'film' | 'contact'): string {
@@ -216,7 +219,7 @@ export async function loadPhoto(file: File, trim = false): Promise<string | null
 
 // ---- generated artwork ----------------------------------------------------------
 
-export type TextStyle = 'hand' | 'label' | 'type' | 'symbol' | 'caption';
+export type TextStyle = 'hand' | 'label' | 'type' | 'symbol' | 'caption' | 'script' | 'outline';
 
 const FONTS: Record<TextStyle, string> = {
   hand: "700 {s}px Gaegu, 'Comic Sans MS', cursive",
@@ -224,29 +227,40 @@ const FONTS: Record<TextStyle, string> = {
   type: "700 {s}px Georgia, 'Times New Roman', serif",
   symbol: "{s}px 'Segoe UI Symbol', 'Apple Symbols', 'Noto Sans Symbols 2', 'Segoe UI', system-ui, sans-serif",
   caption: "700 {s}px Quicksand, system-ui, sans-serif",
+  script: "600 {s}px 'Dancing Script', 'Brush Script MT', cursive",
+  outline: "700 {s}px Quicksand, system-ui, sans-serif",
 };
+
+async function loadFont(font: string) {
+  try {
+    await document.fonts.load(font);
+  } catch {
+    /* falls back to the next font */
+  }
+}
+
+/** A colour mixed toward white, for paper that matches its ink. */
+function tint(hex: string, k: number) {
+  const n = parseInt(hex.replace('#', ''), 16);
+  const mix = (c: number) => Math.round(c + (255 - c) * k);
+  return `rgb(${mix(n >> 16)}, ${mix((n >> 8) & 255)}, ${mix(n & 255)})`;
+}
 
 /**
  * Text as a picture: handwriting, a label-maker strip, serif type, or a symbol
  * (including multi-line dot art). Rendered big so it stays sharp when scaled up.
  */
 export async function makeText(text: string, style: TextStyle, color = '#2A2522'): Promise<string> {
-  const size = style === 'symbol' ? 96 : 120;
+  const size = style === 'symbol' ? 96 : style === 'outline' ? 150 : 120;
   const font = FONTS[style].replace('{s}', String(size));
-  if (style === 'hand') {
-    try {
-      await document.fonts.load(font);
-    } catch {
-      /* falls back to the next font */
-    }
-  }
+  if (style === 'hand' || style === 'script' || style === 'outline') await loadFont(font);
   const lines = text.replace(/\r/g, '').split('\n');
   const probe = document.createElement('canvas').getContext('2d')!;
   probe.font = font;
   const lineH = Math.round(size * (style === 'symbol' ? 1.15 : 1.22));
   const textW = Math.max(1, ...lines.map((l) => probe.measureText(l).width));
-  const padX = style === 'label' ? size * 0.55 : size * 0.2;
-  const padY = style === 'label' ? size * 0.32 : size * 0.18;
+  const padX = style === 'label' ? size * 0.55 : style === 'outline' ? size * 0.3 : size * 0.2;
+  const padY = style === 'label' ? size * 0.32 : style === 'outline' ? size * 0.28 : size * 0.18;
 
   const c = document.createElement('canvas');
   c.width = Math.ceil(textW + padX * 2);
@@ -274,8 +288,336 @@ export async function makeText(text: string, style: TextStyle, color = '#2A2522'
   ctx.fillStyle = color;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
+  ctx.lineJoin = 'round';
+  if (style === 'outline') {
+    // Bubbly display letters: a fat outline, a pale fill and an offset echo.
+    const at = (i: number) => padY + lineH * (i + 0.5);
+    ctx.lineWidth = size * 0.2;
+    ctx.strokeStyle = tint(color, 0.55);
+    lines.forEach((l, i) => ctx.strokeText(l, padX + size * 0.05, at(i) + size * 0.06));
+    ctx.lineWidth = size * 0.11;
+    ctx.strokeStyle = color;
+    lines.forEach((l, i) => ctx.strokeText(l, padX, at(i)));
+    ctx.fillStyle = '#FFFBF4';
+    lines.forEach((l, i) => ctx.fillText(l, padX, at(i)));
+    return registerCanvas(c, true);
+  }
   lines.forEach((l, i) => ctx.fillText(l, padX, padY + lineH * (i + 0.5)));
   return registerCanvas(c, style !== 'label' && style !== 'caption');
+}
+
+/**
+ * A line of poetry cut out word by word: every word on its own slip of paper,
+ * each slip a little crooked, like a magazine cut-out note.
+ */
+export function makeWords(text: string, color = '#2A2522'): string {
+  const size = 84;
+  const fonts = [`italic 400 ${size}px Georgia, 'Times New Roman', serif`, `400 ${size}px Georgia, 'Times New Roman', serif`, `700 ${size * 0.9}px 'Courier New', Courier, monospace`];
+  const paper = color.toUpperCase() === '#FFFFFF' ? '#2A2522' : tint(color, 0.86);
+  const probe = document.createElement('canvas').getContext('2d')!;
+  const maxW = size * 16;
+  let seed = [...text].reduce((a, ch) => a + ch.charCodeAt(0), 7);
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+
+  type Slip = { word: string; font: string; w: number; x: number; y: number; a: number };
+  const slips: Slip[] = [];
+  const padX = size * 0.28, gap = size * 0.24, lineH = size * 1.55;
+  let x = 0, y = 0, width = 0;
+  for (const [li, line] of text.replace(/\r/g, '').split('\n').entries()) {
+    if (li) { x = 0; y += lineH; }
+    for (const word of line.split(/\s+/).filter(Boolean)) {
+      const font = fonts[Math.floor(rnd() * 2)];
+      probe.font = font;
+      const w = probe.measureText(word).width + padX * 2;
+      if (x > 0 && x + w > maxW) { x = 0; y += lineH; }
+      slips.push({ word, font, w, x, y, a: (rnd() - 0.5) * 0.09 });
+      x += w + gap;
+      width = Math.max(width, x - gap);
+    }
+  }
+  const slipH = size * 1.2, margin = size * 0.4;
+  const c = document.createElement('canvas');
+  c.width = Math.ceil(width + margin * 2);
+  c.height = Math.ceil(y + slipH + margin * 2);
+  const ctx = c.getContext('2d')!;
+  ctx.textBaseline = 'middle';
+  for (const s of slips) {
+    ctx.save();
+    ctx.translate(margin + s.x + s.w / 2, margin + s.y + slipH / 2);
+    ctx.rotate(s.a);
+    ctx.shadowColor = 'rgba(40, 25, 10, 0.25)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 3;
+    ctx.fillStyle = paper;
+    ctx.beginPath();
+    // Scissor-cut edges: never quite square.
+    ctx.moveTo(-s.w / 2 + rnd() * 4, -slipH / 2 + rnd() * 4);
+    ctx.lineTo(s.w / 2 - rnd() * 4, -slipH / 2 + rnd() * 4);
+    ctx.lineTo(s.w / 2 - rnd() * 4, slipH / 2 - rnd() * 4);
+    ctx.lineTo(-s.w / 2 + rnd() * 4, slipH / 2 - rnd() * 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = paper === '#2A2522' ? '#FFFFFF' : color;
+    ctx.font = s.font;
+    ctx.textAlign = 'center';
+    ctx.fillText(s.word, 0, size * 0.04);
+    ctx.restore();
+  }
+  return registerCanvas(c, true);
+}
+
+// ---- doodles ------------------------------------------------------------------
+
+export type DoodleKind = 'squiggle' | 'spiral' | 'burst' | 'sparkle' | 'wave' | 'heart' | 'underline' | 'arrow' | 'loop';
+export const DOODLES: { id: DoodleKind; label: string }[] = [
+  { id: 'squiggle', label: 'Squiggle' },
+  { id: 'spiral', label: 'Spiral' },
+  { id: 'burst', label: 'Starburst' },
+  { id: 'sparkle', label: 'Sparkle' },
+  { id: 'wave', label: 'Wave' },
+  { id: 'heart', label: 'Heart' },
+  { id: 'underline', label: 'Underline' },
+  { id: 'arrow', label: 'Arrow' },
+  { id: 'loop', label: 'Circle' },
+];
+
+/**
+ * A crayon stroke: the path is drawn several times with a little drift, so the
+ * edge is ragged and the colour slightly uneven, like a real marker on paper.
+ */
+function crayon(ctx: CanvasRenderingContext2D, pts: [number, number][], width: number, color: string) {
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = color;
+  let seed = pts.length * 31 + 5;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647) - 0.5;
+  for (let pass = 0; pass < 5; pass++) {
+    ctx.globalAlpha = pass ? 0.35 : 0.9;
+    ctx.lineWidth = width * (pass ? 0.55 + rnd() * 0.3 : 1);
+    const dx = rnd() * width * 0.25, dy = rnd() * width * 0.25;
+    ctx.beginPath();
+    pts.forEach(([x, y], i) => (i ? ctx.lineTo(x + dx, y + dy) : ctx.moveTo(x + dx, y + dy)));
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+export function makeDoodle(kind: DoodleKind, color = '#E8743B'): string {
+  const c = document.createElement('canvas');
+  const ctx = c.getContext('2d')!;
+  const pts: [number, number][] = [];
+  const line = (w = 26) => crayon(ctx, pts, w, color);
+  switch (kind) {
+    case 'squiggle': {
+      // A curly ribbon: a stretched-out cycloid, so each wave turns into a loop.
+      c.width = 900; c.height = 360;
+      const turns = 3, r = 720 / (turns * Math.PI * 2), d = r * 2.3;
+      for (let th = 0; th <= turns * Math.PI * 2; th += 0.03) pts.push([90 + r * th - d * Math.sin(th), 180 - d * Math.cos(th)]);
+      line(28);
+      break;
+    }
+    case 'spiral': {
+      c.width = c.height = 620;
+      for (let t = 0; t <= Math.PI * 7; t += 0.03) pts.push([310 + Math.cos(t) * t * 12.5, 310 + Math.sin(t) * t * 12.5]);
+      line(28);
+      break;
+    }
+    case 'burst': {
+      c.width = c.height = 620;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      const n = 12;
+      for (let i = 0; i <= n * 2; i++) {
+        const r = i % 2 ? 140 + (i % 4 === 1 ? 10 : -10) : 290 - (i % 6) * 6;
+        const a = (i / (n * 2)) * Math.PI * 2 - Math.PI / 2;
+        const p: [number, number] = [310 + Math.cos(a) * r, 310 + Math.sin(a) * r];
+        i ? ctx.lineTo(...p) : ctx.moveTo(...p);
+      }
+      ctx.closePath();
+      ctx.fill();
+      break;
+    }
+    case 'sparkle': {
+      // Four points pulled in toward the middle, the classic twinkle.
+      c.width = c.height = 520;
+      ctx.fillStyle = color;
+      const tip = (i: number): [number, number] => {
+        const a = (i / 4) * Math.PI * 2 - Math.PI / 2;
+        return [260 + Math.cos(a) * 240, 260 + Math.sin(a) * 240];
+      };
+      ctx.beginPath();
+      ctx.moveTo(...tip(0));
+      for (let i = 1; i <= 4; i++) ctx.quadraticCurveTo(260, 260, ...tip(i));
+      ctx.closePath();
+      ctx.fill();
+      break;
+    }
+    case 'wave': {
+      c.width = 1000; c.height = 220;
+      for (let x = 40; x <= 960; x += 4) pts.push([x, 110 + Math.sin(((x - 40) / 920) * Math.PI * 5) * 55]);
+      line(26);
+      break;
+    }
+    case 'heart': {
+      c.width = 620; c.height = 580;
+      for (let t = 0; t <= Math.PI * 2.15; t += 0.02) {
+        const x = 16 * Math.sin(t) ** 3;
+        const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+        pts.push([310 + x * 16, 270 - y * 16]);
+      }
+      line(24);
+      break;
+    }
+    case 'underline': {
+      c.width = 900; c.height = 200;
+      for (let x = 50; x <= 850; x += 8) pts.push([x, 70 + Math.sin(x / 40) * 6]);
+      for (let x = 820; x >= 120; x -= 8) pts.push([x, 130 + Math.sin(x / 35) * 6]);
+      line(22);
+      break;
+    }
+    case 'arrow': {
+      c.width = 760; c.height = 460;
+      for (let t = 0; t <= 1; t += 0.01) pts.push([60 + t * 600, 380 - Math.sin(t * Math.PI) * 260 + t * 40]);
+      line(22);
+      pts.length = 0;
+      pts.push([560, 330], [665, 420], [690, 290]);
+      line(22);
+      break;
+    }
+    case 'loop': {
+      c.width = 820; c.height = 560;
+      for (let t = 0; t <= Math.PI * 2.25; t += 0.02) pts.push([410 + Math.cos(t) * (350 - t * 6), 280 + Math.sin(t) * (220 - t * 4)]);
+      line(20);
+      break;
+    }
+  }
+  return registerCanvas(c, true);
+}
+
+// ---- phone cards ----------------------------------------------------------------
+
+export type CardKind = 'lyrics' | 'bubble' | 'player';
+export const CARDS: { id: CardKind; label: string }[] = [
+  { id: 'lyrics', label: 'Lyric card' },
+  { id: 'bubble', label: 'Text bubble' },
+  { id: 'player', label: 'Music player' },
+];
+
+/** Wraps text to a width, on the given context's current font. */
+function wrap(ctx: CanvasRenderingContext2D, text: string, maxW: number) {
+  const out: string[] = [];
+  for (const para of text.split('\n')) {
+    let line = '';
+    for (const w of para.split(/\s+/).filter(Boolean)) {
+      const next = line ? `${line} ${w}` : w;
+      if (line && ctx.measureText(next).width > maxW) { out.push(line); line = w; } else line = next;
+    }
+    out.push(line);
+  }
+  return out;
+}
+
+/**
+ * The bits of a phone screen people screenshot into scrapbooks: a song's lyric
+ * card, a message bubble, a now-playing bar. Generic shapes, no app branding.
+ */
+export async function makeCard(kind: CardKind, text: string, color = '#C9826B'): Promise<string> {
+  await loadFont('700 40px Quicksand');
+  const c = document.createElement('canvas');
+  const ctx = c.getContext('2d')!;
+  const probe = document.createElement('canvas').getContext('2d')!;
+  if (kind === 'bubble') {
+    probe.font = '600 64px Quicksand, system-ui, sans-serif';
+    const lines = wrap(probe, text, 760);
+    const tw = Math.max(...lines.map((l) => probe.measureText(l).width));
+    const W = tw + 100, H = lines.length * 80 + 64;
+    c.width = W + 40; c.height = H + 30;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.roundRect(10, 10, W, H, 48);
+    ctx.fill();
+    // The little tail at the bottom right.
+    ctx.beginPath();
+    ctx.moveTo(W - 30, H - 10);
+    ctx.quadraticCurveTo(W + 6, H + 24, W + 30, H + 18);
+    ctx.quadraticCurveTo(W + 4, H + 4, W + 6, H - 34);
+    ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = probe.font;
+    ctx.textBaseline = 'middle';
+    lines.forEach((l, i) => ctx.fillText(l, 60, 10 + 32 + 40 + i * 80));
+    return registerCanvas(c, true);
+  }
+  if (kind === 'player') {
+    const W = 980, H = 300;
+    c.width = W; c.height = H;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.shadowColor = 'rgba(0,0,0,0.12)';
+    ctx.shadowBlur = 20;
+    ctx.beginPath(); ctx.roundRect(10, 10, W - 20, H - 20, 44); ctx.fill();
+    ctx.shadowColor = 'transparent';
+    const art = ctx.createLinearGradient(40, 40, 190, 190);
+    art.addColorStop(0, tint(color, 0.3)); art.addColorStop(1, color);
+    ctx.fillStyle = art;
+    ctx.beginPath(); ctx.roundRect(40, 40, 150, 150, 22); ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '700 72px Quicksand, system-ui, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('♪', 115, 118);
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#1F1B18';
+    ctx.font = '700 50px Quicksand, system-ui, sans-serif';
+    probe.font = ctx.font;
+    let title = text.split('\n')[0];
+    while (title.length > 1 && probe.measureText(title).width > 700) title = title.slice(0, -2);
+    ctx.fillText(title !== text.split('\n')[0] ? `${title}…` : title, 225, 82);
+    ctx.fillStyle = '#8A817A';
+    ctx.font = '600 34px Quicksand, system-ui, sans-serif';
+    ctx.fillText(text.split('\n')[1] ?? 'on repeat', 225, 135);
+    // Progress bar and buttons.
+    ctx.fillStyle = '#E4DED8'; ctx.beginPath(); ctx.roundRect(225, 180, 700, 10, 5); ctx.fill();
+    ctx.fillStyle = '#1F1B18'; ctx.beginPath(); ctx.roundRect(225, 180, 290, 10, 5); ctx.fill();
+    ctx.beginPath(); ctx.arc(515, 185, 14, 0, Math.PI * 2); ctx.fill();
+    const by = 238;
+    const tri = (x: number, dir: 1 | -1, s = 18) => { ctx.beginPath(); ctx.moveTo(x, by - s); ctx.lineTo(x + dir * s * 1.4, by); ctx.lineTo(x, by + s); ctx.fill(); };
+    tri(545, 1, 24); // play
+    tri(470, -1); ctx.fillRect(438, by - 18, 6, 36);
+    tri(640, 1); ctx.fillRect(667, by - 18, 6, 36);
+    ctx.font = '600 26px Quicksand, system-ui, sans-serif';
+    ctx.fillStyle = '#8A817A';
+    ctx.fillText('1:12', 225, 238);
+    ctx.textAlign = 'right';
+    ctx.fillText('3:04', 925, 238);
+    return registerCanvas(c, true);
+  }
+  // Lyric card: a warm coloured card, a little cover square, big bold lines.
+  const W = 900;
+  ctx.font = '700 66px Quicksand, system-ui, sans-serif';
+  probe.font = ctx.font;
+  const [lyric, ...rest] = text.split('\n');
+  const lines = wrap(probe, lyric, W - 120).slice(0, 6);
+  const H = 210 + lines.length * 82 + 50;
+  c.width = W; c.height = H;
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.roundRect(0, 0, W, H, 36); ctx.fill();
+  ctx.fillStyle = tint(color, 0.45);
+  ctx.beginPath(); ctx.roundRect(60, 56, 96, 96, 14); ctx.fill();
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '700 54px Quicksand, system-ui, sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('♪', 108, 106);
+  ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  ctx.font = '700 38px Quicksand, system-ui, sans-serif';
+  ctx.fillText(rest[0] ?? 'our song', 186, 88);
+  ctx.fillStyle = 'rgba(255,255,255,0.75)';
+  ctx.font = '600 32px Quicksand, system-ui, sans-serif';
+  ctx.fillText(rest[1] ?? 'on repeat', 186, 130);
+  ctx.fillStyle = '#2B1F1A';
+  ctx.font = '700 66px Quicksand, system-ui, sans-serif';
+  lines.forEach((l, i) => ctx.fillText(l, 60, 240 + i * 82));
+  return registerCanvas(c);
 }
 
 /** A word in cut-out paper letters, from the scanned letter scraps. */
@@ -362,6 +704,11 @@ export function makeTape(id: string): string {
 /** Extra space a photo frame adds outside the picture. */
 export function framePad(el: El) {
   if ((el.kind !== 'photo' && el.kind !== 'slot') || !el.frame || el.frame === 'none') return { l: 0, t: 0, r: 0, b: 0 };
+  if (el.frame === 'scallop') {
+    const p = Math.min(el.w, el.h) * 0.05;
+    return { l: p, t: p, r: p, b: p };
+  }
+  if (isShaped(el.frame)) return { l: 0, t: 0, r: 0, b: 0 };
   if (el.frame === 'stamp' || el.frame === 'torn' || el.frame === 'film') {
     const p = Math.min(el.w, el.h) * (el.frame === 'stamp' ? 0.09 : 0.06);
     return { l: p, t: p, r: p, b: p };
@@ -484,6 +831,37 @@ export function drawPaper(ctx: CanvasRenderingContext2D, paper: Paper, W: number
   }
 }
 
+/** The outline a shaped frame cuts the picture to, centred on 0,0. */
+function shapePath(ctx: CanvasRenderingContext2D, frame: Frame, w: number, h: number) {
+  ctx.beginPath();
+  if (frame === 'circle') {
+    ctx.arc(0, 0, Math.min(w, h) / 2, 0, Math.PI * 2);
+  } else if (frame === 'oval') {
+    ctx.ellipse(0, 0, w / 2, h / 2, 0, 0, Math.PI * 2);
+  } else if (frame === 'rounded') {
+    ctx.roundRect(-w / 2, -h / 2, w, h, Math.min(w, h) * 0.12);
+  } else {
+    ctx.rect(-w / 2, -h / 2, w, h);
+  }
+}
+
+/** A scalloped mat: a wavy-edged card behind the picture. */
+function scallopPath(ctx: CanvasRenderingContext2D, b: { x0: number; y0: number; x1: number; y1: number }) {
+  const W = b.x1 - b.x0, H = b.y1 - b.y0;
+  const r = Math.min(W, H) * 0.045;
+  ctx.beginPath();
+  ctx.rect(b.x0 + r, b.y0 + r, W - r * 2, H - r * 2);
+  const nx = Math.max(3, Math.round((W - r * 2) / (r * 2))), ny = Math.max(3, Math.round((H - r * 2) / (r * 2)));
+  for (let i = 0; i < nx; i++) {
+    const cx = b.x0 + r + ((i + 0.5) * (W - r * 2)) / nx;
+    for (const cy of [b.y0 + r, b.y1 - r]) { ctx.moveTo(cx + r * 1.15, cy); ctx.arc(cx, cy, r * 1.15, 0, Math.PI * 2); }
+  }
+  for (let i = 0; i < ny; i++) {
+    const cy = b.y0 + r + ((i + 0.5) * (H - r * 2)) / ny;
+    for (const cx of [b.x0 + r, b.x1 - r]) { ctx.moveTo(cx + r * 1.15, cy); ctx.arc(cx, cy, r * 1.15, 0, Math.PI * 2); }
+  }
+}
+
 /** Paper edges are shared by empty placeholders, filled photos and exports. */
 function framePath(ctx: CanvasRenderingContext2D, el: El) {
   const b = outerBox(el);
@@ -519,6 +897,7 @@ function fillFrame(ctx: CanvasRenderingContext2D, el: El) {
   if (el.frame === 'stamp') {
     const b = outerBox(el); ctx.beginPath(); ctx.rect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0); ctx.clip();
   }
+  if (el.frame === 'scallop') { scallopPath(ctx, outerBox(el)); ctx.fill('nonzero'); ctx.restore(); return; }
   framePath(ctx, el); ctx.fill('evenodd'); ctx.restore();
 }
 
@@ -533,13 +912,17 @@ function drawEl(ctx: CanvasRenderingContext2D, el: El, exporting: boolean) {
   const b = outerBox(el);
 
   if (el.kind === 'slot') {
-    ctx.fillStyle = el.frame === 'film' ? '#252323' : '#FFFEFA';
-    fillFrame(ctx, el);
-    ctx.fillStyle = '#D3CBBF'; ctx.fillRect(-el.w/2, -el.h/2, el.w, el.h);
+    const shaped = isShaped(el.frame);
+    if (!shaped || el.frame === 'scallop') {
+      ctx.fillStyle = el.frame === 'film' ? '#252323' : '#FFFEFA';
+      fillFrame(ctx, el);
+    }
+    ctx.fillStyle = '#D3CBBF';
+    if (shaped) { shapePath(ctx, el.frame!, el.w, el.h); ctx.fill(); } else ctx.fillRect(-el.w/2, -el.h/2, el.w, el.h);
     ctx.setLineDash([18, 12]);
     ctx.lineWidth = 4;
     ctx.strokeStyle = 'rgba(42, 37, 34, 0.45)';
-    ctx.strokeRect(-el.w / 2, -el.h / 2, el.w, el.h);
+    if (shaped) { shapePath(ctx, el.frame!, el.w, el.h); ctx.stroke(); } else ctx.strokeRect(-el.w / 2, -el.h / 2, el.w, el.h);
     ctx.setLineDash([]);
     ctx.fillStyle = 'rgba(42, 37, 34, 0.6)';
     ctx.textAlign = 'center';
@@ -558,7 +941,15 @@ function drawEl(ctx: CanvasRenderingContext2D, el: El, exporting: boolean) {
     ctx.shadowBlur = 18;
     ctx.shadowOffsetY = 6;
   }
-  if (el.kind === 'photo' && el.frame && el.frame !== 'none') {
+  const shaped = el.kind === 'photo' && isShaped(el.frame);
+  if (shaped && el.frame !== 'scallop') {
+    // The shadow belongs to the shape, so paint the shape once underneath.
+    ctx.fillStyle = '#FFFEFA';
+    shapePath(ctx, el.frame!, el.w, el.h);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+  }
+  if (el.kind === 'photo' && el.frame && el.frame !== 'none' && (!shaped || el.frame === 'scallop')) {
     ctx.fillStyle = el.frame === 'film' ? '#252323' : '#FFFEFA';
     fillFrame(ctx, el);
     ctx.shadowColor = 'transparent';
@@ -570,6 +961,7 @@ function drawEl(ctx: CanvasRenderingContext2D, el: El, exporting: boolean) {
       }
     }
   }
+  if (shaped) { shapePath(ctx, el.frame === 'scallop' ? 'rounded' : el.frame!, el.w, el.h); ctx.clip(); }
   if (el.flip) ctx.scale(-1, 1);
   const c = el.kind === 'photo' ? el.crop ?? { sx: 0, sy: 0, sw: s!.w, sh: s!.h } : s!.crop;
   if (el.filter === 'mono') ctx.filter = 'grayscale(1) contrast(1.08)';

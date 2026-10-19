@@ -110,6 +110,6 @@ const jsonld = [
   new IntersectionObserver((entries, io) => {
     if (!entries.some((e) => e.isIntersecting)) return;
     io.disconnect();
-    buildTemplate(t).then((doc) => drawDoc(canvas.getContext('2d')!, doc));
+    buildTemplate(t, { demo: true }).then((doc) => drawDoc(canvas.getContext('2d')!, doc));
   }, { rootMargin: '200px' }).observe(canvas);
 </script>

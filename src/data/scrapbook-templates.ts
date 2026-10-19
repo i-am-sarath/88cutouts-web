@@ -8,12 +8,18 @@
  * library is simply left out at build time.
  */
 
+import type { CardKind, DoodleKind } from '../lib/scrapbook/scene';
+
 export type TplEl =
   | { t: 'mount'; x: number; y: number; w: number; h: number; a?: number; mount: 'strip' | 'stamp' | 'film' | 'contact'; group?:string }
-  | { t: 'slot'; x: number; y: number; w: number; h: number; a?: number; frame?: 'polaroid' | 'border' | 'none' | 'stamp' | 'film' | 'torn'; filter?: 'mono' | 'warm'; group?:string }
+  | { t: 'slot'; x: number; y: number; w: number; h: number; a?: number; frame?: 'polaroid' | 'border' | 'none' | 'stamp' | 'film' | 'torn' | 'circle' | 'oval' | 'rounded' | 'scallop'; filter?: 'mono' | 'warm'; group?:string; /** Sample photo shown in previews, never in the editor. */ demo?: string }
   | { t: 'sticker'; slug: string; x: number; y: number; s: number; a?: number }
   | { t: 'letters'; text: string; x: number; y: number; s: number; a?: number }
-  | { t: 'hand'; text: string; x: number; y: number; s: number; a?: number; color?: string; style?: 'hand' | 'label' | 'type' | 'caption' }
+  | { t: 'hand'; text: string; x: number; y: number; s: number; a?: number; color?: string; style?: 'hand' | 'label' | 'type' | 'caption' | 'script' | 'outline' }
+  /** A poem cut out word by word, each word on its own slip of paper. */
+  | { t: 'words'; text: string; x: number; y: number; s: number; a?: number; color?: string }
+  | { t: 'doodle'; kind: DoodleKind; x: number; y: number; s: number; a?: number; color?: string }
+  | { t: 'card'; kind: CardKind; text: string; x: number; y: number; s: number; a?: number; color?: string }
   | { t: 'tape'; tape: string; x: number; y: number; s: number; a?: number };
 
 export interface ScrapbookTemplate {
@@ -62,7 +68,33 @@ function strip(x:number,y:number,w:number,photoH:number,count:number,a:number,st
   })),filter);
 }
 
+/** A template on plain paper rather than a photo background. */
+const sheet = (slug: string, name: string, paper: string, blurb: string, extra: Pick<ScrapbookTemplate, 'intro' | 'captions'>, els: TplEl[]): ScrapbookTemplate => ({
+  slug, name, paper, blurb, els, ...extra,
+  title: `${name} scrapbook template`,
+  description: `${blurb} Add your own photos, change the words and download the page for your Story.`,
+  tips: ['Add three photos at once to fill the frames in order, or tap a frame to choose one picture.', 'Tap the cut-out words and use Delete, then make your own in Text with the Word cut-outs style.', 'The crayon doodles live under Doodles; pick a colour first, then tap a shape.', 'For a lyric card, type the lyric, then the song and artist on the next two lines.'],
+});
+
 export const templates: ScrapbookTemplate[] = [
+  sheet('love-letter-poem', 'Love letter poem', 'white', 'Three rounded photos, crayon spirals, a lyric card and a love poem cut out word by word.', {
+    intro: ['A page for one person: three photos, a song that is yours, and a short poem cut out of paper slips one word at a time, the way people used to make notes from magazines.', 'The orange crayon spirals and lilies hold it together, and every word, doodle and card can be moved, recoloured or rewritten.'],
+    captions: ['I give you all my smiles', 'you are my favourite person', 'not a lot, just forever', 'everything I know about love'],
+  }, [
+    { t: 'doodle', kind: 'spiral', x: .19, y: .1, s: .4, a: 10, color: '#E8743B' },
+    { t: 'doodle', kind: 'squiggle', x: .08, y: .75, s: .5, a: 72, color: '#E8743B' },
+    { t: 'doodle', kind: 'wave', x: .95, y: .52, s: .32, a: -35, color: '#E8743B' },
+    { t: 'slot', x: .32, y: .255, w: .5, h: .64, frame: 'rounded', demo: '/bg/golden-hour.webp' },
+    { t: 'sticker', slug: 'maroon-number-7-billiard-ball', x: .55, y: .09, s: .1, a: -10 },
+    { t: 'words', text: 'I give you\nall my smiles\nand every bit\nof my love', x: .79, y: .2, s: .4, a: 2, color: '#3E64A8' },
+    { t: 'slot', x: .74, y: .5, w: .44, h: .36, a: 2, frame: 'rounded', demo: '/bg/daisies.webp' },
+    { t: 'card', kind: 'lyrics', text: 'Not a lot, just forever\nour song\non repeat', x: .27, y: .5, s: .5, a: -3 },
+    { t: 'slot', x: .52, y: .69, w: .5, h: .42, a: -2, frame: 'rounded', demo: '/bg/ocean.webp' },
+    { t: 'sticker', slug: 'golden-lily', x: .83, y: .64, s: .24, a: 18 },
+    { t: 'sticker', slug: 'golden-lily-1', x: .25, y: .62, s: .17, a: -25 },
+    { t: 'words', text: 'you are more than I know\nand everything I know\nabout love', x: .48, y: .885, s: .78, a: -1, color: '#3E64A8' },
+    { t: 'hand', text: 'forever', x: .82, y: .96, s: .26, a: -6, style: 'script', color: '#E8743B' },
+  ]),
   dump('tropical-soulmates', 'Tropical soulmates', 'leopard-print', 'Seven layered photos, leopard print, hibiscus and little love notes.', [
     { t: 'sticker', slug: 'torn-kraft-paper-scrap', x: .7, y: .22, s: .75, a: 20 },
     ...strip(.17,.47,.38,.44,3,2,'strip','warm'),

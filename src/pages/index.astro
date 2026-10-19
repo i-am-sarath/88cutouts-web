@@ -7,7 +7,6 @@ import StickerShuffle from '../components/StickerShuffle.astro';
 import { getPacks } from '../lib/packs';
 import { stickerThumb } from '../lib/thumbs.mjs';
 import { templates } from '../data/scrapbook-templates';
-import { PAPERS } from '../lib/scrapbook/scene';
 
 const all = await getStickers();
 
@@ -25,13 +24,6 @@ const popular = all.filter((s) => s.data.featured).slice(0, 8);
 const packs = await getPacks();
 
 const categories = [...new Set(all.map((s) => s.data.category))].sort();
-
-/** Stickers dressing the hero collage: featured ones first. */
-const heroArt = stickers
-  .filter((s) => s.data.type !== 'frame' && ['cute', 'coquette', 'flowers', 'hearts', 'retro'].includes(s.data.category))
-  .slice(0, 4);
-
-const paperColor = (id: string) => PAPERS.find((p) => p.id === id)?.color || '#F6EFE3';
 
 const site = Astro.site?.href ?? 'https://88cutouts.com/';
 
@@ -112,17 +104,19 @@ const jsonld = [
           on real-looking paper. Save it for your Story or feed in a minute.
         </p>
         <div class="action-row">
-          <a class="btn-copy btn-big" href="/scrapbook/">Start a scrapbook →</a>
-          <a class="btn-download btn-big" href="/stickers/">Browse stickers</a>
+          <a class="btn-copy btn-big" href="/scrapbook/?template=love-letter-poem">Make a page like this →</a>
+          <a class="btn-download btn-big" href="/scrapbook/">Start blank</a>
         </div>
       </div>
 
-      <div class="home-hero-art" aria-hidden="true">
-        <div class="snap snap-1"><span class="tape"></span><span class="snap-photo" style="background:#F7D9DA">{heroArt[0] && <img src={stickerThumb(heroArt[0].data.image, 400)} alt="" width="400" height="400" />}</span></div>
-        <div class="snap snap-2"><span class="tape tape-mint"></span><span class="snap-photo" style="background:#DAE6F1">{heroArt[1] && <img src={stickerThumb(heroArt[1].data.image, 400)} alt="" width="400" height="400" />}</span></div>
-        <div class="snap snap-3"><span class="tape tape-lilac"></span><span class="snap-photo" style="background:#F8EDC4">{heroArt[2] && <img src={stickerThumb(heroArt[2].data.image, 400)} alt="" width="400" height="400" />}</span></div>
-        {heroArt[3] && <img class="hero-sticker" src={stickerThumb(heroArt[3].data.image, 400)} alt="" width="400" height="400" />}
-        <span class="hero-word">core memory</span>
+      <div class="home-hero-art">
+        <img class="hero-page hero-page-l" src="/scrapbook/previews/keepsake-journal.webp" alt="" width="540" height="960" />
+        <img class="hero-page hero-page-r" src="/scrapbook/previews/tropical-soulmates.webp" alt="" width="540" height="960" />
+        <a class="hero-page hero-page-main" href="/scrapbook/?template=love-letter-poem">
+          <img src="/scrapbook/previews/love-letter-poem.webp" alt="A finished scrapbook page: three rounded photos, orange crayon spirals, a lyric card and a love poem cut out word by word" width="540" height="960" fetchpriority="high" />
+          <span class="hero-make">Make this one →</span>
+        </a>
+        <span class="hero-word" aria-hidden="true">made in 2 min</span>
       </div>
     </div>
   </section>
@@ -144,7 +138,7 @@ const jsonld = [
         {
           templates.map((t) => (
             <a class="tpl-card" href={`/scrapbook/${t.slug}/`}>
-              <span class="tpl-card-sw" style={`background:${paperColor(t.paper)}`}><i></i><i></i></span>
+              <img class="tpl-card-pic" src={`/scrapbook/previews/${t.slug}.webp`} alt="" width="540" height="960" loading="lazy" decoding="async" />
               <b>{t.name}</b>
               <span>{t.blurb}</span>
             </a>
