@@ -1678,3 +1678,126 @@ a.count:hover { color: var(--ink); text-decoration: underline; }
 .privacy-choices p { margin: .5rem 0 1rem; }
 .blog-topics { display: flex; flex-wrap: wrap; gap: .7rem; margin: 1rem 0 2rem; }
 .blog-topic { scroll-margin-top: 6rem; }
+
+/* ---------- home: sticker gallery ----------
+   Stickers first, like an app: a filter chip row that sticks under the header,
+   a dense grid of tiles with one-tap Copy, and pale artwork on a dark tile. */
+
+.sg { padding-top: 1.4rem; }
+.sg-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
+.sg-top h1 { font-size: clamp(1.9rem, 4.5vw, 2.8rem); line-height: 1.05; margin: 0 0 0.2rem; }
+.sg-sub { color: var(--muted); font-weight: 600; margin: 0; }
+.sg-bg { display: inline-flex; border: 1.5px solid var(--ink); border-radius: var(--radius-pill); overflow: hidden; background: var(--surface); }
+.sg-bg button { border: 0; background: none; font: inherit; font-size: 0.82rem; font-weight: 700; padding: 0.35rem 0.8rem; cursor: pointer; color: var(--ink); }
+.sg-bg button[aria-pressed='true'] { background: var(--ink); color: var(--surface); }
+
+.sg-chips {
+  position: sticky;
+  top: var(--header-h);
+  z-index: 5;
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0.6rem 0;
+  margin-bottom: 0.6rem;
+  background: var(--bg);
+}
+.sg-chips::-webkit-scrollbar { display: none; }
+.sg-chip {
+  flex: none;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-pill);
+  padding: 0.42rem 0.95rem;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-transform: capitalize;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.sg-chip:hover { border-color: var(--ink); }
+.sg-chip[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+
+.sg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+@media (max-width: 480px) { .sg-grid { grid-template-columns: repeat(3, 1fr); gap: 0.45rem; } }
+
+.sg-tile {
+  --tile: var(--checker-img) 0 0 / 20px 20px;
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--border);
+  background: var(--tile);
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.sg-tile[data-dark], .sg-grid[data-tiles='dark'] .sg-tile {
+  --tile: conic-gradient(#2B2826 25%, #222020 0 50%, #2B2826 0 75%, #222020 0) 0 0 / 20px 20px;
+  border-color: #2B2826;
+}
+.sg-grid[data-tiles='light'] .sg-tile { --tile: var(--checker-img) 0 0 / 20px 20px; border-color: var(--border); }
+.sg-tile:hover { border-color: var(--ink); transform: translate(-2px, -2px); box-shadow: var(--stamp); }
+.sg-tile > a:first-child { display: grid; place-items: center; width: 100%; height: 100%; padding: 12%; }
+.sg-tile img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.12)); }
+
+.sg-copy, .sg-add {
+  position: absolute;
+  bottom: 0.4rem;
+  border: 1.5px solid var(--ink);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.sg-copy { right: 0.4rem; font-size: 0.78rem; padding: 0.2rem 0.65rem; }
+.sg-copy.done { background: var(--accent-2); }
+.sg-add { left: 0.4rem; width: 1.75rem; height: 1.75rem; display: grid; place-items: center; font-size: 1.05rem; line-height: 1; text-decoration: none; }
+.sg-tile:hover .sg-copy, .sg-tile:hover .sg-add, .sg-tile:focus-within .sg-copy, .sg-tile:focus-within .sg-add { opacity: 1; }
+/* No hover on touch screens: Copy is always there, the extra + is not. */
+@media (hover: none) {
+  .sg-copy { opacity: 1; font-size: 0.7rem; padding: 0.12rem 0.5rem; bottom: 0.3rem; right: 0.3rem; }
+}
+
+.sg-promo {
+  grid-row: span 2;
+  position: relative;
+  display: block;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--ink);
+  overflow: hidden;
+  box-shadow: var(--stamp);
+  background: var(--surface);
+}
+.sg-promo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.sg-promo span {
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius-lg);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+  text-align: center;
+}
+.sg-more { display: flex; justify-content: center; margin: 1.4rem 0 0.4rem; }
+#sg-more[hidden] { display: none; }
+.sg-empty { text-align: center; color: var(--muted); }
+
+.home-hero-title { font-size: clamp(2rem, 5vw, 3.4rem); line-height: 1.05; margin-bottom: 0.9rem; }
+.sg ~ .home-hero { margin-top: 2.5rem; border-top: 1.5px solid var(--ink); }

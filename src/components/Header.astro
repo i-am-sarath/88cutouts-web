@@ -3,7 +3,7 @@ import SearchBar from './SearchBar.astro';
 
 const path = Astro.url.pathname;
 const isActive = (href: string) => path.startsWith(href);
-const onSticker = isActive('/stickers') || isActive('/category');
+const onSticker = path === '/' || isActive('/stickers') || isActive('/category');
 ---
 
 <header class="site-header">
@@ -17,8 +17,8 @@ const onSticker = isActive('/stickers') || isActive('/category');
     </div>
 
     <nav class="header-nav" aria-label="Main">
+      <a href="/" aria-current={onSticker ? 'page' : undefined}>Stickers</a>
       <a class="nav-cta" href="/scrapbook/" aria-current={isActive('/scrapbook') ? 'page' : undefined}>Scrapbook</a>
-      <a href="/stickers/" aria-current={onSticker ? 'page' : undefined}>Stickers</a>
       <a href="/packs/" aria-current={isActive('/packs') ? 'page' : undefined}>Packs</a>
       <a href="/symbols/" aria-current={isActive('/symbols') ? 'page' : undefined}>Symbols</a>
     </nav>

@@ -2,11 +2,10 @@
 import { getStickers } from '../lib/stickers';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import AdSlot from '../components/AdSlot.astro';
-import StickerCard from '../components/StickerCard.astro';
-import StickerShuffle from '../components/StickerShuffle.astro';
 import { getPacks } from '../lib/packs';
 import { stickerThumb } from '../lib/thumbs.mjs';
 import { templates } from '../data/scrapbook-templates';
+import geometry from '../data/sticker-geometry.json';
 
 const all = await getStickers();
 
@@ -15,15 +14,35 @@ const stickers = [...all].sort((a, b) => {
   return b.data.date.valueOf() - a.data.date.valueOf();
 });
 
-/** Newest first, regardless of the featured flag. */
-const fresh = [...all].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 12);
-
-/** Hand-picked in the CMS — the ones that get used most. */
-const popular = all.filter((s) => s.data.featured).slice(0, 8);
-
 const packs = await getPacks();
 
-const categories = [...new Set(all.map((s) => s.data.category))].sort();
+/** One emoji per mood, for the chip row. */
+const CAT_ICON: Record<string, string> = {
+  cute: '🐱', coquette: '🎀', flowers: '🌸', aesthetic: '✨', retro: '📼', hearts: '💗',
+  y2k: '💿', paper: '📎', text: '💬', frames: '🖼️', seasonal: '🍂', general: '⭐',
+};
+const catCounts = new Map<string, number>();
+for (const s of all) catCounts.set(s.data.category, (catCounts.get(s.data.category) ?? 0) + 1);
+const chipCats = [...catCounts].sort((a, b) => b[1] - a[1]).map(([c]) => c);
+
+/**
+ * Pale artwork (white lace, chrome, silver) disappears on a light checker, so
+ * it gets a dark tile. Measured at build time by scripts/sticker-geometry.mjs.
+ */
+const pale = (image: string) => ((geometry as Record<string, { lum?: number }>)[image]?.lum ?? 0) > 205;
+
+const gallery = stickers.map((s) => ({
+  s: s.slug,
+  t: s.data.title,
+  c: s.data.category,
+  f: s.data.featured ? 1 : 0,
+  d: s.data.date.valueOf(),
+  th: stickerThumb(s.data.image, 400),
+  png: s.data.image,
+  k: pale(s.data.image) ? 1 : 0,
+}));
+/** Shown before scripts run, and to search engines: featured first, then newest. */
+const firstPage = gallery.slice(0, 42);
 
 const site = Astro.site?.href ?? 'https://88cutouts.com/';
 
@@ -88,17 +107,66 @@ const jsonld = [
   },
 ];
 ---
-
 <BaseLayout
-  title="88cutouts — free online scrapbook maker & aesthetic stickers"
-  description="Make scrapbook pages from your photos with aesthetic stickers, cut-out letters and washi tape, then post them to Instagram. Plus free transparent PNG stickers to copy into your Stories. No login, no app."
+  title="Free aesthetic stickers — copy & paste into Instagram Stories | 88cutouts"
+  description={`${all.length} free transparent PNG stickers: bows, flowers, cats, y2k, frames and washi tape. Tap Copy and paste into your Instagram Story, or make a scrapbook page with them. No login, no app.`}
   jsonld={jsonld}
 >
+  <div class="wrap sg">
+    <div class="sg-top">
+      <div>
+        <h1>Free aesthetic stickers</h1>
+        <p class="sg-sub">{all.length} transparent PNGs. Tap <b>Copy</b>, paste into your Story. No login, no watermark.</p>
+      </div>
+      <div class="sg-bg" role="group" aria-label="Tile background">
+        <button type="button" data-tiles="auto" aria-pressed="true">Auto</button>
+        <button type="button" data-tiles="light" aria-pressed="false">Light</button>
+        <button type="button" data-tiles="dark" aria-pressed="false">Dark</button>
+      </div>
+    </div>
+
+    <nav class="sg-chips" aria-label="Sticker filters">
+      <button type="button" class="sg-chip" data-filter="for-you" aria-pressed="true">For you</button>
+      <button type="button" class="sg-chip" data-filter="new" aria-pressed="false">🆕 New</button>
+      <button type="button" class="sg-chip" data-filter="popular" aria-pressed="false">🔥 Popular</button>
+      <button type="button" class="sg-chip" data-filter="all" aria-pressed="false">All</button>
+      {chipCats.map((c) => (
+        <a class="sg-chip" href={`/category/${c}/`} data-filter={c} aria-pressed="false">{CAT_ICON[c] ?? '•'} {c}</a>
+      ))}
+      <a class="sg-chip" href="/packs/">📦 Packs</a>
+      <a class="sg-chip" href="/symbols/">✧ Symbols</a>
+    </nav>
+
+    <div class="sg-grid" id="sg-grid" data-tiles="auto">
+      {firstPage.map((g, i) => (
+        <>
+          {i === 14 && (
+            <a class="sg-promo" href="/scrapbook/?template=love-letter-poem">
+              <img src="/scrapbook/previews/love-letter-poem.webp" alt="" width="540" height="960" loading="lazy" />
+              <span>Put them on a scrapbook page →</span>
+            </a>
+          )}
+          <div class="sg-tile" data-dark={g.k ? '' : undefined}>
+            <a href={`/stickers/${g.s}/`} title={g.t}>
+              <img src={g.th} alt={`${g.t} — transparent PNG sticker`} width="400" height="400" loading={i < 14 ? 'eager' : 'lazy'} decoding="async" />
+            </a>
+            <button type="button" class="sg-copy" data-png={g.png} data-slug={g.s} aria-label={`Copy ${g.t}`}>Copy</button>
+            <a class="sg-add" href={`/scrapbook/?add=${g.s}`} aria-label={`Add ${g.t} to a scrapbook page`} title="Add to a scrapbook page">+</a>
+          </div>
+        </>
+      ))}
+    </div>
+    <p class="sg-empty" id="sg-empty" hidden>Nothing here yet.</p>
+    <div class="sg-more"><a class="btn-download" id="sg-more" href="/stickers/">See all {all.length} stickers</a></div>
+  </div>
+
+  <script type="application/json" id="sg-data" set:html={JSON.stringify(gallery)} />
+
   <section class="home-hero">
     <div class="wrap home-hero-in">
       <div class="home-hero-copy">
-        <p class="kicker">free · no login · photos stay on your phone</p>
-        <h1>Make a scrapbook page in your browser</h1>
+        <p class="kicker">scrapbook maker · free · photos stay on your phone</p>
+        <h2 class="home-hero-title">Then make a scrapbook page with them</h2>
         <p class="home-hero-sub">
           Your photos, {all.length} aesthetic stickers, cut-out magazine letters and washi tape
           on real-looking paper. Save it for your Story or feed in a minute.
@@ -110,10 +178,10 @@ const jsonld = [
       </div>
 
       <div class="home-hero-art">
-        <img class="hero-page hero-page-l" src="/scrapbook/previews/keepsake-journal.webp" alt="" width="540" height="960" />
-        <img class="hero-page hero-page-r" src="/scrapbook/previews/tropical-soulmates.webp" alt="" width="540" height="960" />
+        <img class="hero-page hero-page-l" loading="lazy" src="/scrapbook/previews/keepsake-journal.webp" alt="" width="540" height="960" />
+        <img class="hero-page hero-page-r" loading="lazy" src="/scrapbook/previews/tropical-soulmates.webp" alt="" width="540" height="960" />
         <a class="hero-page hero-page-main" href="/scrapbook/?template=love-letter-poem">
-          <img src="/scrapbook/previews/love-letter-poem.webp" alt="A finished scrapbook page: three rounded photos, orange crayon spirals, a lyric card and a love poem cut out word by word" width="540" height="960" fetchpriority="high" />
+          <img src="/scrapbook/previews/love-letter-poem.webp" alt="A finished scrapbook page: three rounded photos, orange crayon spirals, a lyric card and a love poem cut out word by word" width="540" height="960" loading="lazy" />
           <span class="hero-make">Make this one →</span>
         </a>
         <span class="hero-word" aria-hidden="true">made in 2 min</span>
@@ -146,56 +214,6 @@ const jsonld = [
         }
       </div>
     </section>
-
-    {
-      fresh.length > 0 && (
-        <>
-          <div class="section-head">
-            <h2>Just added stickers</h2>
-            <a class="count" href="/stickers/">All {all.length} →</a>
-          </div>
-          <p class="lede">
-            New cutouts go up a few times a week. Copy one straight into a Story, or add it to a
-            scrapbook page from its sticker page.
-          </p>
-          <div class="grid">
-            {fresh.map((entry, i) => (
-              <StickerCard entry={entry} eager={i < 6} />
-            ))}
-          </div>
-        </>
-      )
-    }
-
-    <section class="browse-cats">
-      <div class="section-head">
-        <h2>Browse by mood</h2>
-      </div>
-      <nav class="pills pills-wrap" aria-label="All categories">
-        <a class="pill" href="/stickers/">all stickers</a>
-        {categories.map((c) => (
-          <a class="pill" href={`/category/${c}/`}>
-            {c}
-          </a>
-        ))}
-      </nav>
-    </section>
-
-    {
-      popular.length > 0 && (
-        <>
-          <div class="section-head">
-            <h2>Popular picks</h2>
-            <span class="count">the ones people reach for</span>
-          </div>
-          <div class="grid">
-            {popular.map((entry) => (
-              <StickerCard entry={entry} />
-            ))}
-          </div>
-        </>
-      )
-    }
 
     {
       packs.length > 0 && (
@@ -236,14 +254,6 @@ const jsonld = [
       </span>
     </a>
 
-    <StickerShuffle
-      pool={all}
-      count={6}
-      id="home"
-      heading="Don't know what you want?"
-      blurb="Six at random from the whole library. Hit shuffle until something catches your eye."
-    />
-
     <AdSlot />
 
     <article class="prose home-prose">
@@ -259,9 +269,9 @@ const jsonld = [
       <p>
         It runs in your browser with no account. Your photos are opened on your own device
         and never uploaded, so there is nothing to sign up for and nothing stored. That also
-        means pages are not saved: download each one when it is done. Six
-        <a href="/scrapbook/tropical-soulmates/">ready-made templates</a> bring together tropical
-        collages, travel postcards, photo-booth walls, film rolls and keepsake journals.
+        means pages are not saved: download each one when it is done. {templates.length}
+        <a href="/scrapbook/love-letter-poem/">ready-made templates</a> cover love-letter poems,
+        tropical collages, travel postcards, photo-booth walls, film rolls and keepsake journals.
       </p>
 
       <h2>What the stickers are, and how to use them</h2>
@@ -290,12 +300,14 @@ const jsonld = [
         shows is exactly what gets copied.
       </p>
 
-      <h2>Why the library is small</h2>
+      <h2>Finding the right one</h2>
       <p>
-        {stickers.length} cutouts is not a lot next to a stock site, and that is deliberate.
-        Browse by subject, compare the PNG against light and dark backgrounds, and check
-        the file and artwork dimensions on each detail page. Start with a themed pack if
-        you want a coordinated set.
+        The chips along the top filter by mood: coquette bows, flowers, retro bits, y2k
+        cameras and disco balls, paper scraps and washi tape, frames with see-through
+        windows. White and silver cutouts sit on a dark tile so you can actually see them;
+        flip every tile dark or light with the switch above the grid. Each sticker page
+        shows the file and artwork dimensions, and there are themed packs when you want a
+        set that already matches.
       </p>
       <p>
         To make your own cutouts, the
@@ -316,3 +328,101 @@ const jsonld = [
     </article>
   </div>
 </BaseLayout>
+
+<script>
+  import { copyImage } from '../lib/sticker-actions';
+
+  interface G { s: string; t: string; c: string; f: number; d: number; th: string; png: string; k: number }
+  const all: G[] = JSON.parse(document.getElementById('sg-data')!.textContent || '[]');
+  const grid = document.getElementById('sg-grid')!;
+  const more = document.getElementById('sg-more') as HTMLAnchorElement;
+  const promo = grid.querySelector('.sg-promo');
+  const PAGE = 42;
+
+  // "For you" is the order the page was built in (featured, then newest), so
+  // the first screen never swaps images under the visitor.
+  const lists: Record<string, () => G[]> = {
+    'for-you': () => all,
+    new: () => [...all].sort((a, b) => b.d - a.d),
+    popular: () => all.filter((g) => g.f),
+    all: () => [...all].sort((a, b) => a.t.localeCompare(b.t)),
+  };
+
+  let list: G[] = all;
+  let shown = grid.querySelectorAll('.sg-tile').length;
+
+  function tile(g: G, eager: boolean) {
+    const el = document.createElement('div');
+    el.className = 'sg-tile';
+    if (g.k) el.dataset.dark = '';
+    const esc = (x: string) => x.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    el.innerHTML =
+      `<a href="/stickers/${g.s}/" title="${esc(g.t)}"><img src="${g.th}" alt="${esc(g.t)} — transparent PNG sticker" width="400" height="400" loading="${eager ? 'eager' : 'lazy'}" decoding="async"></a>` +
+      `<button type="button" class="sg-copy" data-png="${g.png}" data-slug="${g.s}" aria-label="Copy ${esc(g.t)}">Copy</button>` +
+      `<a class="sg-add" href="/scrapbook/?add=${g.s}" aria-label="Add ${esc(g.t)} to a scrapbook page" title="Add to a scrapbook page">+</a>`;
+    return el;
+  }
+
+  function page() {
+    const frag = document.createDocumentFragment();
+    for (const g of list.slice(shown, shown + PAGE)) {
+      frag.append(tile(g, shown < 14));
+      shown++;
+      if (shown === 14 && promo) frag.append(promo);
+    }
+    grid.append(frag);
+    more.hidden = shown >= list.length;
+    more.textContent = `Show more (${list.length - shown})`;
+  }
+
+  function show(filter: string) {
+    list = (lists[filter] ?? (() => all.filter((g) => g.c === filter)))();
+    shown = 0;
+    grid.replaceChildren();
+    document.getElementById('sg-empty')!.hidden = list.length > 0;
+    page();
+  }
+
+  document.querySelectorAll<HTMLElement>('.sg-chip[data-filter]').forEach((chip) =>
+    chip.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelectorAll('.sg-chip[data-filter]').forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+      show(chip.dataset.filter!);
+      if (grid.getBoundingClientRect().top < 0) grid.scrollIntoView({ block: 'start' });
+    })
+  );
+
+  more.addEventListener('click', (e) => {
+    e.preventDefault();
+    page();
+  });
+  // Keep going as the visitor scrolls, like an app.
+  new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !more.hidden && shown > 0 && shown < 210) page();
+  }, { rootMargin: '600px' }).observe(more);
+
+  grid.addEventListener('click', async (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.sg-copy');
+    if (!btn) return;
+    const ok = await copyImage(btn.dataset.png!, btn.dataset.slug!);
+    if (ok) {
+      btn.textContent = 'Copied ✓';
+      btn.classList.add('done');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('done'); }, 1600);
+    }
+  });
+
+  // Tile background: automatic per sticker, or all light / all dark.
+  const KEY = '88cutouts-tiles';
+  const setTiles = (mode: string) => {
+    grid.dataset.tiles = mode;
+    document.querySelectorAll('[data-tiles]').forEach((b) => b !== grid && b.setAttribute('aria-pressed', String((b as HTMLElement).dataset.tiles === mode)));
+    try { localStorage.setItem(KEY, mode); } catch { /* fine for this visit */ }
+  };
+  document.querySelectorAll<HTMLButtonElement>('button[data-tiles]').forEach((b) => b.addEventListener('click', () => setTiles(b.dataset.tiles!)));
+  try { const saved = localStorage.getItem(KEY); if (saved) setTiles(saved); } catch { /* storage blocked */ }
+
+  more.hidden = shown >= list.length;
+  more.textContent = `Show more (${list.length - shown})`;
+</script>
+

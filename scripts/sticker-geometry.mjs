@@ -31,6 +31,10 @@ async function artworkBox(file) {
     .toBuffer({ resolveWithObject: true });
 
   let x0 = info.width;
+  // Mean luminance of the visible pixels, so very pale artwork (white lace,
+  // chrome) can be shown on a dark tile instead of vanishing into the checker.
+  let lum = 0;
+  let seen = 0;
   let y0 = info.height;
   let x1 = -1;
   let y1 = -1;
@@ -39,7 +43,12 @@ async function artworkBox(file) {
     for (let x = 0; x < info.width; x++) {
       // 8 rather than 0: anti-aliased edges leave a few near-zero pixels that
       // would otherwise count as artwork and defeat the whole measurement.
-      if (data[(y * info.width + x) * info.channels + 3] > 8) {
+      const i = (y * info.width + x) * info.channels;
+      if (data[i + 3] > 128) {
+        lum += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        seen++;
+      }
+      if (data[i + 3] > 8) {
         if (x < x0) x0 = x;
         if (x > x1) x1 = x;
         if (y < y0) y0 = y;
@@ -49,7 +58,7 @@ async function artworkBox(file) {
   }
 
   if (x1 < 0) return null; // fully transparent
-  return { w: info.width, h: info.height, aw: x1 - x0 + 1, ah: y1 - y0 + 1 };
+  return { w: info.width, h: info.height, aw: x1 - x0 + 1, ah: y1 - y0 + 1, lum: seen ? Math.round(lum / seen) : 0 };
 }
 
 // A sticker's image can land in either folder: the CMS media picker lets an
