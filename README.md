@@ -112,6 +112,12 @@ URL parameters: `?template=<slug>`, `?add=<sticker-slug>` (the "Add to scrapbook
 sticker pages), `?pack=<slug>` (opens the Stickers tab narrowed to a pack), `&t=<words>`
 (pre-fills the text box) and `?tool=text`.
 
+`?from=filtercamera` (with `?template=`) is how filtercamera.com's "Scrapbook it" card opens the
+editor: once the template is up, the editor posts `88c:ready` to its opener at
+`https://filtercamera.com`, and accepts a `{ type: 'fc:photos', photos: [Blob…] }` reply only from
+that origin and that window, then fills the empty frames in order (`askFilterCamera()` in
+`ScrapbookEditor.astro`, GA event `scrapbook_handoff`). The photos stay on the device.
+
 The editor page deliberately has **no ad slots**. The AdSense loader only runs on pages
 with a slot, so Auto Ads can't place an ad inside the editor either.
 

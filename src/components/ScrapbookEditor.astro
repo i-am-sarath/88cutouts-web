@@ -1086,7 +1086,7 @@ const data = JSON.stringify({ library, packs, templates: tpls });
     input.value = '';
   });
 
-  async function addPhotos(files: FileList | null) {
+  async function addPhotos(files: FileList | File[] | null) {
     if (!files?.length || importing) return;
     importing = true;
     const target = slotTarget;
@@ -1426,5 +1426,33 @@ const data = JSON.stringify({ library, packs, templates: tpls });
     else if (tpl) openTab('photos');
 
     if (phone.matches && (tpl || add)) body.dataset.sheet = add ? 'closed' : 'open';
+    if (params.get('from') === 'filtercamera') askFilterCamera();
   })();
+
+  // ---- photos handed over by filtercamera.com ------------------------------------
+  // Its "Scrapbook it" card opens this page with window.open and ?from=filtercamera.
+  // Once the template is up we tell the opener we're ready; it answers with the
+  // shot(s) as JPEG blobs. Only messages from filtercamera.com, from the window that
+  // opened us, are accepted. The photos stay on the device like any other photo.
+  function askFilterCamera() {
+    const FC = 'https://filtercamera.com';
+    const opener = window.opener as Window | null;
+    if (!opener) return;
+    let got = false;
+    const onMessage = async (e: MessageEvent) => {
+      if (got || e.origin !== FC || e.source !== opener) return;
+      const d = e.data as { type?: string; photos?: unknown[] } | null;
+      if (!d || d.type !== 'fc:photos' || !Array.isArray(d.photos)) return;
+      const files = d.photos.filter((b): b is Blob => b instanceof Blob && b.type.startsWith('image/')).slice(0, 8)
+        .map((b, i) => new File([b], `filtercamera-${i + 1}.jpg`, { type: b.type }));
+      if (!files.length) return;
+      got = true;
+      window.removeEventListener('message', onMessage);
+      await addPhotos(files);
+      track('scrapbook_handoff', { source: 'filtercamera', count: files.length });
+    };
+    window.addEventListener('message', onMessage);
+    setTimeout(() => window.removeEventListener('message', onMessage), 60000);
+    try { opener.postMessage({ type: '88c:ready', v: 1 }, FC); } catch { /* opener gone */ }
+  }
 </script>
