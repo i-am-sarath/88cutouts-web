@@ -30,3 +30,6 @@ npm-debug.log*
 # they are the gallery. Their thumbnails are regenerated on every build by
 # scripts/generate-dp-thumbs.mjs, so they are not.
 public/dps/uploads/thumbs/
+
+# local wrangler dev/deploy cache
+.wrangler/
