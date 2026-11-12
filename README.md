@@ -301,4 +301,4 @@ Ads are served by **Mediavine**. Its script wrapper is loaded once, high in the 
 `src/layouts/BaseLayout.astro`, and Mediavine places the ads itself. There are no manual ad
 slots and no AdSense code in the site any more (the old `AdSlot` component is in git history).
 
-`public/ads.txt` must point at Mediavine's hosted ads.txt for ads to sell properly.
+`/ads.txt` is a 301 (in `public/_redirects`) to Mediavine's hosted ads.txt; don't add a local `public/ads.txt`.

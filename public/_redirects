@@ -23,3 +23,6 @@
 /scrapbook/love/          /scrapbook/velvet-photo-booth/    301
 /scrapbook/pet-diary      /scrapbook/keepsake-journal/      301
 /scrapbook/pet-diary/     /scrapbook/keepsake-journal/      301
+
+# ads.txt is managed by Mediavine (Journey); they require a 301 to their hosted file.
+/ads.txt  https://adstxt.journeymv.com/sites/e4d0581b-2bd3-41fa-affc-69064160af32/ads.txt  301
