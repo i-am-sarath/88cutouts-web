@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import AdSlot from '../../components/AdSlot.astro';
 import { templates, type ScrapbookTemplate } from '../../data/scrapbook-templates';
 import { resolveTemplate } from '../../lib/scrapbook-templates';
 
@@ -60,7 +59,6 @@ const jsonld = [
         {t.tips.map((tip) => <li>{tip}</li>)}
       </ul>
 
-      <AdSlot />
 
       <h2>Caption ideas</h2>
       <p>For the handwritten line on the page, or for the post itself:</p>

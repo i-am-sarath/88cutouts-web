@@ -1,7 +1,6 @@
 ---
 import { getStickers } from '../../lib/stickers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import AdSlot from '../../components/AdSlot.astro';
 import CategoryPills from '../../components/CategoryPills.astro';
 import StickerCard from '../../components/StickerCard.astro';
 
@@ -57,7 +56,6 @@ const jsonld = [
       {stickers.map((entry, i) => <StickerCard entry={entry} eager={i < 6} />)}
     </div>
 
-    <AdSlot />
 
     <article class="prose">
       <h2>Using them</h2>

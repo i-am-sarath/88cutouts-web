@@ -1099,37 +1099,6 @@ a.count:hover { color: var(--ink); text-decoration: underline; }
   border-top: 1px solid var(--border);
 }
 
-/* ---------- ad slot ---------- */
-
-/* Height is reserved up front so a filled ad never pushes the page (CLS). */
-.ad-slot {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  min-height: 300px;
-  padding: 0.6rem 0.8rem 0.8rem;
-  margin-block: 2rem;
-  overflow: hidden;
-}
-
-@media (min-width: 721px) {
-  .ad-slot { min-height: 140px; }
-}
-
-.ad-slot__label {
-  display: block;
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 0.4rem;
-}
-
-/* No ad to show: drop the box rather than leave an empty frame on the page. */
-.ad-slot:has(ins[data-ad-status="unfilled"]) { display: none; }
-
 /* ---------- prose ---------- */
 
 .prose { max-width: 62ch; padding-top: 1.8rem; }

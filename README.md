@@ -112,8 +112,8 @@ URL parameters: `?template=<slug>`, `?add=<sticker-slug>` (the "Add to scrapbook
 sticker pages), `?pack=<slug>` (opens the Stickers tab narrowed to a pack), `&t=<words>`
 (pre-fills the text box) and `?tool=text`.
 
-The editor page deliberately has **no ad slots**. The AdSense loader only runs on pages
-with a slot, so Auto Ads can't place an ad inside the editor either.
+The editor page has no manual ad slots; Mediavine's script runs site-wide, so exclude the
+editor in the Mediavine dashboard if ads shouldn't appear there.
 
 The old collage maker (`/collage-maker/`), cutout text maker (`/ransom-note/`), DP maker
 and DP gallery were folded into the scrapbook or removed; `public/_redirects` 301s their
@@ -297,19 +297,8 @@ has been replaced by the real sticker and letter sets.
 
 ## Ads
 
-**There are no ad slots in the site right now.** The empty "Sponsored" placeholders were
-removed before launch — a boxed placeholder with nothing in it is just dead space, and
-AdSense isn't approved yet.
+Ads are served by **Mediavine**. Its script wrapper is loaded once, high in the `<head>` of
+`src/layouts/BaseLayout.astro`, and Mediavine places the ads itself. There are no manual ad
+slots and no AdSense code in the site any more (the old `AdSlot` component is in git history).
 
-To reintroduce them after approval: restore `src/components/AdSlot.astro` and the
-`.ad-slot` rules in `global.css` (both are in git history — see the commit that removed
-them), then render `<AdSlot />` every ~12 cards on the gallery and category pages and once
-below the fold on sticker and cut-out text pages.
-
-When that happens, keep to the original decisions: **manual ad units only, no Auto Ads**
-(Auto Ads inject unpredictably and wreck CLS), give every slot a fixed reserved height so
-switching ads on causes no layout shift, and keep each one visibly labelled and boxed —
-never styled to pass as a sticker card.
-
-`src/pages/privacy.astro` already discloses the intent to run AdSense, so that page needs
-no change either way.
+`public/ads.txt` must point at Mediavine's hosted ads.txt for ads to sell properly.

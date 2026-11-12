@@ -2,7 +2,6 @@
 import type { CollectionEntry } from 'astro:content';
 import { getStickers } from '../../lib/stickers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import AdSlot from '../../components/AdSlot.astro';
 import CategoryPills from '../../components/CategoryPills.astro';
 import StickerCard from '../../components/StickerCard.astro';
 import StickerShuffle from '../../components/StickerShuffle.astro';
@@ -111,7 +110,6 @@ const jsonld = [
       {items.map((entry, i) => <StickerCard entry={entry} eager={i < 6} />)}
     </div>
 
-    <AdSlot />
 
     <article class="prose category-prose">
       {

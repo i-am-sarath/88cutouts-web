@@ -3,7 +3,6 @@ import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogCard from '../../components/BlogCard.astro';
-import AdSlot from '../../components/AdSlot.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -126,13 +125,11 @@ const jsonld = [
         )
       }
 
-      <AdSlot />
 
       <div class="post-body">
         <Content />
       </div>
 
-      <AdSlot />
 
       {
         tags.length > 0 && (
