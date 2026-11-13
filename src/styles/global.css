@@ -77,6 +77,8 @@
   --radius-lg: 14px;
   --radius-pill: 999px;
   --header-h: 66px;
+  /* Height of Mediavine's sticky footer ad, set live by BaseLayout. */
+  --ad-bottom: 0px;
 
   --maxw: 1180px;
 }
@@ -109,6 +111,8 @@ a { color: inherit; text-decoration: none; }
 /* ---------- base ---------- */
 
 body {
+  /* Keep the footer and last content reachable above the sticky footer ad. */
+  padding-bottom: var(--ad-bottom);
   font-family: 'Quicksand', system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-weight: 500;
   /* Faint paper grain; a tiny inline SVG, so no extra request. */
@@ -1420,7 +1424,7 @@ a.count:hover { color: var(--ink); text-decoration: underline; }
 
 #global-toast {
   position: fixed;
-  bottom: 1.2rem;
+  bottom: calc(1.2rem + var(--ad-bottom));
   left: 50%;
   transform: translateX(-50%) translateY(10px);
   background: var(--ink);
@@ -1641,7 +1645,7 @@ a.count:hover { color: var(--ink); text-decoration: underline; }
 .proof-dark { background: #252831; color: #fff9ed; }
 .post-body img { display: block; width: 100%; height: auto; margin: 1.5rem 0; border-radius: 12px; }
 .privacy-settings { font: inherit; color: inherit; border: 0; background: transparent; text-decoration: underline; cursor: pointer; padding: 0; }
-.privacy-choices { position: fixed; z-index: 100; bottom: 1rem; left: 1rem; width: min(420px, calc(100% - 2rem)); background: var(--surface); border: 1px solid var(--border); padding: 1.2rem; box-shadow: 0 5px 35px #0002; border-radius: 16px; }
+.privacy-choices { position: fixed; z-index: 100; bottom: calc(1rem + var(--ad-bottom)); max-height: calc(100dvh - 2rem - var(--ad-bottom)); overflow: auto; left: 1rem; width: min(420px, calc(100% - 2rem)); background: var(--surface); border: 1px solid var(--border); padding: 1.2rem; box-shadow: 0 5px 35px #0002; border-radius: 16px; }
 .privacy-choices[hidden] { display: none; }
 .privacy-choices h2 { font-size: 1.15rem; }
 .privacy-choices p { margin: .5rem 0 1rem; }

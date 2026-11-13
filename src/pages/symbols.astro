@@ -136,7 +136,7 @@ import { symbols, symbolCategories } from '../data/symbols';
   .symbol-copy:hover { background: var(--accent); }
   .symbol-empty { padding: 2rem; text-align: center; border: 1px dashed var(--border); border-radius: var(--radius-lg); }
   .symbol-empty p { margin: .5rem 0 1rem; }
-  .symbol-status { position: fixed; bottom: 1.3rem; left: 50%; transform: translateX(-50%); z-index: 60; width: max-content; max-width: calc(100% - 2rem); padding: .8rem 1.2rem; background: var(--ink); color: var(--surface); border-radius: 14px; box-shadow: var(--shadow); font-size: .9rem; }
+  .symbol-status { position: fixed; bottom: calc(1.3rem + var(--ad-bottom, 0px)); left: 50%; transform: translateX(-50%); z-index: 60; width: max-content; max-width: calc(100% - 2rem); padding: .8rem 1.2rem; background: var(--ink); color: var(--surface); border-radius: 14px; box-shadow: var(--shadow); font-size: .9rem; }
   .symbol-status:empty { display: none; }
   .manual-copy { margin-top: 1.2rem; padding: 1rem; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-alt); }
   .manual-copy label { display: block; margin-bottom: .5rem; }

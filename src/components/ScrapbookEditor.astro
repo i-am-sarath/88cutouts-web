@@ -351,7 +351,7 @@ const data = JSON.stringify({ library, packs, templates: tpls });
 <style>
   .sb {
     /* One screen: viewport minus the site header and the title line above. */
-    --sb-h: calc(100dvh - var(--header-h, 64px) - 5.4rem);
+    --sb-h: calc(100dvh - var(--header-h, 64px) - 5.4rem - var(--ad-bottom, 0px));
     display: flex;
     flex-direction: column;
     height: var(--sb-h);
@@ -686,7 +686,7 @@ const data = JSON.stringify({ library, packs, templates: tpls });
   /* ---- phone: page on top, sheet below, tabs at the bottom ---- */
   @media (max-width: 860px) {
     .sb {
-      --sb-h: calc(100dvh - var(--header-h, 58px));
+      --sb-h: calc(100dvh - var(--header-h, 58px) - var(--ad-bottom, 0px));
       border-radius: 0;
       border-inline: 0;
       box-shadow: none;

@@ -97,5 +97,49 @@ const GSC_TOKEN =
     <Footer />
     <Toast />
     <PrivacyChoices analyticsId={GA_ID} />
+    <script is:inline>
+      // Mediavine pins a sticky footer ("adhesion") ad to the bottom of the screen. Track
+      // its live height in --ad-bottom so the footer, toasts and the scrapbook editor's
+      // bottom tab bar sit above it instead of underneath. 0px until an ad shows.
+      (() => {
+        const root = document.documentElement;
+        const named = '[id*="adhesion" i],[class*="adhesion" i],[id^="mv-sticky" i]';
+        const own = '#global-toast,#privacy-choices,.symbol-status';
+        let current = -1;
+        const pinned = (el) => {
+          if (el.matches(own)) return 0;
+          const cs = getComputedStyle(el);
+          if (cs.position !== 'fixed' || cs.display === 'none' || cs.visibility === 'hidden') return 0;
+          const r = el.getBoundingClientRect();
+          if (r.height < 20 || r.height > innerHeight * 0.4) return 0;
+          if (r.width < innerWidth * 0.5 || r.bottom < innerHeight - 4) return 0;
+          return Math.ceil(innerHeight - r.top);
+        };
+        const measure = () => {
+          let h = 0;
+          const seen = new Set([...document.querySelectorAll(named), ...document.body.children]);
+          seen.forEach((el) => { h = Math.max(h, pinned(el)); });
+          if (h !== current) {
+            current = h;
+            root.style.setProperty('--ad-bottom', h + 'px');
+            root.classList.toggle('has-bottom-ad', h > 0);
+          }
+        };
+        let queued = false;
+        const schedule = () => {
+          if (queued) return;
+          queued = true;
+          requestAnimationFrame(() => { queued = false; measure(); });
+        };
+        const start = () => {
+          measure();
+          // The ad is injected, resized and closed after load, so keep watching.
+          new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class', 'hidden'] });
+          addEventListener('resize', schedule);
+          setInterval(measure, 2000);
+        };
+        if (document.body) start(); else addEventListener('DOMContentLoaded', start, { once: true });
+      })();
+    </script>
   </body>
 </html>
