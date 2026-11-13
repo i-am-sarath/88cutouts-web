@@ -1,0 +1,181 @@
+---
+/**
+ * Phone navigation and the tray.
+ *
+ * - `.tabbar`: thumb-reach nav pinned to the bottom on phones (hidden on the
+ *   scrapbook editor, which has its own bottom tabs).
+ * - `#tray`: the stickers a visitor has collected with the + buttons. Opens as
+ *   a bottom sheet; its main action sends the lot to the scrapbook maker.
+ * - `.to-top`: appears after a long scroll.
+ *
+ * Everything sits above Mediavine's sticky footer ad via --ad-bottom.
+ */
+const path = Astro.url.pathname;
+const on = (href: string) => (path.startsWith(href) ? 'page' : undefined);
+const onSticker = path.startsWith('/stickers') || path.startsWith('/category') ? 'page' : undefined;
+---
+
+<nav class="tabbar" aria-label="Quick navigation">
+  <a href="/scrapbook/" aria-current={on('/scrapbook')}>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" /><path d="M9 8h6M9 12h6M9 16h3" /></svg>
+    <span>Make</span>
+  </a>
+  <a href="/stickers/" aria-current={onSticker}>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v7l-7 7H6a2 2 0 0 1-2-2z" /><path d="M20 13h-5a2 2 0 0 0-2 2v5" /></svg>
+    <span>Stickers</span>
+  </a>
+  <button type="button" class="tabbar-tray" data-tray-open aria-haspopup="dialog">
+    <i class="tray-badge" data-tray-count hidden>0</i>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13l2.5-8h13L21 13v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M3 13h5a4 4 0 0 0 8 0h5" /></svg>
+    <span>Tray</span>
+  </button>
+  <a href="/symbols/" aria-current={on('/symbols')}>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.2 5.6L20 9.3l-4.4 3.9 1.3 5.8L12 16l-4.9 3 1.3-5.8L4 9.3l5.8-.7z" /></svg>
+    <span>Symbols</span>
+  </a>
+  <a href="/packs/" aria-current={on('/packs')}>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5" /><rect x="13" y="3" width="8" height="8" rx="1.5" /><rect x="3" y="13" width="8" height="8" rx="1.5" /><rect x="13" y="13" width="8" height="8" rx="1.5" /></svg>
+    <span>Packs</span>
+  </a>
+</nav>
+
+<button type="button" class="to-top" aria-label="Back to top" hidden>
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" /></svg>
+</button>
+
+<dialog id="tray" class="tray" aria-labelledby="tray-title">
+  <div class="tray-head">
+    <h2 id="tray-title">Your tray</h2>
+    <button type="button" class="tray-close" data-tray-close aria-label="Close tray">×</button>
+  </div>
+  <p class="tray-empty">
+    Tap <b class="tray-plus" aria-hidden="true">+</b> on any sticker to collect it here. When
+    you have a few, one tap puts them all on a scrapbook page with your photos.
+  </p>
+  <ul class="tray-list" aria-label="Stickers in your tray"></ul>
+  <div class="tray-actions">
+    <a class="btn-copy" id="tray-make" href="/scrapbook/">Make a page with these →</a>
+    <button type="button" class="btn-download" id="tray-clear">Clear</button>
+  </div>
+  <p class="tray-note">Kept on this device only. No account.</p>
+</dialog>
+
+<script>
+  import { readTray, toggleTray, removeFromTray, clearTray, trayUrl, TRAY_MAX } from '../lib/tray';
+  import { track } from '../lib/track';
+
+  const dialog = document.getElementById('tray') as HTMLDialogElement | null;
+  const list = dialog?.querySelector<HTMLUListElement>('.tray-list');
+  const make = document.getElementById('tray-make') as HTMLAnchorElement | null;
+
+  function toast(msg: string) {
+    const el = document.getElementById('global-toast') as (HTMLElement & { _t?: number }) | null;
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = window.setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  function sync() {
+    const items = readTray();
+    const has = new Set(items.map((x) => x.slug));
+
+    document.querySelectorAll<HTMLElement>('[data-tray]').forEach((b) => {
+      const inTray = has.has(b.dataset.slug ?? '');
+      b.setAttribute('aria-pressed', inTray ? 'true' : 'false');
+      const title = b.dataset.title ?? 'sticker';
+      b.setAttribute('aria-label', inTray ? `Remove ${title} from your tray` : `Add ${title} to your tray`);
+      const label = b.querySelector('[data-tray-label]');
+      if (label) label.textContent = inTray ? 'In tray' : 'Tray';
+    });
+
+    document.querySelectorAll<HTMLElement>('[data-tray-count]').forEach((c) => {
+      c.textContent = String(items.length);
+      c.hidden = items.length === 0;
+    });
+
+    if (dialog && list && make) {
+      dialog.dataset.empty = items.length ? 'false' : 'true';
+      make.href = trayUrl(items);
+      list.replaceChildren(
+        ...items.map((item) => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = `/stickers/${encodeURIComponent(item.slug)}/`;
+          a.title = item.title;
+          const img = document.createElement('img');
+          img.src = item.thumb;
+          img.alt = item.title;
+          img.width = 200;
+          img.height = 200;
+          img.loading = 'lazy';
+          a.append(img);
+          const x = document.createElement('button');
+          x.type = 'button';
+          x.textContent = '×';
+          x.dataset.trayRemove = item.slug;
+          x.setAttribute('aria-label', `Remove ${item.title}`);
+          li.append(a, x);
+          return li;
+        })
+      );
+    }
+  }
+
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+
+    const add = target.closest<HTMLElement>('[data-tray]');
+    if (add) {
+      e.preventDefault();
+      const { slug, title, thumb } = add.dataset;
+      if (!slug || !thumb) return;
+      const result = toggleTray({ slug, title: title ?? slug, thumb });
+      if (result === 'full') toast(`Your tray holds ${TRAY_MAX}. Make a page or remove a few.`);
+      else if (result === 'added') {
+        toast('Added to your tray');
+        track('tray_add', { sticker: slug });
+      } else toast('Removed from your tray');
+      return;
+    }
+
+    if (target.closest('[data-tray-open]')) {
+      if (dialog && !dialog.open) {
+        sync();
+        dialog.showModal();
+        track('tray_open', { count: readTray().length });
+      }
+      return;
+    }
+
+    const remove = target.closest<HTMLElement>('[data-tray-remove]');
+    if (remove) return removeFromTray(remove.dataset.trayRemove!);
+
+    if (target.closest('#tray-clear')) return clearTray();
+    if (target.closest('#tray-make')) track('tray_make_page', { count: readTray().length });
+    // Close on the × or a tap on the backdrop (the dialog element itself).
+    if (target.closest('[data-tray-close]') || target === dialog) dialog?.close();
+  });
+
+  window.addEventListener('tray:change', sync);
+  // Another tab changed it.
+  window.addEventListener('storage', sync);
+  window.addEventListener('pageshow', sync);
+  sync();
+
+  const top = document.querySelector<HTMLButtonElement>('.to-top');
+  if (top) {
+    let shown = false;
+    const check = () => {
+      const want = window.scrollY > window.innerHeight * 2;
+      if (want !== shown) {
+        shown = want;
+        top.hidden = !want;
+      }
+    };
+    window.addEventListener('scroll', check, { passive: true });
+    top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    check();
+  }
+</script>

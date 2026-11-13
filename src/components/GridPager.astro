@@ -1,0 +1,48 @@
+---
+/**
+ * Reveals a long gallery a screenful at a time.
+ *
+ * Every card is in the HTML (links stay crawlable, and no-JS visitors see them
+ * all via the <noscript> rule), but cards past the first page carry `hidden`,
+ * so a phone lays out 60 cards instead of 800. Place this directly after a
+ * `.grid[data-paged]`; the inline script runs during parsing, so a restored
+ * scroll position still finds the cards that were revealed last time.
+ */
+interface Props {
+  /** Cards shown per step; must match the `hide` cut-off used for the grid. */
+  step?: number;
+}
+const { step = 60 } = Astro.props;
+---
+
+<div class="grid-more" data-grid-more data-step={step} hidden>
+  <button type="button" class="btn-download">Show more</button>
+</div>
+<noscript><style is:inline>.grid[data-paged] > [hidden] { display: block !important; }</style></noscript>
+
+<script is:inline>
+  (() => {
+    const more = document.currentScript.previousElementSibling.previousElementSibling;
+    const grid = more.previousElementSibling;
+    if (!grid || !grid.matches('.grid[data-paged]')) return;
+    const step = Number(more.dataset.step) || 60;
+    const key = 'grid-shown:' + location.pathname;
+    const reveal = (n) => {
+      const hidden = grid.querySelectorAll(':scope > [hidden]');
+      for (let i = 0; i < hidden.length && i < n; i++) hidden[i].hidden = false;
+      const left = hidden.length - Math.min(n, hidden.length);
+      more.hidden = left === 0;
+      try { sessionStorage.setItem(key, String(grid.children.length - left)); } catch {}
+    };
+    let saved = 0;
+    try { saved = Number(sessionStorage.getItem(key)) || 0; } catch {}
+    const shown = grid.children.length - grid.querySelectorAll(':scope > [hidden]').length;
+    reveal(Math.max(0, saved - shown));
+    more.querySelector('button').addEventListener('click', () => reveal(step));
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) reveal(step);
+      }, { rootMargin: '900px 0px' }).observe(more);
+    }
+  })();
+</script>

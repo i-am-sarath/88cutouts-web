@@ -96,16 +96,21 @@ const jsonld = [
   <section class="home-hero">
     <div class="wrap home-hero-in">
       <div class="home-hero-copy">
-        <p class="kicker">free · no login · photos stay on your phone</p>
-        <h1>Make a scrapbook page in your browser</h1>
+        <p class="kicker">free · no login · nothing uploads</p>
+        <h1>Your photos. Our stickers. <em>One page worth posting.</em></h1>
         <p class="home-hero-sub">
-          Your photos, {all.length} aesthetic stickers, cut-out magazine letters and washi tape
-          on real-looking paper. Save it for your Story or feed in a minute.
+          Collect cutouts as you browse, drop in your photos, and save a finished scrapbook
+          page for your Story. It all happens in your browser.
         </p>
         <div class="action-row">
-          <a class="btn-copy btn-big" href="/scrapbook/?template=love-letter-poem">Make a page like this →</a>
-          <a class="btn-download btn-big" href="/scrapbook/">Start blank</a>
+          <a class="btn-copy btn-big" href="/scrapbook/?template=love-letter-poem">Make a page →</a>
+          <a class="btn-download btn-big" href="/stickers/">Browse {all.length} stickers</a>
         </div>
+        <ul class="hero-facts" aria-label="At a glance">
+          <li><b>0</b> photos uploaded</li>
+          <li><b>{all.length}</b> transparent PNGs</li>
+          <li><b>2 min</b> to a finished page</li>
+        </ul>
       </div>
 
       <div class="home-hero-art">
@@ -121,45 +126,37 @@ const jsonld = [
   </section>
 
   <div class="wrap">
-    <section class="home-steps" aria-label="How it works">
-      <div class="step"><b>1</b><h2>Pick a template</h2><p>Or start blank on cream, kraft, grid or lined paper.</p></div>
-      <div class="step"><b>2</b><h2>Add your photos</h2><p>They drop into the frames. Nothing is uploaded.</p></div>
-      <div class="step"><b>3</b><h2>Decorate</h2><p>Stickers, cut-out letters, handwriting, symbols and tape.</p></div>
-      <div class="step"><b>4</b><h2>Save &amp; post</h2><p>Story, post or square size, ready for Instagram.</p></div>
-    </section>
-
-    <section>
-      <div class="section-head">
-        <h2>Start from a template</h2>
-        <a class="count" href="/scrapbook/">Blank page →</a>
-      </div>
-      <div class="tpl-cards">
-        {
-          templates.map((t) => (
-            <a class="tpl-card" href={`/scrapbook/${t.slug}/`}>
-              <img class="tpl-card-pic" src={`/scrapbook/previews/${t.slug}.webp`} alt="" width="540" height="960" loading="lazy" decoding="async" />
-              <b>{t.name}</b>
-              <span>{t.blurb}</span>
-            </a>
-          ))
-        }
-      </div>
+    <section class="home-why" aria-labelledby="why-title">
+      <h2 id="why-title">Other sites hand you a sticker. <em>We finish the page.</em></h2>
+      <ol class="why-cards">
+        <li>
+          <span class="why-n" aria-hidden="true">1</span>
+          <h3>Collect as you browse</h3>
+          <p>Tap <b class="tray-plus" aria-hidden="true">+</b> on any sticker and it drops into your tray. No copying one at a time.</p>
+        </li>
+        <li>
+          <span class="why-n" aria-hidden="true">2</span>
+          <h3>Tray to page in one tap</h3>
+          <p>Open the tray in the scrapbook maker and every sticker lands on the page, ready to arrange around your photos.</p>
+        </li>
+        <li>
+          <span class="why-n" aria-hidden="true">3</span>
+          <h3>Private by design</h3>
+          <p>Your photos open on your own device and never upload. No account, no watermark, nothing stored.</p>
+        </li>
+      </ol>
     </section>
 
     {
       fresh.length > 0 && (
         <>
           <div class="section-head">
-            <h2>Just added stickers</h2>
+            <h2>Just added</h2>
             <a class="count" href="/stickers/">All {all.length} →</a>
           </div>
-          <p class="lede">
-            New cutouts go up a few times a week. Copy one straight into a Story, or add it to a
-            scrapbook page from its sticker page.
-          </p>
           <div class="grid">
             {fresh.map((entry, i) => (
-              <StickerCard entry={entry} eager={i < 6} />
+              <StickerCard entry={entry} eager={i < 3} />
             ))}
           </div>
         </>
@@ -178,6 +175,24 @@ const jsonld = [
           </a>
         ))}
       </nav>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Start from a template</h2>
+        <a class="count" href="/scrapbook/">Blank page →</a>
+      </div>
+      <div class="tpl-cards tpl-rail">
+        {
+          templates.map((t) => (
+            <a class="tpl-card" href={`/scrapbook/${t.slug}/`}>
+              <img class="tpl-card-pic" src={`/scrapbook/previews/${t.slug}.webp`} alt="" width="540" height="960" loading="lazy" decoding="async" />
+              <b>{t.name}</b>
+              <span>{t.blurb}</span>
+            </a>
+          ))
+        }
+      </div>
     </section>
 
     {
@@ -201,12 +216,8 @@ const jsonld = [
         <section class="pack-strip">
           <div class="section-head">
             <h2>Sticker packs</h2>
-            <a class="count" href="/packs/">All {packs.length} packs →</a>
+            <a class="count" href="/packs/">All {packs.length} →</a>
           </div>
-          <p class="lede">
-            Themed sets picked to go together. Copy a whole pack into your Story in one tap, or
-            open it in the scrapbook maker.
-          </p>
           <div class="pack-grid">
             {packs.slice(0, 4).map((p) => (
               <a class="pack-card" href={`/packs/${p.slug}/`}>
@@ -230,8 +241,7 @@ const jsonld = [
       <span class="home-symbols-art" aria-hidden="true">✧ · ♡ · ✦<br />˚ ☾ ⋆ ˚</span>
       <span>
         <b>Symbols &amp; dot art</b>
-        Copy-and-paste text decorations for your bio, captions and notes, or add them to a
-        scrapbook page.
+        Copy-and-paste text decorations for your bio, captions and notes.
       </span>
     </a>
 
@@ -240,9 +250,12 @@ const jsonld = [
       count={6}
       id="home"
       heading="Don't know what you want?"
-      blurb="Six at random from the whole library. Hit shuffle until something catches your eye."
     />
 
+    <section class="home-end">
+      <h2>Got photos on your phone? <em>That's all you need.</em></h2>
+      <a class="btn-copy btn-big" href="/scrapbook/">Open the scrapbook maker →</a>
+    </section>
 
     <article class="prose home-prose">
       <h2>A scrapbook without the glue</h2>
@@ -269,6 +282,10 @@ const jsonld = [
         difference is the whole point. Paste a transparent PNG into an Instagram Story and
         it lands as a sticker you can pinch, rotate and place over your photo. Paste a
         flattened one and you get a white box sitting in the middle of your image.
+      </p>
+      <p>
+        Want several at once? Tap the plus on each sticker to collect it in your tray, then
+        open the tray and send the whole lot to a scrapbook page in one go.
       </p>
       <p>
         The usual route is: open a sticker, tap <strong>Copy</strong>, switch to Instagram,
@@ -303,14 +320,16 @@ const jsonld = [
       </p>
 
       <h2>Common questions</h2>
-      {
-        faq.map((f) => (
-          <>
-            <h3>{f.q}</h3>
-            <p>{f.a}</p>
-          </>
-        ))
-      }
+      <div class="post-faq home-faq">
+        {
+          faq.map((f) => (
+            <details>
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
+          ))
+        }
+      </div>
     </article>
   </div>
 </BaseLayout>

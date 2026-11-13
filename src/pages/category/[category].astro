@@ -4,6 +4,7 @@ import { getStickers } from '../../lib/stickers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CategoryPills from '../../components/CategoryPills.astro';
 import StickerCard from '../../components/StickerCard.astro';
+import GridPager from '../../components/GridPager.astro';
 import StickerShuffle from '../../components/StickerShuffle.astro';
 import { categoryPage } from '../../lib/category-copy';
 
@@ -102,13 +103,14 @@ const jsonld = [
       <h2>{label} stickers</h2>
       <span class="count">{items.length} items</span>
     </div>
-    <p class="category-intro">{page.intro}</p>
-
     <CategoryPills active={category} />
 
-    <div class="grid">
-      {items.map((entry, i) => <StickerCard entry={entry} eager={i < 6} />)}
+    <div class="grid" data-paged>
+      {items.map((entry, i) => <StickerCard entry={entry} eager={i < 9} hide={i >= 60} />)}
     </div>
+    <GridPager step={60} />
+
+    <p class="category-intro">{page.intro}</p>
 
 
     <article class="prose category-prose">

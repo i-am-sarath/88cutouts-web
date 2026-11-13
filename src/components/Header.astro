@@ -12,7 +12,7 @@ const onSticker = isActive('/stickers') || isActive('/category');
       <span class="spark" aria-hidden="true">✂</span>88cutouts
     </a>
 
-    <div class="search-wrap">
+    <div class="search-wrap" id="header-search">
       <SearchBar />
     </div>
 
@@ -22,5 +22,25 @@ const onSticker = isActive('/stickers') || isActive('/category');
       <a href="/packs/" aria-current={isActive('/packs') ? 'page' : undefined}>Packs</a>
       <a href="/symbols/" aria-current={isActive('/symbols') ? 'page' : undefined}>Symbols</a>
     </nav>
+
+    <button type="button" class="header-tray" data-tray-open aria-haspopup="dialog">
+      Tray <i class="tray-badge" data-tray-count hidden>0</i>
+    </button>
+
+    <button type="button" class="search-toggle" aria-label="Search stickers" aria-expanded="false" aria-controls="header-search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4.5 4.5" /></svg>
+    </button>
   </div>
 </header>
+
+<script>
+  // Phones keep the header to one row: search lives behind the icon.
+  const header = document.querySelector('.site-header');
+  const toggle = header?.querySelector<HTMLButtonElement>('.search-toggle');
+  const input = header?.querySelector<HTMLInputElement>('.search-input');
+  toggle?.addEventListener('click', () => {
+    const open = header!.classList.toggle('search-open');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) input?.focus();
+  });
+</script>

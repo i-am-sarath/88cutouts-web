@@ -47,24 +47,36 @@ const initial = Array.from({ length: Math.min(count, items.length) }, (_, i) => 
   <div class="grid" data-shuffle-grid>
     {
       initial.map((s) => (
-        <a class="card" href={`/stickers/${s.slug}/`}>
-          <div class="checker">
-            <img
-              src={s.t400}
-              srcset={`${s.t200} 200w, ${s.t400} 400w`}
-              sizes="(max-width: 480px) 45vw, 200px"
-              alt={`${s.title} — transparent PNG ${s.type} for Instagram Stories`}
-              width="400"
-              height="400"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-          <div class="card-meta">
-            <div class="card-title">{s.title}</div>
-            <div class="card-sub">{s.category}</div>
-          </div>
-        </a>
+        <div class="card-wrap">
+          <a class="card" href={`/stickers/${s.slug}/`}>
+            <div class="checker">
+              <img
+                src={s.t400}
+                srcset={`${s.t200} 200w, ${s.t400} 400w`}
+                sizes="(max-width: 600px) 30vw, 200px"
+                alt={`${s.title} — transparent PNG ${s.type} for Instagram Stories`}
+                width="400"
+                height="400"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div class="card-meta">
+              <div class="card-title">{s.title}</div>
+              <div class="card-sub">{s.category}</div>
+            </div>
+          </a>
+          <button
+            type="button"
+            class="card-add"
+            data-tray
+            data-slug={s.slug}
+            data-title={s.title}
+            data-thumb={s.t200}
+            aria-pressed="false"
+            aria-label={`Add ${s.title} to your tray`}
+          />
+        </div>
       ))
     }
   </div>
@@ -96,11 +108,12 @@ const initial = Array.from({ length: Math.min(count, items.length) }, (_, i) => 
 
   function cardHtml(s) {
     return `
+      <div class="card-wrap">
       <a class="card" href="/stickers/${encodeURIComponent(s.slug)}/">
         <div class="checker">
           <img src="${escapeHtml(s.t400)}"
                srcset="${escapeHtml(s.t200)} 200w, ${escapeHtml(s.t400)} 400w"
-               sizes="(max-width: 480px) 45vw, 200px"
+               sizes="(max-width: 600px) 30vw, 200px"
                alt="${escapeHtml(s.title)} — transparent PNG ${escapeHtml(s.type)} for Instagram Stories"
                width="400" height="400" loading="lazy" decoding="async" />
         </div>
@@ -108,7 +121,11 @@ const initial = Array.from({ length: Math.min(count, items.length) }, (_, i) => 
           <div class="card-title">${escapeHtml(s.title)}</div>
           <div class="card-sub">${escapeHtml(s.category)}</div>
         </div>
-      </a>`;
+      </a>
+        <button type="button" class="card-add" data-tray data-slug="${escapeHtml(s.slug)}"
+                data-title="${escapeHtml(s.title)}" data-thumb="${escapeHtml(s.t200)}"
+                aria-pressed="false" aria-label="Add ${escapeHtml(s.title)} to your tray"></button>
+      </div>`;
   }
 
   document.querySelectorAll('[data-shuffle]').forEach((row) => {
@@ -132,6 +149,8 @@ const initial = Array.from({ length: Math.min(count, items.length) }, (_, i) => 
 
     const draw = () => {
       grid.innerHTML = pick(pool, count, exclude).map(cardHtml).join('');
+      // New cards need their tray buttons marked.
+      window.dispatchEvent(new CustomEvent('tray:change'));
     };
 
     // Re-draw on load so the row is different on every visit, not only when

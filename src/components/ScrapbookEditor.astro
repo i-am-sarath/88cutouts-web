@@ -1170,12 +1170,12 @@ const data = JSON.stringify({ library, packs, templates: tpls });
     grid.append(frag);
   }
 
-  async function addSticker(src: string, slug?: string) {
+  async function addSticker(src: string, slug?: string, at?: { x: number; y: number; long: number }) {
     if (!(await loadUrl(src))) {
       toast("That sticker didn't load. Try again.");
       return;
     }
-    editor.addArt(src, { long: 0.36 });
+    editor.addArt(src, at ?? { long: 0.36 });
     placed();
     track('scrapbook_sticker', { sticker: slug ?? src });
   }
@@ -1418,9 +1418,25 @@ const data = JSON.stringify({ library, packs, templates: tpls });
     else refresh();
 
     if (add) {
-      const s = data.library.find((x) => x.s === add);
-      if (s) await addSticker(s.src, s.s);
-      openTab('stickers');
+      // One slug from a sticker page, or the whole tray as a,b,c.
+      const slugs = [...new Set(add.split(',').filter(Boolean))].slice(0, 24);
+      const found = slugs.map((slug) => data.library.find((x) => x.s === slug)).filter((x) => !!x);
+      // A tray lands spread across the page, not piled in the middle.
+      const cols = Math.min(4, Math.ceil(Math.sqrt(found.length)));
+      const rows = Math.ceil(found.length / cols);
+      const { w: W, h: H } = editor.size;
+      for (const [i, s] of found.entries()) {
+        const at =
+          found.length > 1
+            ? {
+                x: W * (0.1 + (0.8 * ((i % cols) + 0.5)) / cols),
+                y: H * (0.14 + (0.72 * (Math.floor(i / cols) + 0.5)) / rows),
+                long: Math.min(0.3, 0.66 / cols),
+              }
+            : undefined;
+        await addSticker(s!.src, s!.s, at);
+      }
+      openTab(slugs.length > 1 ? 'photos' : 'stickers');
     } else if (pack) openTab('stickers');
     else if (params.get('tool') === 'text') openTab('text');
     else if (tpl) openTab('photos');

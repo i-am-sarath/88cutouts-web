@@ -17,6 +17,11 @@ interface Props {
    * laying one over a photo in a Story.
    */
   opacity?: boolean;
+  /**
+   * Sticker pages pass these to get the Share and tray buttons beside
+   * Copy/Download.
+   */
+  sticker?: { slug: string; title: string; thumb: string };
 }
 
 const {
@@ -25,6 +30,7 @@ const {
   downloadOriginal = false,
   hint,
   opacity = false,
+  sticker,
 } = Astro.props;
 ---
 
@@ -33,23 +39,21 @@ const {
     opacity && (
       <div class="opacity-ctl">
         <div class="opacity-head">
-          <span class="opacity-title">Opacity</span>
-          <span class="opacity-val">100%</span>
-        </div>
-
-        <div class="opacity-presets" role="group" aria-label="Opacity presets">
-          <button type="button" class="chip" data-op="100" aria-pressed="true">
-            Solid
-          </button>
-          <button type="button" class="chip" data-op="70" aria-pressed="false">
-            Soft
-          </button>
-          <button type="button" class="chip" data-op="45" aria-pressed="false">
-            Faded
-          </button>
-          <button type="button" class="chip" data-op="20" aria-pressed="false">
-            Ghost
-          </button>
+          <div class="opacity-presets" role="group" aria-label="Opacity presets">
+            <button type="button" class="chip" data-op="100" aria-pressed="true">
+              Solid
+            </button>
+            <button type="button" class="chip" data-op="70" aria-pressed="false">
+              Soft
+            </button>
+            <button type="button" class="chip" data-op="45" aria-pressed="false">
+              Faded
+            </button>
+            <button type="button" class="chip" data-op="20" aria-pressed="false">
+              Ghost
+            </button>
+          </div>
+          <span class="opacity-val" title="Opacity">100%</span>
         </div>
 
         <input
@@ -61,23 +65,40 @@ const {
           value="100"
           aria-label="Sticker opacity percentage"
         />
-
-        <p class="opacity-note">
-          Drag it down for a see-through sticker that sits over a photo without hiding it.
-          <strong>Copy</strong> and <strong>Download</strong> both use whatever you set here.
-        </p>
       </div>
     )
   }
 
   <div
-    class="action-row"
+    class:list={['action-row', sticker && 'is-sticker']}
     data-src={imageSrc}
+    data-title={sticker?.title}
     data-filename={filename}
     data-download-original={downloadOriginal ? 'true' : undefined}
   >
     <button class="btn-copy" type="button">Copy</button>
     <button class="btn-download" type="button">Download</button>
+    {
+      sticker && (
+        <>
+          <button class="btn-icon btn-share" type="button" aria-label={`Share ${sticker.title}`}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.6" /><circle cx="6" cy="12" r="2.6" /><circle cx="18" cy="19" r="2.6" /><path d="M8.3 10.7l7.4-4.3M8.3 13.3l7.4 4.3" /></svg>
+          </button>
+          <button
+            class="btn-icon"
+            type="button"
+            data-tray
+            data-slug={sticker.slug}
+            data-title={sticker.title}
+            data-thumb={sticker.thumb}
+            aria-pressed="false"
+            aria-label={`Add ${sticker.title} to your tray`}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13l2.5-8h13L21 13v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M3 13h5a4 4 0 0 0 8 0h5" /></svg>
+          </button>
+        </>
+      )
+    }
   </div>
   <p class="copy-hint">
     {
@@ -191,6 +212,39 @@ const {
   }
 
   /**
+   * Hands the PNG itself to the phone's share sheet (WhatsApp, Instagram,
+   * Messages…) where the browser can share files; otherwise shares or copies
+   * the page link.
+   */
+  async function shareImage(src, filename, title, alpha) {
+    const slug = filename.replace(/\.\w+$/, '');
+    const url = location.href;
+    try {
+      if (navigator.canShare) {
+        const blob = await toPngBlob(src, alpha);
+        const file = new File([blob], filename, { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title });
+          track('sticker_share', { sticker: slug, method: 'file' });
+          return;
+        }
+      }
+      if (navigator.share) {
+        await navigator.share({ title, url });
+        track('sticker_share', { sticker: slug, method: 'link' });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      showToast('Link copied. Paste it anywhere to share.');
+      track('sticker_share', { sticker: slug, method: 'clipboard' });
+    } catch (err) {
+      // Closing the share sheet is not a failure.
+      if (err && err.name === 'AbortError') return;
+      showToast("Sharing isn't available here. Try Download.");
+    }
+  }
+
+  /**
    * Wires the opacity control to its live preview and hands back a getter, so
    * the copy/download handlers always read the current value rather than one
    * captured at setup.
@@ -243,5 +297,10 @@ const {
     row
       .querySelector('.btn-download')
       ?.addEventListener('click', () => downloadImage(src, filename, original, alpha()));
+    row
+      .querySelector('.btn-share')
+      ?.addEventListener('click', () =>
+        shareImage(src, filename, row.getAttribute('data-title') || 'Sticker', alpha())
+      );
   });
 </script>

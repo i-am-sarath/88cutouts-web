@@ -99,6 +99,10 @@ const jsonld = [
     </p>
 
     <article class="sticker-page">
+      <header class="sticker-head">
+        <h1>{title}</h1>
+      </header>
+
       <div class="preview-frame">
         <img
           src={heroThumb}
@@ -111,32 +115,58 @@ const jsonld = [
         />
       </div>
 
-      <div>
-        <h1>{title}</h1>
+      <div class="sticker-body">
+        <CopyDownloadButtons
+          imageSrc={image}
+          filename={`${entry.slug}.png`}
+          opacity={true}
+          sticker={{ slug: entry.slug, title, thumb: stickerThumb(image, 200) }}
+        />
+        <a class="add-to-scrapbook" href={`/scrapbook/?add=${entry.slug}`}>
+          <span aria-hidden="true">✂</span> Put it on a scrapbook page with your photos →
+        </a>
         <div class="meta">
           <a class="tag is-category" href={`/category/${category}/`}>{category}</a>
           {tags.map((t) => <span class="tag">{t}</span>)}
         </div>
-        <CopyDownloadButtons imageSrc={image} filename={`${entry.slug}.png`} opacity={true} />
-        <a class="add-to-scrapbook" href={`/scrapbook/?add=${entry.slug}`}>
-          <span aria-hidden="true">✂</span> Add to a scrapbook page with your photos →
-        </a>
-        <div class="sticker-desc">
-          <Content />
-        </div>
-
-        <dl class="spec-list">
-          {
-            specRows.map((row) => (
-              <div class="spec-row">
-                <dt>{row.k}</dt>
-                <dd>{row.v}</dd>
-              </div>
-            ))
-          }
-        </dl>
       </div>
     </article>
+
+    {
+      related.length > 0 && (
+        <>
+          <div class="section-head">
+            <h2>More like this</h2>
+            <a class="count" href={`/category/${category}/`}>
+              All {category} →
+            </a>
+          </div>
+          <div class="grid">
+            {related.map((r) => (
+              <StickerCard entry={r} />
+            ))}
+          </div>
+        </>
+      )
+    }
+
+    <section class="sticker-about">
+      <h2>About this {type}</h2>
+      <div class="sticker-desc">
+        <Content />
+      </div>
+
+      <dl class="spec-list">
+        {
+          specRows.map((row) => (
+            <div class="spec-row">
+              <dt>{row.k}</dt>
+              <dd>{row.v}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
 
     <article class="prose sticker-prose">
       <h2>Check the edges before you use it</h2>
@@ -178,25 +208,6 @@ const jsonld = [
 
       <p>Need help saving or pasting? <a href="/help/">Download and clipboard help</a> covers the available alternatives.</p>
     </article>
-
-
-    {
-      related.length > 0 && (
-        <>
-          <div class="section-head">
-            <h2>More {category} stickers</h2>
-            <a class="count" href={`/category/${category}/`}>
-              See all →
-            </a>
-          </div>
-          <div class="grid">
-            {related.map((r) => (
-              <StickerCard entry={r} />
-            ))}
-          </div>
-        </>
-      )
-    }
 
     <StickerShuffle pool={elsewhere} count={6} id="sticker" heading="Try one of these next" />
   </div>

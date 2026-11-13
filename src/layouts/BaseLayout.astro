@@ -2,6 +2,7 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Toast from '../components/Toast.astro';
+import TabBar from '../components/TabBar.astro';
 import PrivacyChoices from '../components/PrivacyChoices.astro';
 import '../styles/global.css';
 
@@ -61,18 +62,18 @@ const GSC_TOKEN =
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
-    <meta name="theme-color" content="#FFFCF8" />
+    <meta name="theme-color" content="#FFFEFA" />
 
     <link
       rel="preload"
-      href="/fonts/quicksand-var-latin.woff2"
+      href="/fonts/figtree-var-latin.woff2"
       as="font"
       type="font/woff2"
       crossorigin
     />
     <link
       rel="preload"
-      href="/fonts/gaegu-700-latin.woff2"
+      href="/fonts/fraunces-var-latin.woff2"
       as="font"
       type="font/woff2"
       crossorigin
@@ -96,6 +97,7 @@ const GSC_TOKEN =
     </main>
     <Footer />
     <Toast />
+    <TabBar />
     <PrivacyChoices analyticsId={GA_ID} />
     <script is:inline>
       // Mediavine pins a sticky footer ("adhesion") ad to the bottom of the screen. Track
@@ -104,7 +106,7 @@ const GSC_TOKEN =
       (() => {
         const root = document.documentElement;
         const named = '[id*="adhesion" i],[class*="adhesion" i],[id^="mv-sticky" i]';
-        const own = '#global-toast,#privacy-choices,.symbol-status';
+        const own = '#global-toast,#privacy-choices,.symbol-status,.tabbar,.to-top,dialog';
         let current = -1;
         const pinned = (el) => {
           if (el.matches(own)) return 0;

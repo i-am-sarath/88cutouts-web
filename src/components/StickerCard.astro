@@ -6,9 +6,11 @@ interface Props {
   entry: CollectionEntry<'stickers'>;
   /** The first row of a gallery loads eagerly; everything else lazily. */
   eager?: boolean;
+  /** Rendered but not shown until GridPager reveals it (long galleries). */
+  hide?: boolean;
 }
 
-const { entry, eager = false } = Astro.props;
+const { entry, eager = false, hide = false } = Astro.props;
 const { title, image, category, type } = entry.data;
 
 // Display uses the generated square WebP thumbnails; the full PNG in `image`
@@ -16,21 +18,33 @@ const { title, image, category, type } = entry.data;
 const thumb = (size: number) => stickerThumb(image, size);
 ---
 
-<a class="card" href={`/stickers/${entry.slug}/`}>
-  <div class="checker">
-    <img
-      src={thumb(400)}
-      srcset={`${thumb(200)} 200w, ${thumb(400)} 400w`}
-      sizes="(max-width: 480px) 45vw, 200px"
-      alt={`${title} — transparent PNG ${type} for Instagram Stories`}
-      width="400"
-      height="400"
-      loading={eager ? 'eager' : 'lazy'}
-      decoding="async"
-    />
-  </div>
-  <div class="card-meta">
-    <div class="card-title">{title}</div>
-    <div class="card-sub">{category}</div>
-  </div>
-</a>
+<div class="card-wrap" hidden={hide || undefined}>
+  <a class="card" href={`/stickers/${entry.slug}/`}>
+    <div class="checker">
+      <img
+        src={thumb(400)}
+        srcset={`${thumb(200)} 200w, ${thumb(400)} 400w`}
+        sizes="(max-width: 600px) 30vw, 200px"
+        alt={`${title} — transparent PNG ${type} for Instagram Stories`}
+        width="400"
+        height="400"
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+    </div>
+    <div class="card-meta">
+      <div class="card-title">{title}</div>
+      <div class="card-sub">{category}</div>
+    </div>
+  </a>
+  <button
+    type="button"
+    class="card-add"
+    data-tray
+    data-slug={entry.slug}
+    data-title={title}
+    data-thumb={thumb(200)}
+    aria-pressed="false"
+    aria-label={`Add ${title} to your tray`}
+  ></button>
+</div>

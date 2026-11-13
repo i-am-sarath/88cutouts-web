@@ -3,6 +3,7 @@ import { getStickers } from '../../lib/stickers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CategoryPills from '../../components/CategoryPills.astro';
 import StickerCard from '../../components/StickerCard.astro';
+import GridPager from '../../components/GridPager.astro';
 
 const all = await getStickers();
 const stickers = [...all].sort((a, b) => {
@@ -44,21 +45,21 @@ const jsonld = [
       <h1 class="tool-title">All stickers &amp; frames</h1>
       <span class="count">{stickers.length} items</span>
     </div>
-    <p class="lede">
-      {stickers.length - frames} stickers and {frames} {frames === 1 ? 'frame' : 'frames'}, all transparent PNGs, featured
-      ones first and then newest. Open one to copy it into a Story at the opacity you want, or
-      add it straight to a <a href="/scrapbook/">scrapbook page</a>.
-    </p>
-
     <CategoryPills active="all" />
 
-    <div class="grid">
-      {stickers.map((entry, i) => <StickerCard entry={entry} eager={i < 6} />)}
+    <div class="grid" data-paged>
+      {stickers.map((entry, i) => <StickerCard entry={entry} eager={i < 9} hide={i >= 60} />)}
     </div>
-
+    <GridPager step={60} />
 
     <article class="prose">
       <h2>Using them</h2>
+      <p>
+        {stickers.length - frames} stickers and {frames} {frames === 1 ? 'frame' : 'frames'}, all transparent PNGs, featured
+        ones first and then newest. Tap <strong>+</strong> on any of them to collect it in your
+        tray, then open the tray to put the whole lot on a
+        <a href="/scrapbook/">scrapbook page</a> with your photos.
+      </p>
       <p>
         Each sticker page has Copy and Download buttons and an opacity control. Copy puts the
         PNG on your clipboard; in an Instagram Story, tap the screen and long-press to paste it
