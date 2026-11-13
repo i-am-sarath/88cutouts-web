@@ -256,8 +256,18 @@ has been replaced by the real sticker and letter sets.
 
 ## Notes on a few implementation choices
 
-- **Fonts are self-hosted** (`public/fonts/`, latin subsets, Quicksand as a variable
-  file). Loading them from `fonts.googleapis.com` was render-blocking and cost ~2.2s of
+- **Look and positioning.** The palette is print-shop scrapbook: warm paper, blue-black
+  ink, a riso tangerine (`--accent`) and a ballpoint cobalt (`--blue`, used for the tray and
+  anything "selected"). Headlines are Fraunces, text is Figtree. What sets the site apart
+  from a sticker clipboard is the **tray**: `+` on any sticker collects it
+  (`src/lib/tray.ts`, localStorage, no account), and the tray's main button opens the
+  scrapbook maker with all of them on the page (`/scrapbook/?add=a,b,c`). The home page
+  leads with that.
+- **Phone layout.** One-row header with search behind an icon, page links in a bottom tab
+  bar (`TabBar.astro`), sticker grids three across and picture-only, long grids revealed
+  60 at a time (`GridPager.astro`), and Copy within the first screen of a sticker page.
+- **Fonts are self-hosted** (`public/fonts/`, latin subsets, variable files; Quicksand,
+  Gaegu and Dancing Script remain because the scrapbook canvas draws with them). Loading them from `fonts.googleapis.com` was render-blocking and cost ~2.2s of
   FCP under mobile throttling — that alone was the difference between Lighthouse
   Performance 84 and 100. `@font-face` rules live at the top of `global.css`; the two
   latin files are `<link rel="preload">`ed in `BaseLayout.astro`.
